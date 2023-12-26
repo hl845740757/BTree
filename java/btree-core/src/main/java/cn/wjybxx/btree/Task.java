@@ -38,6 +38,7 @@ import java.util.stream.Stream;
  * @author wjybxx
  * date - 2023/11/25
  */
+@SuppressWarnings("unused")
 public abstract class Task<E> {
 
     public static final Logger logger = LoggerFactory.getLogger(Task.class);
@@ -60,13 +61,13 @@ public abstract class Task<E> {
     private static final int MASK_LOCK4 = 1 << 23;
     private static final int MASK_LOCK_ALL = MASK_LOCK1 | MASK_LOCK2 | MASK_LOCK3 | MASK_LOCK4;
 
-    // 高8位为控制流程相关bit，对外开放
-    public static final int MASK_DISABLE_ENTER_EXECUTE = 1 << 24;
-    public static final int MASK_DISABLE_DELAY_NOTIFY = 1 << 25;
-    public static final int MASK_DISABLE_AUTO_CHECK_CANCEL = 1 << 26;
-    public static final int MASK_AUTO_LISTEN_CANCEL = 1 << 27;
-    public static final int MASK_AUTO_RESET_CHILDREN = 1 << 28;
-    public static final int MASK_CONTROL_FLOW_FLAGS = 0xFF00_0000;
+    // 高8位为控制流程相关bit -- 用户通过枚举获取
+    private static final int MASK_DISABLE_ENTER_EXECUTE = 1 << 24;
+    private static final int MASK_DISABLE_DELAY_NOTIFY = 1 << 25;
+    private static final int MASK_DISABLE_AUTO_CHECK_CANCEL = 1 << 26;
+    private static final int MASK_AUTO_LISTEN_CANCEL = 1 << 27;
+    private static final int MASK_AUTO_RESET_CHILDREN = 1 << 28;
+    private static final int MASK_CONTROL_FLOW_FLAGS = 0xFF00_0000;
 
     /** 任务树的入口(缓存以避免递归查找) */
     transient TaskEntry<E> taskEntry;
@@ -632,7 +633,7 @@ public abstract class Task<E> {
      * 告知模板方法否将{@link #enter(int)}和{@link #execute()}方法分开执行，
      * 1.默认值由{@link #flags}中的信息指定，默认不禁用
      * 2.要覆盖默认值应当在{@link #beforeEnter()}方法中调用
-     * 3.该属性运行期间不应该调整
+     * 3.该属性运行期间不应该调整，调整也无效
      */
     public final void setDisableEnterExecute(boolean disable) {
         setCtlBit(MASK_DISABLE_ENTER_EXECUTE, disable);
@@ -646,7 +647,7 @@ public abstract class Task<E> {
      * 告知模板方法是否在{@link #enter(int)}前自动调用{@link #resetChildrenForRestart()}
      * 1.默认值由{@link #flags}中的信息指定，默认不启用
      * 2.要覆盖默认值应当在{@link #beforeEnter()}方法中调用
-     * 3.部分任务可能在调用{@link #resetForRestart()}之前不会再次运行
+     * 3.部分任务可能在调用{@link #resetForRestart()}之前不会再次运行，因此需要该特性
      */
     public final void setAutoResetChildren(boolean enable) {
         setCtlBit(MASK_AUTO_RESET_CHILDREN, enable);
