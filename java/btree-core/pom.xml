@@ -14,7 +14,21 @@
     <description>通用任务树--行为树的非典型实现</description>
     <url>https://github.com/hl845740757/BTree</url>
 
-    <properties>
-        <maven.deploy.skip>false</maven.deploy.skip>
-    </properties>
+    <!-- 启用发布 -->
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <configuration>
+                            <skip>false</skip>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
