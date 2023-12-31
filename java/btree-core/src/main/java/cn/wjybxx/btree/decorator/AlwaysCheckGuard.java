@@ -25,12 +25,12 @@ import cn.wjybxx.btree.Task;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class AlwaysCheckGuard<E> extends Decorator<E> {
+public class AlwaysCheckGuard<T> extends Decorator<T> {
 
     public AlwaysCheckGuard() {
     }
 
-    public AlwaysCheckGuard(Task<E> child) {
+    public AlwaysCheckGuard(Task<T> child) {
         super(child);
     }
 
@@ -45,7 +45,7 @@ public class AlwaysCheckGuard<E> extends Decorator<E> {
     }
 
     @Override
-    protected void onChildCompleted(Task<E> child) {
+    protected void onChildCompleted(Task<T> child) {
         setCompleted(child.getStatus(), true);
     }
 }

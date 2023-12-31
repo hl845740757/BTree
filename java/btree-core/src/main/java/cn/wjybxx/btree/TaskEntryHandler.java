@@ -21,8 +21,8 @@ package cn.wjybxx.btree;
  * @author wjybxx
  * date - 2023/12/2
  */
-public interface TaskEntryHandler<E> {
+public interface TaskEntryHandler<T> {
 
-    void onEntryCompleted(TaskEntry<E> taskEntry);
+    void onEntryCompleted(TaskEntry<T> taskEntry);
 
 }

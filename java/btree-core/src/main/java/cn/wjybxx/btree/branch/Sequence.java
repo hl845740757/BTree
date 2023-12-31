@@ -24,21 +24,21 @@ import java.util.List;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class Sequence<E> extends SingleRunningChildBranch<E> {
+public class Sequence<T> extends SingleRunningChildBranch<T> {
 
     public Sequence() {
     }
 
-    public Sequence(List<Task<E>> children) {
+    public Sequence(List<Task<T>> children) {
         super(children);
     }
 
-    public Sequence(Task<E> first, @Nullable Task<E> second) {
+    public Sequence(Task<T> first, @Nullable Task<T> second) {
         super(first, second);
     }
 
     @Override
-    protected void onChildCompleted(Task<E> child) {
+    protected void onChildCompleted(Task<T> child) {
         runningChild = null;
         if (child.isCancelled()) {
             setCancelled();

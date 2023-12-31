@@ -29,9 +29,9 @@ import java.util.List;
  * @author wjybxx
  * date - 2023/12/2
  */
-public class Join<E> extends Parallel<E> {
+public class Join<T> extends Parallel<T> {
 
-    protected JoinPolicy<E> policy;
+    protected JoinPolicy<T> policy;
 
     /** 子节点的重入id -- 判断本轮是否需要执行 */
     protected transient int[] childPrevReentryIds;
@@ -67,12 +67,12 @@ public class Join<E> extends Parallel<E> {
     }
 
     private void recordContext() {
-        List<Task<E>> children = this.children;
+        List<Task<T>> children = this.children;
         if (childPrevReentryIds == null || childPrevReentryIds.length != children.size()) {
             childPrevReentryIds = new int[children.size()];
         }
         for (int i = 0; i < children.size(); i++) {
-            Task<E> child = children.get(i);
+            Task<T> child = children.get(i);
             child.setCancelToken(cancelToken.newChild()); // child默认可读取取消
             childPrevReentryIds[i] = child.getReentryId();
         }
@@ -80,14 +80,14 @@ public class Join<E> extends Parallel<E> {
 
     @Override
     protected void execute() {
-        final List<Task<E>> children = this.children;
+        final List<Task<T>> children = this.children;
         if (children.isEmpty()) {
             return;
         }
         final int[] childPrevReentryIds = this.childPrevReentryIds;
         final int reentryId = getReentryId();
         for (int i = 0; i < children.size(); i++) {
-            final Task<E> child = children.get(i);
+            final Task<T> child = children.get(i);
             final boolean started = child.isExited(childPrevReentryIds[i]);
             if (started && child.isCompleted()) { // 勿轻易调整
                 continue;
@@ -103,7 +103,7 @@ public class Join<E> extends Parallel<E> {
     }
 
     @Override
-    protected void onChildCompleted(Task<E> child) {
+    protected void onChildCompleted(Task<T> child) {
         completedCount++;
         if (child.isSucceeded()) {
             succeededCount++;
@@ -139,11 +139,11 @@ public class Join<E> extends Parallel<E> {
     }
     // endregion
 
-    public JoinPolicy<E> getPolicy() {
+    public JoinPolicy<T> getPolicy() {
         return policy;
     }
 
-    public void setPolicy(JoinPolicy<E> policy) {
+    public void setPolicy(JoinPolicy<T> policy) {
         this.policy = policy;
     }
 

@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class Running<E> extends LeafTask<E> {
+public class Running<T> extends LeafTask<T> {
 
     @Override
     protected void execute() {

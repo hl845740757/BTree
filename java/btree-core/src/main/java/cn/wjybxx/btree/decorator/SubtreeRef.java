@@ -24,7 +24,7 @@ import cn.wjybxx.btree.Task;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class SubtreeRef<E> extends Decorator<E> {
+public class SubtreeRef<T> extends Decorator<T> {
 
     private String treeName;
 
@@ -38,7 +38,7 @@ public class SubtreeRef<E> extends Decorator<E> {
     @Override
     protected void enter(int reentryId) {
         if (child == null) {
-            Task<E> rootTask = getTaskEntry().getTreeLoader().loadRootTask(treeName);
+            Task<T> rootTask = getTaskEntry().getTreeLoader().loadRootTask(treeName);
             addChild(rootTask);
         }
     }
@@ -49,7 +49,7 @@ public class SubtreeRef<E> extends Decorator<E> {
     }
 
     @Override
-    protected void onChildCompleted(Task<E> child) {
+    protected void onChildCompleted(Task<T> child) {
         setCompleted(child.getStatus(), true);
     }
 

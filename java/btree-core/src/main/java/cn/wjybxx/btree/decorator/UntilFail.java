@@ -24,13 +24,13 @@ import cn.wjybxx.btree.Task;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class UntilFail<E> extends LoopDecorator<E> {
+public class UntilFail<T> extends LoopDecorator<T> {
 
     public UntilFail() {
     }
 
     @Override
-    protected void onChildCompleted(Task<E> child) {
+    protected void onChildCompleted(Task<T> child) {
         if (child.isCancelled()) {
             setCancelled();
             return;

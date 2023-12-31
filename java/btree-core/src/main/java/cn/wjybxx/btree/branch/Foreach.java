@@ -26,21 +26,21 @@ import java.util.List;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class Foreach<E> extends SingleRunningChildBranch<E> {
+public class Foreach<T> extends SingleRunningChildBranch<T> {
 
     public Foreach() {
     }
 
-    public Foreach(List<Task<E>> children) {
+    public Foreach(List<Task<T>> children) {
         super(children);
     }
 
-    public Foreach(Task<E> first, @Nullable Task<E> second) {
+    public Foreach(Task<T> first, @Nullable Task<T> second) {
         super(first, second);
     }
 
     @Override
-    protected void onChildCompleted(Task<E> child) {
+    protected void onChildCompleted(Task<T> child) {
         runningChild = null;
         if (child.isCancelled()) {
             setCancelled();

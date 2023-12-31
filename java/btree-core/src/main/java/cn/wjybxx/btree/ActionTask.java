@@ -22,7 +22,7 @@ package cn.wjybxx.btree;
  * @author wjybxx
  * date - 2023/11/25
  */
-public abstract class ActionTask<E> extends LeafTask<E> {
+public abstract class ActionTask<T> extends LeafTask<T> {
 
     @Override
     protected final void execute() {

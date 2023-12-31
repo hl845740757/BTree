@@ -25,7 +25,7 @@ import javax.annotation.Nonnull;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class WaitFrame<E> extends LeafTask<E> {
+public class WaitFrame<T> extends LeafTask<T> {
 
     private int required = 1;
 

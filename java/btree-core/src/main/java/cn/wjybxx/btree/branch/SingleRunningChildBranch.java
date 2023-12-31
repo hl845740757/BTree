@@ -30,21 +30,21 @@ import java.util.List;
  * @author wjybxx
  * date - 2023/11/26
  */
-public abstract class SingleRunningChildBranch<E> extends BranchTask<E> {
+public abstract class SingleRunningChildBranch<T> extends BranchTask<T> {
 
     /** 运行中的子节点 */
-    protected transient Task<E> runningChild = null;
+    protected transient Task<T> runningChild = null;
     /** 运行中的子节点索引 */
     protected transient int runningIndex = -1;
 
     public SingleRunningChildBranch() {
     }
 
-    public SingleRunningChildBranch(List<Task<E>> children) {
+    public SingleRunningChildBranch(List<Task<T>> children) {
         super(children);
     }
 
-    public SingleRunningChildBranch(Task<E> first, @Nullable Task<E> second) {
+    public SingleRunningChildBranch(Task<T> first, @Nullable Task<T> second) {
         super(first, second);
     }
 
@@ -102,7 +102,7 @@ public abstract class SingleRunningChildBranch<E> extends BranchTask<E> {
     @Override
     protected void execute() {
         final int reentryId = getReentryId();
-        Task<E> runningChild = this.runningChild;
+        Task<T> runningChild = this.runningChild;
         for (int i = 0, retryCount = children.size(); i < retryCount; i++) { // 避免死循环
             if (runningChild == null) {
                 this.runningChild = runningChild = nextChild();
@@ -119,7 +119,7 @@ public abstract class SingleRunningChildBranch<E> extends BranchTask<E> {
         throw new IllegalStateException(illegalStateMsg());
     }
 
-    protected Task<E> nextChild() {
+    protected Task<T> nextChild() {
         // 避免状态错误的情况下修改了index
         int nextIndex = runningIndex + 1;
         if (nextIndex < children.size()) {
@@ -134,7 +134,7 @@ public abstract class SingleRunningChildBranch<E> extends BranchTask<E> {
     }
 
     @Override
-    protected void onChildRunning(Task<E> child) {
+    protected void onChildRunning(Task<T> child) {
         runningChild = child; // 部分实现可能未在选择child之后就赋值
     }
 
@@ -155,7 +155,7 @@ public abstract class SingleRunningChildBranch<E> extends BranchTask<E> {
      * }</pre>
      */
     @Override
-    protected void onChildCompleted(Task<E> child) {
+    protected void onChildCompleted(Task<T> child) {
         assert child == runningChild;
         runningChild = null; // 子类可直接重写此句以不调用super
     }

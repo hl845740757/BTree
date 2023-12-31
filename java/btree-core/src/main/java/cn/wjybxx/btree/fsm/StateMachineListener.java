@@ -22,7 +22,7 @@ import cn.wjybxx.btree.Task;
  * date - 2023/12/3
  */
 @FunctionalInterface
-public interface StateMachineListener<E> {
+public interface StateMachineListener<T> {
 
     /**
      * 1.两个参数最多一个为null
@@ -35,6 +35,6 @@ public interface StateMachineListener<E> {
      * @param curState         当前状态
      * @param nextState        下一个状态
      */
-    void beforeChangeState(StateMachineTask<E> stateMachineTask, Task<E> curState, Task<E> nextState);
+    void beforeChangeState(StateMachineTask<T> stateMachineTask, Task<T> curState, Task<T> nextState);
 
 }

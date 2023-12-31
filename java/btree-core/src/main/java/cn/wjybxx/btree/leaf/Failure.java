@@ -24,13 +24,13 @@ import javax.annotation.Nonnull;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class Failure<E> extends LeafTask<E> {
+public class Failure<T> extends LeafTask<T> {
 
     private int failureStatus;
 
     @Override
     protected void execute() {
-        setFailed(Status.ToFailure(failureStatus));
+        setFailed(Status.toFailure(failureStatus));
     }
 
     @Override

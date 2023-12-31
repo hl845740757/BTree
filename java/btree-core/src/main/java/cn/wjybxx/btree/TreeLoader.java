@@ -67,17 +67,17 @@ public interface TreeLoader {
      */
     @Nullable
     @SuppressWarnings("unchecked")
-    default <E> Task<E> tryLoadRootTask(String treeName) {
+    default <T> Task<T> tryLoadRootTask(String treeName) {
         Object object = tryLoadObject(treeName);
         if (object == null) return null;
         if (!(object instanceof Task<?>)) {
             throw new IllegalArgumentException("target object is not a task, name: " + treeName);
         }
-        return (Task<E>) object;
+        return (Task<T>) object;
     }
 
     @SuppressWarnings("unchecked")
-    default <E> Task<E> loadRootTask(String treeName) {
+    default <T> Task<T> loadRootTask(String treeName) {
         Object object = tryLoadObject(treeName);
         if (object == null) {
             throw new IllegalArgumentException("target tree is absent, name: " + treeName);
@@ -85,11 +85,11 @@ public interface TreeLoader {
         if (!(object instanceof Task<?>)) {
             throw new IllegalArgumentException("target object is not a task, name: " + treeName);
         }
-        return (Task<E>) object;
+        return (Task<T>) object;
     }
 
-    default <E> TaskEntry<E> loadTree(String treeName) {
-        final Task<E> rootTask = loadRootTask(treeName);
+    default <T> TaskEntry<T> loadTree(String treeName) {
+        final Task<T> rootTask = loadRootTask(treeName);
         return new TaskEntry<>(treeName, rootTask, null, null, this);
     }
 

@@ -27,13 +27,13 @@ import cn.wjybxx.btree.branch.Selector;
  * @author wjybxx
  * date - 2023/12/2
  */
-public class JoinSelector<E> implements JoinPolicy<E> {
+public class JoinSelector<T> implements JoinPolicy<T> {
 
     private static final JoinSelector<?> INSTANCE = new JoinSelector<>();
 
     @SuppressWarnings("unchecked")
-    public static <E> JoinSelector<E> getInstance() {
-        return (JoinSelector<E>) INSTANCE;
+    public static <T> JoinSelector<T> getInstance() {
+        return (JoinSelector<T>) INSTANCE;
     }
 
     @Override
@@ -42,19 +42,19 @@ public class JoinSelector<E> implements JoinPolicy<E> {
     }
 
     @Override
-    public void beforeEnter(Join<E> join) {
+    public void beforeEnter(Join<T> join) {
 
     }
 
     @Override
-    public void enter(Join<E> join) {
+    public void enter(Join<T> join) {
         if (join.getChildCount() == 0) {
             join.setFailed(Status.CHILDLESS);
         }
     }
 
     @Override
-    public void onChildCompleted(Join<E> join, Task<E> child) {
+    public void onChildCompleted(Join<T> join, Task<T> child) {
         if (child.isSucceeded()) {
             join.setSuccess();
         } else if (join.isAllChildCompleted()) {
@@ -63,7 +63,7 @@ public class JoinSelector<E> implements JoinPolicy<E> {
     }
 
     @Override
-    public void onEvent(Join<E> join, Object event) {
+    public void onEvent(Join<T> join, Object event) {
 
     }
 }

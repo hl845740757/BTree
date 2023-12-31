@@ -34,12 +34,12 @@ import java.util.stream.Stream;
  * 1.心跳为主，事件为辅。
  * 2.心跳不是事件！心跳自顶向下驱动，事件则无规律。
  *
- * @param <E> 黑板的类型
+ * @param <T> 黑板的类型
  * @author wjybxx
  * date - 2023/11/25
  */
 @SuppressWarnings("unused")
-public abstract class Task<E> {
+public abstract class Task<T> {
 
     public static final Logger logger = LoggerFactory.getLogger(Task.class);
 
@@ -61,25 +61,25 @@ public abstract class Task<E> {
     private static final int MASK_LOCK4 = 1 << 23;
     private static final int MASK_LOCK_ALL = MASK_LOCK1 | MASK_LOCK2 | MASK_LOCK3 | MASK_LOCK4;
 
-    // 高8位为控制流程相关bit -- 用户通过枚举获取
-    private static final int MASK_DISABLE_ENTER_EXECUTE = 1 << 24;
-    private static final int MASK_DISABLE_DELAY_NOTIFY = 1 << 25;
-    private static final int MASK_DISABLE_AUTO_CHECK_CANCEL = 1 << 26;
-    private static final int MASK_AUTO_LISTEN_CANCEL = 1 << 27;
-    private static final int MASK_AUTO_RESET_CHILDREN = 1 << 28;
-    private static final int MASK_CONTROL_FLOW_FLAGS = 0xFF00_0000;
+    // 高8位为控制流程相关bit（对外开放）
+    public static final int MASK_DISABLE_ENTER_EXECUTE = 1 << 24;
+    public static final int MASK_DISABLE_DELAY_NOTIFY = 1 << 25;
+    public static final int MASK_DISABLE_AUTO_CHECK_CANCEL = 1 << 26;
+    public static final int MASK_AUTO_LISTEN_CANCEL = 1 << 27;
+    public static final int MASK_AUTO_RESET_CHILDREN = 1 << 28;
+    public static final int MASK_CONTROL_FLOW_FLAGS = 0xFF00_0000;
 
     /** 任务树的入口(缓存以避免递归查找) */
-    transient TaskEntry<E> taskEntry;
+    transient TaskEntry<T> taskEntry;
     /** 任务的控制节点，通常是Task的Parent节点 */
-    transient Task<E> control;
+    transient Task<T> control;
     /**
      * 任务运行时依赖的黑板（主要上下文）
      * 1.每个任务可有独立的黑板（数据）；
      * 2.运行时不能为null；
      * 3.如果是自动继承的，exit后自动删除；如果是Control赋值的，则由control删除。
      */
-    protected transient E blackboard;
+    protected transient T blackboard;
     /**
      * 取消令牌（取消上下文）
      * 1.每个任务可有独立的取消信号；
@@ -123,7 +123,7 @@ public abstract class Task<E> {
      * 但由于Task只能有一个Control，因此将前置条件存储在Task可避免额外的映射，从而可提高查询性能和易用性；
      * 另外，将前置条件存储在Task上，可以让行为树的结构更加清晰。
      */
-    private Task<E> guard;
+    private Task<T> guard;
     /**
      * 任务的自定义标识
      * 1.对任务进行标记是一个常见的需求，我们将其定义在顶层以简化使用
@@ -134,19 +134,19 @@ public abstract class Task<E> {
 
     // region 简单查询
 
-    public final TaskEntry<E> getTaskEntry() {
+    public final TaskEntry<T> getTaskEntry() {
         return taskEntry;
     }
 
-    public final Task<E> getControl() {
+    public final Task<T> getControl() {
         return control;
     }
 
-    public final E getBlackboard() {
+    public final T getBlackboard() {
         return blackboard;
     }
 
-    public final void setBlackboard(E blackboard) {
+    public final void setBlackboard(T blackboard) {
         this.blackboard = blackboard;
     }
 
@@ -174,6 +174,30 @@ public abstract class Task<E> {
         this.sharedProps = sharedProps;
     }
 
+    public final int getEnterFrame() {
+        return enterFrame;
+    }
+
+    /** 慎重调用 */
+    public void setEnterFrame(int enterFrame) {
+        this.enterFrame = enterFrame;
+    }
+
+    public final int getExitFrame() {
+        return exitFrame;
+    }
+
+    /** 慎重调用 */
+    public void setExitFrame(int exitFrame) {
+        this.exitFrame = exitFrame;
+    }
+    //
+
+    /** 获取原始的状态码 */
+    public final int getStatus() {
+        return status;
+    }
+
     public final boolean isRunning() {
         return status == Status.RUNNING;
     }
@@ -198,11 +222,6 @@ public abstract class Task<E> {
         return status >= Status.CANCELLED;
     }
 
-    /** 获取原始的状态码 */
-    public final int getStatus() {
-        return status;
-    }
-
     /** 获取归一化后的状态码，所有的失败码都转换为{@link Status#ERROR} */
     public final int getNormalizedStatus() {
         return Math.min(status, Status.ERROR);
@@ -215,24 +234,6 @@ public abstract class Task<E> {
      */
     public final int getPrevStatus() {
         return ctl & MASK_PREV_STATUS;
-    }
-
-    public final int getEnterFrame() {
-        return enterFrame;
-    }
-
-    /** 慎重调用 */
-    public void setEnterFrame(int enterFrame) {
-        this.enterFrame = enterFrame;
-    }
-
-    public final int getExitFrame() {
-        return exitFrame;
-    }
-
-    /** 慎重调用 */
-    public void setExitFrame(int exitFrame) {
-        this.exitFrame = exitFrame;
     }
 
     /** 获取行为树绑定的实体 -- 最好让Entity也在黑板中 */
@@ -252,7 +253,7 @@ public abstract class Task<E> {
     }
 
     /** 获取行为树入口绑定的黑板 */
-    public final E getEntryBlackboard() {
+    public final T getEntryBlackboard() {
         if (taskEntry == null) {
             throw new IllegalStateException("This task has never run");
         }
@@ -332,7 +333,7 @@ public abstract class Task<E> {
      *
      * @param control 由于task未运行，其control可能尚未赋值，因此要传入；传null可不接收通知
      */
-    public final void setGuardFailed(Task<E> control) {
+    public final void setGuardFailed(Task<T> control) {
         assert status != Status.RUNNING;
         if (control != null) { //测试null，适用entry的guard失败
             setControl(control);
@@ -372,7 +373,7 @@ public abstract class Task<E> {
      * 1.child在运行期间只会通知一次
      * 2.该方法不应该触发状态迁移，即不应该使自己进入完成状态
      */
-    protected abstract void onChildRunning(Task<E> child);
+    protected abstract void onChildRunning(Task<T> child);
 
     /**
      * 子节点进入完成状态
@@ -384,7 +385,7 @@ public abstract class Task<E> {
      * 6.同一子节点连续通知的情况下，completed的逻辑应当覆盖{@link #onChildRunning(Task)}的影响。
      * 7.任何的回调和事件方法中都由用户自身检测取消信号
      */
-    protected abstract void onChildCompleted(Task<E> child);
+    protected abstract void onChildCompleted(Task<T> child);
 
     /**
      * Task收到外部事件
@@ -456,7 +457,7 @@ public abstract class Task<E> {
     protected void stopRunningChildren() {
         // 停止child时默认逆序停止；一般而言都是后面的子节点依赖前面的子节点
         for (int idx = getChildCount() - 1; idx >= 0; idx--) {
-            final Task<E> child = getChild(idx);
+            final Task<T> child = getChild(idx);
             if (child.status == Status.RUNNING) {
                 child.stop();
             }
@@ -499,7 +500,7 @@ public abstract class Task<E> {
     protected void resetChildrenForRestart() {
         // 逆序重置，与stop一致
         for (int idx = getChildCount() - 1; idx >= 0; idx--) {
-            Task<E> child = getChild(idx);
+            Task<T> child = getChild(idx);
             if (child.status != Status.NEW) {
                 child.resetForRestart();
             }
@@ -631,7 +632,7 @@ public abstract class Task<E> {
 
     /**
      * 告知模板方法否将{@link #enter(int)}和{@link #execute()}方法分开执行，
-     * 1.默认值由{@link #flags}中的信息指定，默认不禁用
+     * 1.默认值由{@link #flags}中的信息指定，默认不分开执行
      * 2.要覆盖默认值应当在{@link #beforeEnter()}方法中调用
      * 3.该属性运行期间不应该调整，调整也无效
      */
@@ -692,7 +693,7 @@ public abstract class Task<E> {
     // region 模板方法
 
     /** enter方法不暴露，否则以后难以改动 */
-    final void template_enterExecute(final Task<E> control, int initMask) {
+    final void template_enterExecute(final Task<T> control, int initMask) {
         initMask |= (flags & MASK_CONTROL_FLOW_FLAGS);
         if (control != null) {
             initMask |= captureContext(control);
@@ -754,7 +755,7 @@ public abstract class Task<E> {
         }
     }
 
-    private void checkFireRunningAndCancel(Task<E> control, CancelToken cancelToken) {
+    private void checkFireRunningAndCancel(Task<T> control, CancelToken cancelToken) {
         if (cancelToken.isCancelling() && isAutoCheckCancel()) {
             setDisableDelayNotify(true);
             setCancelled();
@@ -821,7 +822,7 @@ public abstract class Task<E> {
      *
      * @param child 普通子节点，或需要接收通知的钩子任务
      */
-    public final void template_runChild(Task<E> child) {
+    public final void template_runChild(Task<T> child) {
         assert isReady() : "Task is not ready";
         if (child.status == Status.RUNNING) {
             child.template_execute();
@@ -833,7 +834,7 @@ public abstract class Task<E> {
     }
 
     /** 运行子节点，不检查子节点的前置条件 */
-    public final void template_runChildDirectly(Task<E> child) {
+    public final void template_runChildDirectly(Task<T> child) {
         assert isReady() : "Task is not ready";
         if (child.status == Status.RUNNING) {
             child.template_execute();
@@ -849,7 +850,7 @@ public abstract class Task<E> {
      *
      * @param hook 钩子任务，或不需要接收事件通知的子节点
      */
-    public final void template_runHook(Task<E> hook) {
+    public final void template_runHook(Task<T> hook) {
         assert isReady() : "Task is not ready";
         if (hook.status == Status.RUNNING) {
             hook.template_execute();
@@ -861,7 +862,7 @@ public abstract class Task<E> {
     }
 
     /** 执行钩子任务，不检查前置条件 */
-    public final void template_runHookDirectly(Task<E> hook) {
+    public final void template_runHookDirectly(Task<T> hook) {
         assert isReady() : "Task is not ready";
         if (hook.status == Status.RUNNING) {
             hook.template_execute();
@@ -880,7 +881,7 @@ public abstract class Task<E> {
      *
      * @param guard 前置条件；可以是子节点的guard属性，也可以是条件子节点，也可以是外部的条件节点
      */
-    public final boolean template_checkGuard(@Nullable Task<E> guard) {
+    public final boolean template_checkGuard(@Nullable Task<T> guard) {
         assert isReady() : "Task is not ready";
         if (guard == null) {
             return true;
@@ -909,7 +910,7 @@ public abstract class Task<E> {
     }
 
     /** @return 内部使用的mask */
-    private int captureContext(Task<E> control) {
+    private int captureContext(Task<T> control) {
         this.taskEntry = control.taskEntry;
         this.control = control;
 
@@ -947,7 +948,7 @@ public abstract class Task<E> {
     /**
      * 设置任务的控制节点
      */
-    public final void setControl(Task<E> control) {
+    public final void setControl(Task<T> control) {
         assert control != this;
         if (this == taskEntry) {
             throw new Error();
@@ -983,7 +984,7 @@ public abstract class Task<E> {
      * @param task 要添加的子节点
      * @return this
      */
-    public final Task<E> addChild(final Task<E> task) {
+    public final Task<T> addChild(final Task<T> task) {
         checkAddChild(task);
         addChildImpl(task);
         return this;
@@ -995,12 +996,12 @@ public abstract class Task<E> {
      *
      * @return index对应的旧节点
      */
-    public final Task<E> setChild(int index, Task<E> newTask) {
+    public final Task<T> setChild(int index, Task<T> newTask) {
         checkAddChild(newTask);
         return setChildImpl(index, newTask);
     }
 
-    private void checkAddChild(Task<E> child) {
+    private void checkAddChild(Task<T> child) {
         if (null == child) {
             throw new NullPointerException("child");
         }
@@ -1031,8 +1032,8 @@ public abstract class Task<E> {
     }
 
     /** 删除指定索引的child */
-    public final Task<E> removeChild(int index) {
-        Task<E> child = removeChildImpl(index);
+    public final Task<T> removeChild(int index) {
+        Task<T> child = removeChildImpl(index);
         child.unsetControl();
         return child;
     }
@@ -1055,22 +1056,22 @@ public abstract class Task<E> {
     }
 
     /** 该接口主要用于测试，该接口有一定的开销 */
-    public abstract Stream<Task<E>> childStream();
+    public abstract Stream<Task<T>> childStream();
 
     /** 子节点的数量（仅包括普通意义上的child，不包括钩子任务） */
     public abstract int getChildCount();
 
     /** 获取指定索引的child */
-    public abstract Task<E> getChild(int index);
+    public abstract Task<T> getChild(int index);
 
     /** @return 为child分配的index */
-    protected abstract int addChildImpl(Task<E> task);
+    protected abstract int addChildImpl(Task<T> task);
 
     /** @return 索引位置旧的child */
-    protected abstract Task<E> setChildImpl(int index, final Task<E> task);
+    protected abstract Task<T> setChildImpl(int index, final Task<T> task);
 
     /** @return index对应的child */
-    protected abstract Task<E> removeChildImpl(int index);
+    protected abstract Task<T> removeChildImpl(int index);
 
     // endregion
 
@@ -1173,11 +1174,11 @@ public abstract class Task<E> {
 
     // region 序列化
 
-    public final Task<E> getGuard() {
+    public final Task<T> getGuard() {
         return guard;
     }
 
-    public final Task<E> setGuard(Task<E> guard) {
+    public final Task<T> setGuard(Task<T> guard) {
         this.guard = guard;
         return this;
     }
@@ -1186,7 +1187,7 @@ public abstract class Task<E> {
         return flags;
     }
 
-    public final Task<E> setFlags(int flags) {
+    public final Task<T> setFlags(int flags) {
         this.flags = flags;
         return this;
     }

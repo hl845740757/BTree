@@ -25,13 +25,13 @@ import cn.wjybxx.btree.Task;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class FixedSwitch<E> extends Switch<E> {
+public class FixedSwitch<T> extends Switch<T> {
 
-    private Task<E> branch1;
-    private Task<E> branch2;
-    private Task<E> branch3;
-    private Task<E> branch4;
-    private Task<E> branch5;
+    private Task<T> branch1;
+    private Task<T> branch2;
+    private Task<T> branch3;
+    private Task<T> branch4;
+    private Task<T> branch5;
 
     public FixedSwitch() {
     }
@@ -48,7 +48,7 @@ public class FixedSwitch<E> extends Switch<E> {
         }
     }
 
-    private void addChildIfNotNull(Task<E> branch) {
+    private void addChildIfNotNull(Task<T> branch) {
         if (branch != null) {
             addChild(branch);
         }
@@ -56,43 +56,43 @@ public class FixedSwitch<E> extends Switch<E> {
 
     //
 
-    public Task<E> getBranch1() {
+    public Task<T> getBranch1() {
         return branch1;
     }
 
-    public void setBranch1(Task<E> branch1) {
+    public void setBranch1(Task<T> branch1) {
         this.branch1 = branch1;
     }
 
-    public Task<E> getBranch2() {
+    public Task<T> getBranch2() {
         return branch2;
     }
 
-    public void setBranch2(Task<E> branch2) {
+    public void setBranch2(Task<T> branch2) {
         this.branch2 = branch2;
     }
 
-    public Task<E> getBranch3() {
+    public Task<T> getBranch3() {
         return branch3;
     }
 
-    public void setBranch3(Task<E> branch3) {
+    public void setBranch3(Task<T> branch3) {
         this.branch3 = branch3;
     }
 
-    public Task<E> getBranch4() {
+    public Task<T> getBranch4() {
         return branch4;
     }
 
-    public void setBranch4(Task<E> branch4) {
+    public void setBranch4(Task<T> branch4) {
         this.branch4 = branch4;
     }
 
-    public Task<E> getBranch5() {
+    public Task<T> getBranch5() {
         return branch5;
     }
 
-    public void setBranch5(Task<E> branch5) {
+    public void setBranch5(Task<T> branch5) {
         this.branch5 = branch5;
     }
 }

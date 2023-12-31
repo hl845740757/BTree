@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
  * @author wjybxx
  * date - 2023/11/25
  */
-public abstract class ConditionTask2<E> extends LeafTask<E> {
+public abstract class ConditionTask2<T> extends LeafTask<T> {
 
     @Override
     protected final void execute() {

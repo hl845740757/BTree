@@ -26,13 +26,13 @@ import cn.wjybxx.btree.branch.JoinPolicy;
  * @author wjybxx
  * date - 2023/12/2
  */
-public class JoinWaitAll<E> implements JoinPolicy<E> {
+public class JoinWaitAll<T> implements JoinPolicy<T> {
 
     private static final JoinWaitAll<?> INSTANCE = new JoinWaitAll<>();
 
     @SuppressWarnings("unchecked")
-    public static <E> JoinWaitAll<E> getInstance() {
-        return (JoinWaitAll<E>) INSTANCE;
+    public static <T> JoinWaitAll<T> getInstance() {
+        return (JoinWaitAll<T>) INSTANCE;
     }
 
     @Override
@@ -41,26 +41,26 @@ public class JoinWaitAll<E> implements JoinPolicy<E> {
     }
 
     @Override
-    public void beforeEnter(Join<E> join) {
+    public void beforeEnter(Join<T> join) {
 
     }
 
     @Override
-    public void enter(Join<E> join) {
+    public void enter(Join<T> join) {
         if (join.getChildCount() == 0) {
             join.setSuccess();
         }
     }
 
     @Override
-    public void onChildCompleted(Join<E> join, Task<E> child) {
+    public void onChildCompleted(Join<T> join, Task<T> child) {
         if (join.isAllChildCompleted()) {
             join.setSuccess();
         }
     }
 
     @Override
-    public void onEvent(Join<E> join, Object event) {
+    public void onEvent(Join<T> join, Object event) {
 
     }
 }

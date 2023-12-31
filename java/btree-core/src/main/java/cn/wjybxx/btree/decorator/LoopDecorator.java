@@ -26,7 +26,7 @@ import cn.wjybxx.btree.Status;
  * @author wjybxx
  * date - 2023/11/26
  */
-public abstract class LoopDecorator<E> extends Decorator<E> {
+public abstract class LoopDecorator<T> extends Decorator<T> {
 
     /** 每帧最大循环次数 - 避免死循环和占用较多CPU；默认1 */
     protected int maxLoopPerFrame = 1;

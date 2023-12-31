@@ -25,12 +25,12 @@ import javax.annotation.Nonnull;
  * @author wjybxx
  * date - 2023/12/1
  */
-public class ChangeStateTask<E> extends LeafTask<E> {
+public class ChangeStateTask<T> extends LeafTask<T> {
 
     /** 下一个状态的guid -- 延迟加载 */
     private String nextStateGuid;
     /** 下一个状态的对象缓存，通常延迟加载以避免循环引用 */
-    private transient Task<E> nextState;
+    private transient Task<T> nextState;
     /** 目标状态的属性 */
     private Object stateProps;
     /** 为当前状态设置结果 -- 用于避免当前状态进入被取消状态；使用该特性时避免curState为自身 */
@@ -44,7 +44,7 @@ public class ChangeStateTask<E> extends LeafTask<E> {
     public ChangeStateTask() {
     }
 
-    public ChangeStateTask(Task<E> nextState) {
+    public ChangeStateTask(Task<T> nextState) {
         this.nextState = nextState;
     }
 
@@ -56,8 +56,8 @@ public class ChangeStateTask<E> extends LeafTask<E> {
         if (stateProps != null) {
             nextState.setSharedProps(stateProps);
         }
-        final StateMachineTask<E> stateMachine = StateMachineTask.findStateMachine(this, machineName);
-        final Task<E> curState = stateMachine.getCurState();
+        final StateMachineTask<T> stateMachine = StateMachineTask.findStateMachine(this, machineName);
+        final Task<T> curState = stateMachine.getCurState();
         // 在切换状态前将当前状态标记为成功或失败；只有延迟通知的情况下才可以设置状态的结果，否则状态机会切换到其它状态
         if (Status.isCompleted(curStateResult) && curState != null && !curState.isDisableDelayNotify()) {
             curState.setCompleted(curStateResult, false);
@@ -93,11 +93,11 @@ public class ChangeStateTask<E> extends LeafTask<E> {
         this.nextStateGuid = nextStateGuid;
     }
 
-    public Task<E> getNextState() {
+    public Task<T> getNextState() {
         return nextState;
     }
 
-    public void setNextState(Task<E> nextState) {
+    public void setNextState(Task<T> nextState) {
         this.nextState = nextState;
     }
 

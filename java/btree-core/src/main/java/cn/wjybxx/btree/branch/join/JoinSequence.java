@@ -27,13 +27,13 @@ import cn.wjybxx.btree.branch.Sequence;
  * @author wjybxx
  * date - 2023/12/2
  */
-public class JoinSequence<E> implements JoinPolicy<E> {
+public class JoinSequence<T> implements JoinPolicy<T> {
 
     private static final JoinSequence<?> INSTANCE = new JoinSequence<>();
 
     @SuppressWarnings("unchecked")
-    public static <E> JoinSequence<E> getInstance() {
-        return (JoinSequence<E>) INSTANCE;
+    public static <T> JoinSequence<T> getInstance() {
+        return (JoinSequence<T>) INSTANCE;
     }
 
     @Override
@@ -42,19 +42,19 @@ public class JoinSequence<E> implements JoinPolicy<E> {
     }
 
     @Override
-    public void beforeEnter(Join<E> join) {
+    public void beforeEnter(Join<T> join) {
 
     }
 
     @Override
-    public void enter(Join<E> join) {
+    public void enter(Join<T> join) {
         if (join.getChildCount() == 0) {
             join.setSuccess();
         }
     }
 
     @Override
-    public void onChildCompleted(Join<E> join, Task<E> child) {
+    public void onChildCompleted(Join<T> join, Task<T> child) {
         if (!child.isSucceeded()) {
             join.setCompleted(child.getStatus(), true);
         } else if (join.isAllChildSucceeded()) {
@@ -63,7 +63,7 @@ public class JoinSequence<E> implements JoinPolicy<E> {
     }
 
     @Override
-    public void onEvent(Join<E> join, Object event) {
+    public void onEvent(Join<T> join, Object event) {
 
     }
 

@@ -23,15 +23,15 @@ import java.util.stream.Stream;
  * @author wjybxx
  * date - 2023/11/25
  */
-public abstract class LeafTask<E> extends Task<E> {
+public abstract class LeafTask<T> extends Task<T> {
 
     @Override
-    protected final void onChildRunning(Task<E> child) {
+    protected final void onChildRunning(Task<T> child) {
         throw new AssertionError();
     }
 
     @Override
-    protected final void onChildCompleted(Task<E> child) {
+    protected final void onChildCompleted(Task<T> child) {
         throw new AssertionError();
     }
 
@@ -43,7 +43,7 @@ public abstract class LeafTask<E> extends Task<E> {
     }
 
     @Override
-    public final Stream<Task<E>> childStream() {
+    public final Stream<Task<T>> childStream() {
         return Stream.empty();
     }
 
@@ -53,22 +53,22 @@ public abstract class LeafTask<E> extends Task<E> {
     }
 
     @Override
-    public final Task<E> getChild(int index) {
+    public final Task<T> getChild(int index) {
         throw new IndexOutOfBoundsException("A leaf task can not have any child");
     }
 
     @Override
-    protected final int addChildImpl(Task<E> task) {
+    protected final int addChildImpl(Task<T> task) {
         throw new IllegalStateException("A leaf task cannot have any children");
     }
 
     @Override
-    protected final Task<E> setChildImpl(int index, Task<E> task) {
+    protected final Task<T> setChildImpl(int index, Task<T> task) {
         throw new IllegalStateException("A leaf task cannot have any children");
     }
 
     @Override
-    protected final Task<E> removeChildImpl(int index) {
+    protected final Task<T> removeChildImpl(int index) {
         throw new IndexOutOfBoundsException("A leaf task can not have any child");
     }
 

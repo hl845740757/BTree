@@ -96,9 +96,9 @@ public class StateMachineTest {
         Assertions.assertEquals(3, global_count);
     }
 
-    private static class StateA<E> extends ActionTask<E> {
+    private static class StateA<T> extends ActionTask<T> {
 
-        Task<E> nextState;
+        Task<T> nextState;
 
         @Override
         protected int executeImpl() {
@@ -118,9 +118,9 @@ public class StateMachineTest {
         }
     }
 
-    private static class StateB<E> extends ActionTask<E> {
+    private static class StateB<T> extends ActionTask<T> {
 
-        Task<E> nextState;
+        Task<T> nextState;
 
         @Override
         protected int executeImpl() {
@@ -214,7 +214,7 @@ public class StateMachineTest {
         Assertions.assertEquals(0, global_count);
     }
 
-    private static class UndoState<E> extends ActionTask<E> {
+    private static class UndoState<T> extends ActionTask<T> {
 
         final int expected;
 
@@ -240,7 +240,7 @@ public class StateMachineTest {
         }
     }
 
-    private static class RedoState<E> extends ActionTask<E> {
+    private static class RedoState<T> extends ActionTask<T> {
 
         final int expected;
 
@@ -281,7 +281,7 @@ public class StateMachineTest {
     }
 
     /** 传统状态机下的状态；期望enter和execute分开执行 */
-    private static class ClassicalState<E> extends LeafTask<E> {
+    private static class ClassicalState<T> extends LeafTask<T> {
         @Override
         protected void beforeEnter() {
             super.beforeEnter();

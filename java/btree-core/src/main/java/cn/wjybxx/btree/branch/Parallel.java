@@ -27,13 +27,13 @@ import cn.wjybxx.btree.Task;
  * @author wjybxx
  * date - 2023/11/26
  */
-public abstract class Parallel<E> extends BranchTask<E> {
+public abstract class Parallel<T> extends BranchTask<T> {
 
     /**
      * 并发节点通常不需要在该事件中将自己更新为运行状态，而是应该在{@link #execute()}方法的末尾更新
      */
     @Override
-    protected void onChildRunning(Task<E> child) {
+    protected void onChildRunning(Task<T> child) {
 
     }
 

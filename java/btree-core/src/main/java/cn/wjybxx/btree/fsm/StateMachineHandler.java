@@ -21,7 +21,7 @@ import cn.wjybxx.btree.Task;
  * @author wjybxx
  * date - 2023/12/3
  */
-public interface StateMachineHandler<E> {
+public interface StateMachineHandler<T> {
 
     /**
      * 下个状态的前置条件检查失败
@@ -29,7 +29,7 @@ public interface StateMachineHandler<E> {
      * @param stateMachineTask 状态机
      * @param nextState        下一个状态
      */
-    default void onNextStateGuardFailed(StateMachineTask<E> stateMachineTask, Task<E> nextState) {
+    default void onNextStateGuardFailed(StateMachineTask<T> stateMachineTask, Task<T> nextState) {
 
     }
 
@@ -44,6 +44,6 @@ public interface StateMachineHandler<E> {
      * @param preState         前一个状态，用于计算下一个状态
      * @return 用户是否执行了状态切换操作
      */
-    boolean onNextStateAbsent(StateMachineTask<E> stateMachineTask, Task<E> preState);
+    boolean onNextStateAbsent(StateMachineTask<T> stateMachineTask, Task<T> preState);
 
 }

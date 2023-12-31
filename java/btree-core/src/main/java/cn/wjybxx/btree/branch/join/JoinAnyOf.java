@@ -26,13 +26,13 @@ import cn.wjybxx.btree.branch.JoinPolicy;
  * @author wjybxx
  * date - 2023/12/2
  */
-public class JoinAnyOf<E> implements JoinPolicy<E> {
+public class JoinAnyOf<T> implements JoinPolicy<T> {
 
     private static final JoinAnyOf<?> INSTANCE = new JoinAnyOf<>();
 
     @SuppressWarnings("unchecked")
-    public static <E> JoinAnyOf<E> getInstance() {
-        return (JoinAnyOf<E>) INSTANCE;
+    public static <T> JoinAnyOf<T> getInstance() {
+        return (JoinAnyOf<T>) INSTANCE;
     }
 
     @Override
@@ -41,12 +41,12 @@ public class JoinAnyOf<E> implements JoinPolicy<E> {
     }
 
     @Override
-    public void beforeEnter(Join<E> join) {
+    public void beforeEnter(Join<T> join) {
 
     }
 
     @Override
-    public void enter(Join<E> join) {
+    public void enter(Join<T> join) {
         // 不能成功，失败也不能
         if (join.getChildCount() == 0) {
             Task.logger.info("JonAnyOf: children is empty");
@@ -54,12 +54,12 @@ public class JoinAnyOf<E> implements JoinPolicy<E> {
     }
 
     @Override
-    public void onChildCompleted(Join<E> join, Task<E> child) {
+    public void onChildCompleted(Join<T> join, Task<T> child) {
         join.setCompleted(child.getStatus(), true);
     }
 
     @Override
-    public void onEvent(Join<E> join, Object event) {
+    public void onEvent(Join<T> join, Object event) {
 
     }
 }

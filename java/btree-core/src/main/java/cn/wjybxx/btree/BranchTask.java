@@ -31,19 +31,19 @@ import java.util.stream.Stream;
  * @author wjybxx
  * date - 2023/11/25
  */
-public abstract class BranchTask<E> extends Task<E> {
+public abstract class BranchTask<T> extends Task<T> {
 
-    protected List<Task<E>> children;
+    protected List<Task<T>> children;
 
     public BranchTask() {
         this.children = new ArrayList<>(4);
     }
 
-    public BranchTask(List<Task<E>> children) {
+    public BranchTask(List<Task<T>> children) {
         this.children = Objects.requireNonNull(children);
     }
 
-    public BranchTask(Task<E> first, @Nullable Task<E> second) {
+    public BranchTask(Task<T> first, @Nullable Task<T> second) {
         Objects.requireNonNull(first);
         this.children = new ArrayList<>(2);
         this.children.add(first);
@@ -70,7 +70,7 @@ public abstract class BranchTask<E> extends Task<E> {
 
     /** 主要为MainPolicy提供帮助 */
     @Nullable
-    public final Task<E> getFirstChild() {
+    public final Task<T> getFirstChild() {
         final int size = children.size();
         if (size > 0) {
             return children.get(0);
@@ -79,7 +79,7 @@ public abstract class BranchTask<E> extends Task<E> {
     }
 
     @Nullable
-    public final Task<E> getLastChild() {
+    public final Task<T> getLastChild() {
         final int size = children.size();
         if (size > 0) {
             return children.get(size - 1);
@@ -119,7 +119,7 @@ public abstract class BranchTask<E> extends Task<E> {
     }
 
     @Override
-    public final Stream<Task<E>> childStream() {
+    public final Stream<Task<T>> childStream() {
         return children.stream();
     }
 
@@ -129,33 +129,33 @@ public abstract class BranchTask<E> extends Task<E> {
     }
 
     @Override
-    public final Task<E> getChild(int index) {
+    public final Task<T> getChild(int index) {
         return children.get(index);
     }
 
     @Override
-    protected final int addChildImpl(Task<E> task) {
+    protected final int addChildImpl(Task<T> task) {
         children.add(task);
         return children.size() - 1;
     }
 
     @Override
-    protected final Task<E> setChildImpl(int index, Task<E> task) {
+    protected final Task<T> setChildImpl(int index, Task<T> task) {
         return children.set(index, task);
     }
 
     @Override
-    protected final Task<E> removeChildImpl(int index) {
+    protected final Task<T> removeChildImpl(int index) {
         return children.remove(index);
     }
 
     // endregion
 
-    public List<Task<E>> getChildren() {
+    public List<Task<T>> getChildren() {
         return children;
     }
 
-    public void setChildren(List<Task<E>> children) {
+    public void setChildren(List<Task<T>> children) {
         if (children == null) {
             this.children.clear();
         } else {

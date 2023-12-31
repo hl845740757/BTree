@@ -23,7 +23,7 @@ import cn.wjybxx.btree.Task;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class Repeat<E> extends LoopDecorator<E> {
+public class Repeat<T> extends LoopDecorator<T> {
 
     public static final int MODE_ALWAYS = 0;
     public static final int MODE_ONLY_SUCCESS = 1;
@@ -56,7 +56,7 @@ public class Repeat<E> extends LoopDecorator<E> {
     }
 
     @Override
-    protected void onChildCompleted(Task<E> child) {
+    protected void onChildCompleted(Task<T> child) {
         if (child.isCancelled()) {
             setCancelled();
             return;

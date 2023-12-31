@@ -28,12 +28,12 @@ import java.util.List;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class SimpleParallel<E> extends Parallel<E> {
+public class SimpleParallel<T> extends Parallel<T> {
 
     @Override
     protected void execute() {
-        final List<Task<E>> children = this.children;
-        final Task<E> mainTask = children.get(0);
+        final List<Task<T>> children = this.children;
+        final Task<T> mainTask = children.get(0);
 
         final int reentryId = getReentryId();
         template_runChild(mainTask);
@@ -42,7 +42,7 @@ public class SimpleParallel<E> extends Parallel<E> {
         }
 
         for (int idx = 1; idx < children.size(); idx++) {
-            Task<E> child = children.get(idx);
+            Task<T> child = children.get(idx);
             template_runHook(child);
             if (checkCancel(reentryId)) { // 得出结果或取消
                 return;
@@ -51,7 +51,7 @@ public class SimpleParallel<E> extends Parallel<E> {
     }
 
     @Override
-    protected void onChildCompleted(Task<E> child) {
+    protected void onChildCompleted(Task<T> child) {
         assert child == children.get(0);
         setCompleted(child.getStatus(), true);
     }

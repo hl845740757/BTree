@@ -52,7 +52,7 @@ public class JoinTest {
     }
 
     // region
-    private static class Counter<E> extends ActionTask<E> {
+    private static class Counter<T> extends ActionTask<T> {
 
         @Override
         protected int executeImpl() {

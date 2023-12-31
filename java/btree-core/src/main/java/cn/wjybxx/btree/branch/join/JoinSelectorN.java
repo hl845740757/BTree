@@ -27,7 +27,7 @@ import cn.wjybxx.btree.branch.SelectorN;
  * @author wjybxx
  * date - 2023/12/2
  */
-public class JoinSelectorN<E> implements JoinPolicy<E> {
+public class JoinSelectorN<T> implements JoinPolicy<T> {
 
     private int required = 1;
     private boolean failFast;
@@ -45,12 +45,12 @@ public class JoinSelectorN<E> implements JoinPolicy<E> {
     }
 
     @Override
-    public void beforeEnter(Join<E> join) {
+    public void beforeEnter(Join<T> join) {
 
     }
 
     @Override
-    public void enter(Join<E> join) {
+    public void enter(Join<T> join) {
         if (required <= 0) {
             join.setSuccess();
         } else if (join.getChildCount() == 0) {
@@ -61,7 +61,7 @@ public class JoinSelectorN<E> implements JoinPolicy<E> {
     }
 
     @Override
-    public void onChildCompleted(Join<E> join, Task<E> child) {
+    public void onChildCompleted(Join<T> join, Task<T> child) {
         if (join.getSucceededCount() >= required) {
             join.setSuccess();
         } else if (join.isAllChildCompleted() || checkFailFast(join)) {
@@ -69,12 +69,12 @@ public class JoinSelectorN<E> implements JoinPolicy<E> {
         }
     }
 
-    private boolean checkFailFast(Join<E> join) {
+    private boolean checkFailFast(Join<T> join) {
         return failFast && (join.getChildCount() - join.getCompletedCount()) < required - join.getSucceededCount();
     }
 
     @Override
-    public void onEvent(Join<E> join, Object event) {
+    public void onEvent(Join<T> join, Object event) {
 
     }
 

@@ -24,14 +24,14 @@ import java.util.stream.Stream;
  * @author wjybxx
  * date - 2023/11/25
  */
-public abstract class Decorator<E> extends Task<E> {
+public abstract class Decorator<T> extends Task<T> {
 
-    protected Task<E> child;
+    protected Task<T> child;
 
     public Decorator() {
     }
 
-    public Decorator(Task<E> child) {
+    public Decorator(Task<T> child) {
         this.child = child;
     }
 
@@ -41,7 +41,7 @@ public abstract class Decorator<E> extends Task<E> {
     }
 
     @Override
-    protected void onChildRunning(Task<E> child) {
+    protected void onChildRunning(Task<T> child) {
 
     }
 
@@ -63,7 +63,7 @@ public abstract class Decorator<E> extends Task<E> {
     }
 
     @Override
-    public final Stream<Task<E>> childStream() {
+    public final Stream<Task<T>> childStream() {
         return Stream.ofNullable(child);
     }
 
@@ -73,7 +73,7 @@ public abstract class Decorator<E> extends Task<E> {
     }
 
     @Override
-    public final Task<E> getChild(int index) {
+    public final Task<T> getChild(int index) {
         if (index == 0 && child != null) {
             return child;
         }
@@ -81,7 +81,7 @@ public abstract class Decorator<E> extends Task<E> {
     }
 
     @Override
-    protected final int addChildImpl(Task<E> task) {
+    protected final int addChildImpl(Task<T> task) {
         if (child != null) {
             throw new IllegalStateException("A task entry cannot have more than one child");
         }
@@ -90,9 +90,9 @@ public abstract class Decorator<E> extends Task<E> {
     }
 
     @Override
-    protected final Task<E> setChildImpl(int index, Task<E> task) {
+    protected final Task<T> setChildImpl(int index, Task<T> task) {
         if (index == 0 && child != null) {
-            Task<E> r = this.child;
+            Task<T> r = this.child;
             child = task;
             return r;
         }
@@ -100,9 +100,9 @@ public abstract class Decorator<E> extends Task<E> {
     }
 
     @Override
-    protected final Task<E> removeChildImpl(int index) {
+    protected final Task<T> removeChildImpl(int index) {
         if (index == 0 && child != null) {
-            Task<E> r = this.child;
+            Task<T> r = this.child;
             child = null;
             return r;
         }
@@ -112,11 +112,11 @@ public abstract class Decorator<E> extends Task<E> {
 
     //region 序列化
 
-    public Task<E> getChild() {
+    public Task<T> getChild() {
         return child;
     }
 
-    public void setChild(Task<E> child) {
+    public void setChild(Task<T> child) {
         this.child = child;
     }
 

@@ -16,6 +16,8 @@
 
 package cn.wjybxx.btree;
 
+import cn.wjybxx.base.annotation.Beta;
+
 /**
  * Task的特征值，高8位为控制流程相关bit，对外开放
  * (用于减少Task中的方法数量)
@@ -23,6 +25,7 @@ package cn.wjybxx.btree;
  * @author wjybxx
  * date - 2023/12/26
  */
+@Beta
 public enum TaskFeature {
 
     /**

@@ -25,7 +25,7 @@ import cn.wjybxx.btree.Task;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class AlwaysRunning<E> extends Decorator<E> {
+public class AlwaysRunning<T> extends Decorator<T> {
 
     /** 记录子节点上次的重入id，这样不论enter和execute是否分开执行都不影响 */
     private transient int childPrevReentryId;
@@ -53,7 +53,7 @@ public class AlwaysRunning<E> extends Decorator<E> {
     }
 
     @Override
-    protected void onChildCompleted(Task<E> child) {
+    protected void onChildCompleted(Task<T> child) {
         if (child.isCancelled()) { // 不响应其它状态，但还是需要响应取消...
             setCancelled();
         }

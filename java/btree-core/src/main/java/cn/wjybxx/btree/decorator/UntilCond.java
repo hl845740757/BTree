@@ -23,23 +23,23 @@ import cn.wjybxx.btree.Task;
  * @author wjybxx
  * date - 2023/12/1
  */
-public class UntilCond<E> extends LoopDecorator<E> {
+public class UntilCond<T> extends LoopDecorator<T> {
 
     /** 循环条件 -- 不能直接使用child的guard，意义不同 */
-    private Task<E> cond;
+    private Task<T> cond;
 
     @Override
-    protected void onChildCompleted(Task<E> child) {
+    protected void onChildCompleted(Task<T> child) {
         if (template_checkGuard(cond)) {
             setSuccess();
         }
     }
 
-    public Task<E> getCond() {
+    public Task<T> getCond() {
         return cond;
     }
 
-    public UntilCond<E> setCond(Task<E> cond) {
+    public UntilCond<T> setCond(Task<T> cond) {
         this.cond = cond;
         return this;
     }

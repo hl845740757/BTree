@@ -26,12 +26,12 @@ import cn.wjybxx.btree.Task;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class OnlyOnce<E> extends Decorator<E> {
+public class OnlyOnce<T> extends Decorator<T> {
 
     public OnlyOnce() {
     }
 
-    public OnlyOnce(Task<E> child) {
+    public OnlyOnce(Task<T> child) {
         super(child);
     }
 
@@ -45,7 +45,7 @@ public class OnlyOnce<E> extends Decorator<E> {
     }
 
     @Override
-    protected void onChildCompleted(Task<E> child) {
+    protected void onChildCompleted(Task<T> child) {
         setCompleted(child.getStatus(), true);
     }
 

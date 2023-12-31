@@ -25,29 +25,29 @@ import cn.wjybxx.btree.Task;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class AlwaysFail<E> extends Decorator<E> {
+public class AlwaysFail<T> extends Decorator<T> {
 
     private int failureStatus;
 
     public AlwaysFail() {
     }
 
-    public AlwaysFail(Task<E> child) {
+    public AlwaysFail(Task<T> child) {
         super(child);
     }
 
     @Override
     protected void execute() {
         if (child == null) {
-            setFailed(Status.ToFailure(failureStatus));
+            setFailed(Status.toFailure(failureStatus));
         } else {
             template_runChild(child);
         }
     }
 
     @Override
-    protected void onChildCompleted(Task<E> child) {
-        setCompleted(Status.ToFailure(child.getStatus()), true); // 错误码有传播的价值
+    protected void onChildCompleted(Task<T> child) {
+        setCompleted(Status.toFailure(child.getStatus()), true); // 错误码有传播的价值
     }
 
     public int getFailureStatus() {

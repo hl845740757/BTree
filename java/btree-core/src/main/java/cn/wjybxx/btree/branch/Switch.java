@@ -22,7 +22,7 @@ import cn.wjybxx.btree.Task;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class Switch<E> extends SingleRunningChildBranch<E> {
+public class Switch<T> extends SingleRunningChildBranch<T> {
 
     @Override
     protected void execute() {
@@ -35,7 +35,7 @@ public class Switch<E> extends SingleRunningChildBranch<E> {
 
     private boolean selectChild() {
         for (int idx = 0; idx < children.size(); idx++) {
-            Task<E> child = children.get(idx);
+            Task<T> child = children.get(idx);
             if (!template_checkGuard(child.getGuard())) {
                 child.setGuardFailed(null); // 不接收通知
                 continue;
@@ -48,7 +48,7 @@ public class Switch<E> extends SingleRunningChildBranch<E> {
     }
 
     @Override
-    protected void onChildCompleted(Task<E> child) {
+    protected void onChildCompleted(Task<T> child) {
         runningChild = null;
         setCompleted(child.getStatus(), true);
     }

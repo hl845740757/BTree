@@ -35,12 +35,12 @@ import java.util.stream.Stream;
  * @author wjybxx
  * date - 2023/11/25
  */
-public class TaskEntry<E> extends Task<E> {
+public class TaskEntry<T> extends Task<T> {
 
     /** 行为树的名字 */
     private String name;
     /** 行为树的根节点 */
-    private Task<E> rootTask;
+    private Task<T> rootTask;
     /** 行为树的类型 -- 表示用途 */
     private int type;
 
@@ -51,14 +51,14 @@ public class TaskEntry<E> extends Task<E> {
     /** 当前帧号 */
     private transient int curFrame;
     /** 用于Entry的事件驱动 */
-    private transient TaskEntryHandler<E> handler;
+    private transient TaskEntryHandler<T> handler;
 
     public TaskEntry() {
         this(null, null, null, null, null);
     }
 
     public TaskEntry(String name,
-                     Task<E> rootTask, E blackboard,
+                     Task<T> rootTask, T blackboard,
                      Object entity, TreeLoader treeLoader) {
         this.name = name;
         this.rootTask = rootTask;
@@ -79,11 +79,11 @@ public class TaskEntry<E> extends Task<E> {
         this.name = name;
     }
 
-    public Task<E> getRootTask() {
+    public Task<T> getRootTask() {
         return rootTask;
     }
 
-    public void setRootTask(Task<E> rootTask) {
+    public void setRootTask(Task<T> rootTask) {
         this.rootTask = rootTask;
     }
 
@@ -107,11 +107,11 @@ public class TaskEntry<E> extends Task<E> {
         this.treeLoader = Objects.requireNonNullElse(treeLoader, TreeLoader.nullLoader());
     }
 
-    public TaskEntryHandler<E> getHandler() {
+    public TaskEntryHandler<T> getHandler() {
         return handler;
     }
 
-    public void setHandler(TaskEntryHandler<E> handler) {
+    public void setHandler(TaskEntryHandler<T> handler) {
         this.handler = handler;
     }
 
@@ -123,8 +123,8 @@ public class TaskEntry<E> extends Task<E> {
      * 获取根状态机
      * 状态机太重要了，值得我们为其提供各种快捷方法
      */
-    public final StateMachineTask<E> getRootStateMachine() {
-        if (rootTask instanceof StateMachineTask<E> stateMachine) {
+    public final StateMachineTask<T> getRootStateMachine() {
+        if (rootTask instanceof StateMachineTask<T> stateMachine) {
             return stateMachine;
         }
         throw new IllegalStateException("rootTask is not state machine task");
@@ -149,12 +149,12 @@ public class TaskEntry<E> extends Task<E> {
     }
 
     @Override
-    protected void onChildRunning(Task<E> child) {
+    protected void onChildRunning(Task<T> child) {
 
     }
 
     @Override
-    protected void onChildCompleted(Task<E> child) {
+    protected void onChildCompleted(Task<T> child) {
         setCompleted(child.getStatus(), true);
         cancelToken.clear(); // 避免内存泄漏
         if (handler != null) {
@@ -209,7 +209,7 @@ public class TaskEntry<E> extends Task<E> {
     }
 
     @Override
-    public final Stream<Task<E>> childStream() {
+    public final Stream<Task<T>> childStream() {
         return Stream.ofNullable(rootTask);
     }
 
@@ -219,7 +219,7 @@ public class TaskEntry<E> extends Task<E> {
     }
 
     @Override
-    public final Task<E> getChild(int index) {
+    public final Task<T> getChild(int index) {
         if (index == 0 && rootTask != null) {
             return rootTask;
         }
@@ -227,7 +227,7 @@ public class TaskEntry<E> extends Task<E> {
     }
 
     @Override
-    protected final int addChildImpl(Task<E> task) {
+    protected final int addChildImpl(Task<T> task) {
         if (rootTask != null) {
             throw new IllegalStateException("A task entry cannot have more than one child");
         }
@@ -236,9 +236,9 @@ public class TaskEntry<E> extends Task<E> {
     }
 
     @Override
-    protected final Task<E> setChildImpl(int index, Task<E> task) {
+    protected final Task<T> setChildImpl(int index, Task<T> task) {
         if (index == 0 && rootTask != null) {
-            Task<E> r = this.rootTask;
+            Task<T> r = this.rootTask;
             rootTask = task;
             return r;
         }
@@ -246,9 +246,9 @@ public class TaskEntry<E> extends Task<E> {
     }
 
     @Override
-    protected final Task<E> removeChildImpl(int index) {
+    protected final Task<T> removeChildImpl(int index) {
         if (index == 0 && rootTask != null) {
-            Task<E> r = this.rootTask;
+            Task<T> r = this.rootTask;
             rootTask = null;
             return r;
         }

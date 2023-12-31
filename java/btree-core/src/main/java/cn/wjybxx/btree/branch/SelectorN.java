@@ -32,7 +32,7 @@ import java.util.List;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class SelectorN<E> extends SingleRunningChildBranch<E> {
+public class SelectorN<T> extends SingleRunningChildBranch<T> {
 
     private int required = 1;
     private boolean failFast;
@@ -41,11 +41,11 @@ public class SelectorN<E> extends SingleRunningChildBranch<E> {
     public SelectorN() {
     }
 
-    public SelectorN(List<Task<E>> children) {
+    public SelectorN(List<Task<T>> children) {
         super(children);
     }
 
-    public SelectorN(Task<E> first, @Nullable Task<E> second) {
+    public SelectorN(Task<T> first, @Nullable Task<T> second) {
         super(first, second);
     }
 
@@ -74,7 +74,7 @@ public class SelectorN<E> extends SingleRunningChildBranch<E> {
     }
 
     @Override
-    protected void onChildCompleted(Task<E> child) {
+    protected void onChildCompleted(Task<T> child) {
         runningChild = null;
         if (child.isCancelled()) {
             setCancelled();
@@ -105,7 +105,7 @@ public class SelectorN<E> extends SingleRunningChildBranch<E> {
         return failFast;
     }
 
-    public SelectorN<E> setFailFast(boolean failFast) {
+    public SelectorN<T> setFailFast(boolean failFast) {
         this.failFast = failFast;
         return this;
     }

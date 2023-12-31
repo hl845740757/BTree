@@ -84,7 +84,7 @@ public final class Status {
     }
 
     /** 如果给定状态是失败码，则返回参数，否则返回默认失败码 */
-    public static int ToFailure(int status) {
+    public static int toFailure(int status) {
         //noinspection ManualMinMaxCalculation
         return status < ERROR ? ERROR : status;
     }

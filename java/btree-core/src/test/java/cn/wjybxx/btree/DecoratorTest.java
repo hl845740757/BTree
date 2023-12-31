@@ -45,7 +45,7 @@ public class DecoratorTest {
         successCount = 0;
     }
 
-    private static class CountRandom<E> extends LeafTask<E> {
+    private static class CountRandom<T> extends LeafTask<T> {
 
         final boolean isGuard;
 

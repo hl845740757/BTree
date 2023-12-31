@@ -26,21 +26,21 @@ import java.util.List;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class Selector<E> extends SingleRunningChildBranch<E> {
+public class Selector<T> extends SingleRunningChildBranch<T> {
 
     public Selector() {
     }
 
-    public Selector(List<Task<E>> children) {
+    public Selector(List<Task<T>> children) {
         super(children);
     }
 
-    public Selector(Task<E> first, @Nullable Task<E> second) {
+    public Selector(Task<T> first, @Nullable Task<T> second) {
         super(first, second);
     }
 
     @Override
-    protected void onChildCompleted(Task<E> child) {
+    protected void onChildCompleted(Task<T> child) {
         runningChild = null;
         if (child.isCancelled()) {
             setCancelled();

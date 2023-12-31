@@ -25,29 +25,29 @@ import cn.wjybxx.btree.Task;
  * @author wjybxx
  * date - 2023/12/2
  */
-public interface JoinPolicy<E> {
+public interface JoinPolicy<T> {
 
     /** 重置自身数据 */
     void resetForRestart();
 
     /** 启动前初始化 */
-    void beforeEnter(Join<E> join);
+    void beforeEnter(Join<T> join);
 
     /** 启动 */
-    void enter(Join<E> join);
+    void enter(Join<T> join);
 
     /**
      * Join在调用该方法前更新了完成计数和成功计数
      *
      * @param child 进入完成状态的child
      */
-    void onChildCompleted(Join<E> join, Task<E> child);
+    void onChildCompleted(Join<T> join, Task<T> child);
 
     /**
      * join节点收到外部事件
      *
      * @param event 收到的事件
      */
-    void onEvent(Join<E> join, Object event);
+    void onEvent(Join<T> join, Object event);
 
 }

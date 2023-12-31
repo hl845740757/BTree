@@ -29,7 +29,7 @@ import java.util.random.RandomGenerator;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class SimpleRandom<E> extends LeafTask<E> {
+public class SimpleRandom<T> extends LeafTask<T> {
 
     /** 允许指定自己的random */
     public static RandomGenerator random = new Random();

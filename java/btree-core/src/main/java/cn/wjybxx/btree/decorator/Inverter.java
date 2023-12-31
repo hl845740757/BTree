@@ -28,12 +28,12 @@ import cn.wjybxx.btree.Task;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class Inverter<E> extends Decorator<E> {
+public class Inverter<T> extends Decorator<T> {
 
     public Inverter() {
     }
 
-    public Inverter(Task<E> child) {
+    public Inverter(Task<T> child) {
         super(child);
     }
 
@@ -43,7 +43,7 @@ public class Inverter<E> extends Decorator<E> {
     }
 
     @Override
-    protected void onChildCompleted(Task<E> child) {
+    protected void onChildCompleted(Task<T> child) {
         switch (child.getNormalizedStatus()) {
             case Status.SUCCESS -> setFailed(Status.ERROR);
             case Status.ERROR -> setSuccess();

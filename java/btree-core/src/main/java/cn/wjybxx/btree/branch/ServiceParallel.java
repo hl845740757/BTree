@@ -28,16 +28,16 @@ import java.util.List;
  * @author wjybxx
  * date - 2023/11/26
  */
-public class ServiceParallel<E> extends Parallel<E> {
+public class ServiceParallel<T> extends Parallel<T> {
 
     @Override
     protected void execute() {
-        final List<Task<E>> children = this.children;
-        final Task<E> mainTask = children.get(0);
+        final List<Task<T>> children = this.children;
+        final Task<T> mainTask = children.get(0);
         template_runChild(mainTask);
 
         for (int idx = 1; idx < children.size(); idx++) {
-            Task<E> child = children.get(idx);
+            Task<T> child = children.get(idx);
             template_runHook(child);
         }
 
@@ -47,7 +47,7 @@ public class ServiceParallel<E> extends Parallel<E> {
     }
 
     @Override
-    protected void onChildCompleted(Task<E> child) {
+    protected void onChildCompleted(Task<T> child) {
         assert child == children.get(0);
         if (!isExecuting()) {
             setSuccess();

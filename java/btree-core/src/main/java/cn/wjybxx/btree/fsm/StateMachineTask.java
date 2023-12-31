@@ -37,39 +37,39 @@ import java.util.Objects;
  * @author wjybxx
  * date - 2023/12/1
  */
-public class StateMachineTask<E> extends Decorator<E> {
+public class StateMachineTask<T> extends Decorator<T> {
 
     /** 状态机名字 */
     private String name;
     /** 无可用状态时状态码 -- 默认成功退出更安全 */
     private int noneChildStatus = Status.SUCCESS;
     /** 初始状态 */
-    private Task<E> initState;
+    private Task<T> initState;
     /** 初始状态的属性 */
     private Object initStateProps;
 
-    private transient Task<E> tempNextState;
-    private transient Deque<Task<E>> undoQueue = EmptyDequeue.getInstance();
-    private transient Deque<Task<E>> redoQueue = EmptyDequeue.getInstance();
+    private transient Task<T> tempNextState;
+    private transient Deque<Task<T>> undoQueue = EmptyDequeue.getInstance();
+    private transient Deque<Task<T>> redoQueue = EmptyDequeue.getInstance();
 
-    private transient StateMachineListener<E> listener;
-    private transient StateMachineHandler<E> stateMachineHandler;
+    private transient StateMachineListener<T> listener;
+    private transient StateMachineHandler<T> stateMachineHandler;
 
     // region
 
     /** 获取当前状态 */
-    public final Task<E> getCurState() {
+    public final Task<T> getCurState() {
         return child;
     }
 
     /** 获取临时的下一个状态 */
-    public final Task<E> getTempNextState() {
+    public final Task<T> getTempNextState() {
         return tempNextState;
     }
 
     /** 丢弃未切换的临时状态 */
-    public final Task<E> discardTempNextState() {
-        Task<E> r = tempNextState;
+    public final Task<T> discardTempNextState() {
+        Task<T> r = tempNextState;
         if (r != null) tempNextState = null;
         return r;
     }
@@ -82,22 +82,22 @@ public class StateMachineTask<E> extends Decorator<E> {
     }
 
     /** 查看undo对应的state */
-    public final Task<E> peekUndoState() {
+    public final Task<T> peekUndoState() {
         return undoQueue.peekLast();
     }
 
     /** 查看redo对应的state */
-    public final Task<E> peekRedoState() {
+    public final Task<T> peekRedoState() {
         return redoQueue.peekFirst();
     }
 
     /** 开放以允许填充 */
-    public final Deque<Task<E>> getUndoQueue() {
+    public final Deque<Task<T>> getUndoQueue() {
         return undoQueue;
     }
 
     /** 开放以允许填充 */
-    public final Deque<Task<E>> getRedoQueue() {
+    public final Deque<Task<T>> getRedoQueue() {
         return redoQueue;
     }
 
@@ -105,7 +105,7 @@ public class StateMachineTask<E> extends Decorator<E> {
      * @param maxSize 最大大小；0表示禁用；大于0启用
      * @return 最新的queue
      */
-    public final Deque<Task<E>> setUndoQueueSize(int maxSize) {
+    public final Deque<Task<T>> setUndoQueueSize(int maxSize) {
         if (maxSize < 0) throw new IllegalArgumentException("maxSize: " + maxSize);
         return undoQueue = setQueueMaxSize(undoQueue, maxSize, DequeOverflowBehavior.DISCARD_HEAD);
     }
@@ -114,12 +114,12 @@ public class StateMachineTask<E> extends Decorator<E> {
      * @param maxSize 最大大小；0表示禁用；大于0启用
      * @return 最新的queue
      */
-    public final Deque<Task<E>> setRedoQueueSize(int maxSize) {
+    public final Deque<Task<T>> setRedoQueueSize(int maxSize) {
         if (maxSize < 0) throw new IllegalArgumentException("maxSize: " + maxSize);
         return redoQueue = setQueueMaxSize(redoQueue, maxSize, DequeOverflowBehavior.DISCARD_TAIL);
     }
 
-    private static <E> Deque<E> setQueueMaxSize(Deque<E> queue, int maxSize, DequeOverflowBehavior overflowBehavior) {
+    private static <T> Deque<T> setQueueMaxSize(Deque<T> queue, int maxSize, DequeOverflowBehavior overflowBehavior) {
         if (maxSize == 0) {
             queue.clear();
             return EmptyDequeue.getInstance();
@@ -127,7 +127,7 @@ public class StateMachineTask<E> extends Decorator<E> {
         if (queue == EmptyDequeue.INSTANCE) {
             return new BoundedArrayDeque<>(maxSize, overflowBehavior);
         } else {
-            BoundedArrayDeque<E> boundedArrayDeque = (BoundedArrayDeque<E>) queue;
+            BoundedArrayDeque<T> boundedArrayDeque = (BoundedArrayDeque<T>) queue;
             boundedArrayDeque.setCapacity(maxSize, overflowBehavior);
             return queue;
         }
@@ -152,7 +152,7 @@ public class StateMachineTask<E> extends Decorator<E> {
         if (!changeStateArgs.isUndo()) {
             throw new IllegalArgumentException();
         }
-        Task<E> prevState = undoQueue.peekLast(); // 真正切换以后再删除
+        Task<T> prevState = undoQueue.peekLast(); // 真正切换以后再删除
         if (prevState == null) {
             return false;
         }
@@ -179,7 +179,7 @@ public class StateMachineTask<E> extends Decorator<E> {
         if (!changeStateArgs.isRedo()) {
             throw new IllegalArgumentException();
         }
-        Task<E> nextState = redoQueue.peekFirst();  // 真正切换以后再删除
+        Task<T> nextState = redoQueue.peekFirst();  // 真正切换以后再删除
         if (nextState == null) {
             return false;
         }
@@ -188,7 +188,7 @@ public class StateMachineTask<E> extends Decorator<E> {
     }
 
     /** 切换状态 -- 如果状态机处于运行中，则立即切换 */
-    public final void changeState(Task<E> nextState) {
+    public final void changeState(Task<T> nextState) {
         changeState(nextState, ChangeStateArgs.PLAIN);
     }
 
@@ -199,7 +199,7 @@ public class StateMachineTask<E> extends Decorator<E> {
      * 3.如果状态机未运行，则仅仅保存在那里，等待下次运行的时候执行
      * 4.当前状态可先正常完成，然后再切换状态，就可以避免进入被取消状态；可参考{@link ChangeStateTask}
      * <pre>{@code
-     *      Task<E> nextState = nextState();
+     *      Task<T> nextState = nextState();
      *      setSuccess();
      *      stateMachine.changeState(nextState)
      * }
@@ -208,7 +208,7 @@ public class StateMachineTask<E> extends Decorator<E> {
      * @param nextState 要进入的下一个状态
      * @param changeStateArgs 状态切换参数
      */
-    public void changeState(Task<E> nextState, ChangeStateArgs changeStateArgs) {
+    public void changeState(Task<T> nextState, ChangeStateArgs changeStateArgs) {
         Objects.requireNonNull(nextState, "nextState");
         Objects.requireNonNull(changeStateArgs, "changeStateArgs");
 
@@ -294,8 +294,8 @@ public class StateMachineTask<E> extends Decorator<E> {
 
     @Override
     protected void execute() {
-        Task<E> curState = this.child;
-        Task<E> nextState = this.tempNextState;
+        Task<T> curState = this.child;
+        Task<T> nextState = this.tempNextState;
         if (nextState != null && isReady(curState, nextState)) {
             this.tempNextState = null;
             if (!template_checkGuard(nextState.getGuard())) { // 下个状态无效
@@ -349,7 +349,7 @@ public class StateMachineTask<E> extends Decorator<E> {
     }
 
     @Override
-    protected void onChildCompleted(Task<E> child) {
+    protected void onChildCompleted(Task<T> child) {
         assert this.child == child;
         cancelToken.removeChild(child.getCancelToken()); // 删除分配的子token
         child.getCancelToken().clear();
@@ -382,7 +382,7 @@ public class StateMachineTask<E> extends Decorator<E> {
         }
     }
 
-    protected final boolean isReady(@Nullable Task<E> curState, Task<?> nextState) {
+    protected final boolean isReady(@Nullable Task<T> curState, Task<?> nextState) {
         if (curState == null) {
             return true;
         }
@@ -396,7 +396,7 @@ public class StateMachineTask<E> extends Decorator<E> {
         return true;
     }
 
-    protected final void notifyChangeState(@Nullable Task<E> curState, @Nullable Task<E> nextState) {
+    protected final void notifyChangeState(@Nullable Task<T> curState, @Nullable Task<T> nextState) {
         assert curState != null || nextState != null;
         if (listener != null) listener.beforeChangeState(this, curState, nextState);
     }
@@ -408,16 +408,16 @@ public class StateMachineTask<E> extends Decorator<E> {
      * 1.仅递归查询父节点和长兄节点
      * 2.优先查找附近的，然后测试长兄节点 - 状态机作为第一个节点的情况比较常见
      */
-    public static <E> StateMachineTask<E> findStateMachine(Task<E> task) {
-        Task<E> control;
+    public static <T> StateMachineTask<T> findStateMachine(Task<T> task) {
+        Task<T> control;
         while ((control = task.getControl()) != null) {
             // 父节点
-            if (control instanceof StateMachineTask<E> stateMachineTask) {
+            if (control instanceof StateMachineTask<T> stateMachineTask) {
                 return stateMachineTask;
             }
             // 长兄节点
-            Task<E> eldestBrother = control.getChild(0);
-            if (eldestBrother instanceof StateMachineTask<E> stateMachineTask) {
+            Task<T> eldestBrother = control.getChild(0);
+            if (eldestBrother instanceof StateMachineTask<T> stateMachineTask) {
                 return stateMachineTask;
             }
             task = control;
@@ -431,12 +431,12 @@ public class StateMachineTask<E> extends Decorator<E> {
      * 2.优先测试父节点，然后测试兄弟节点
      */
     @Nonnull
-    public static <E> StateMachineTask<E> findStateMachine(Task<E> task, String name) {
+    public static <T> StateMachineTask<T> findStateMachine(Task<T> task, String name) {
         if (ObjectUtils.isBlank(name)) {
             return findStateMachine(task);
         }
-        Task<E> control;
-        StateMachineTask<E> stateMachine;
+        Task<T> control;
+        StateMachineTask<T> stateMachine;
         while ((control = task.getControl()) != null) {
             // 父节点
             if ((stateMachine = castAsStateMachine(control, name)) != null) {
@@ -444,7 +444,7 @@ public class StateMachineTask<E> extends Decorator<E> {
             }
             // 兄弟节点
             for (int i = 0, n = control.getChildCount(); i < n; i++) {
-                final Task<E> brother = control.getChild(i);
+                final Task<T> brother = control.getChild(i);
                 if ((stateMachine = castAsStateMachine(brother, name)) != null) {
                     return stateMachine;
                 }
@@ -454,8 +454,8 @@ public class StateMachineTask<E> extends Decorator<E> {
         throw new IllegalStateException("cant find stateMachine from controls and brothers");
     }
 
-    private static <E> StateMachineTask<E> castAsStateMachine(Task<E> task, String name) {
-        if (task instanceof StateMachineTask<E> stateMachineTask
+    private static <T> StateMachineTask<T> castAsStateMachine(Task<T> task, String name) {
+        if (task instanceof StateMachineTask<T> stateMachineTask
                 && Objects.equals(name, stateMachineTask.getName())) {
             return stateMachineTask;
         }
@@ -465,11 +465,11 @@ public class StateMachineTask<E> extends Decorator<E> {
     // endregion
 
     //
-    public Task<E> getInitState() {
+    public Task<T> getInitState() {
         return initState;
     }
 
-    public void setInitState(Task<E> initState) {
+    public void setInitState(Task<T> initState) {
         this.initState = initState;
     }
 
@@ -497,19 +497,19 @@ public class StateMachineTask<E> extends Decorator<E> {
         this.noneChildStatus = noneChildStatus;
     }
 
-    public StateMachineListener<E> getListener() {
+    public StateMachineListener<T> getListener() {
         return listener;
     }
 
-    public void setListener(StateMachineListener<E> listener) {
+    public void setListener(StateMachineListener<T> listener) {
         this.listener = listener;
     }
 
-    public StateMachineHandler<E> getStateMachineHandler() {
+    public StateMachineHandler<T> getStateMachineHandler() {
         return stateMachineHandler;
     }
 
-    public void setStateMachineHandler(StateMachineHandler<E> stateMachineHandler) {
+    public void setStateMachineHandler(StateMachineHandler<T> stateMachineHandler) {
         this.stateMachineHandler = stateMachineHandler;
     }
 

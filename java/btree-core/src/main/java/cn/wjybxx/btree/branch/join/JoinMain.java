@@ -28,13 +28,13 @@ import cn.wjybxx.btree.branch.SimpleParallel;
  * @author wjybxx
  * date - 2023/12/2
  */
-public class JoinMain<E> implements JoinPolicy<E> {
+public class JoinMain<T> implements JoinPolicy<T> {
 
     private static final JoinMain<?> INSTANCE = new JoinMain<>();
 
     @SuppressWarnings("unchecked")
-    public static <E> JoinMain<E> getInstance() {
-        return (JoinMain<E>) INSTANCE;
+    public static <T> JoinMain<T> getInstance() {
+        return (JoinMain<T>) INSTANCE;
     }
 
     @Override
@@ -43,27 +43,27 @@ public class JoinMain<E> implements JoinPolicy<E> {
     }
 
     @Override
-    public void beforeEnter(Join<E> join) {
+    public void beforeEnter(Join<T> join) {
 
     }
 
     @Override
-    public void enter(Join<E> join) {
+    public void enter(Join<T> join) {
         if (join.getChildCount() == 0) {
             join.setFailed(Status.CHILDLESS);
         }
     }
 
     @Override
-    public void onChildCompleted(Join<E> join, Task<E> child) {
+    public void onChildCompleted(Join<T> join, Task<T> child) {
         if (join.isFirstChild(child)) {
             join.setCompleted(child.getStatus(), true);
         }
     }
 
     @Override
-    public void onEvent(Join<E> join, Object event) {
-        Task<E> firstChild = join.getFirstChild();
+    public void onEvent(Join<T> join, Object event) {
+        Task<T> firstChild = join.getFirstChild();
         assert firstChild != null;
         firstChild.onEvent(event);
     }

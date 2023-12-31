@@ -68,7 +68,7 @@ public class LeafTest {
         Assertions.assertEquals(0, waitFrame.getPrevStatus());
     }
 
-    private static class PrevStatusTask<E> extends ActionTask<E> {
+    private static class PrevStatusTask<T> extends ActionTask<T> {
 
         private int next = Status.SUCCESS;
 
