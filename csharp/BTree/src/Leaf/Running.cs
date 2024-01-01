@@ -16,33 +16,18 @@
 
 #endregion
 
-namespace Wjybxx.BTree;
+#pragma warning disable CS1591
+namespace Wjybxx.BTree.Leaf;
 
 /// <summary>
-/// 条件节点
-/// 1. 大多数条件节点都只需要返回bool值，不需要详细的错误码，因此提供该模板实现。
-/// 2. 并非所有条件节点都需要继承该类。
+/// 保存运行状态的子节点
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class ConditionTask2<T> : LeafTask<T>
+public class Running<T> : LeafTask<T>
 {
-    protected sealed override void execute() {
-        int status = Test();
-        if (status == Status.SUCCESS) {
-            setSuccess();
-        } else {
-            setFailed(status);
-        }
+    protected override void execute() {
     }
 
-    protected abstract int Test();
-
-    /** 条件节点正常情况下不会触发事件 */
-    public override bool canHandleEvent(object _) {
-        return false;
-    }
-
-    /** 条件节点正常情况下不会触发事件 */
     protected override void onEventImpl(object eventObj) {
     }
 }

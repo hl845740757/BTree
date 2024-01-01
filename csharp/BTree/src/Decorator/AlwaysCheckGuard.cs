@@ -1,5 +1,4 @@
 ﻿#region LICENSE
-
 // Copyright 2023 wjybxx(845740757@qq.com)
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,36 +12,27 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 #endregion
 
-namespace Wjybxx.BTree;
+#pragma warning disable CS1591
+namespace Wjybxx.BTree.Decorator;
 
 /// <summary>
-/// 条件节点
-/// 1. 大多数条件节点都只需要返回bool值，不需要详细的错误码，因此提供该模板实现。
-/// 2. 并非所有条件节点都需要继承该类。
+/// 每一帧都检查子节点的前置条件，如果前置条件失败，则取消child执行并返回失败
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class ConditionTask2<T> : LeafTask<T>
+public class AlwaysCheckGuard<T> : Decorator<T>
 {
-    protected sealed override void execute() {
-        int status = Test();
-        if (status == Status.SUCCESS) {
-            setSuccess();
+    protected override void execute() {
+        if (template_checkGuard(child!.GetGuard())) {
+            template_runChildDirectly(child);
         } else {
-            setFailed(status);
+            child.stop();
+            setFailed(Status.ERROR);
         }
     }
 
-    protected abstract int Test();
-
-    /** 条件节点正常情况下不会触发事件 */
-    public override bool canHandleEvent(object _) {
-        return false;
-    }
-
-    /** 条件节点正常情况下不会触发事件 */
-    protected override void onEventImpl(object eventObj) {
+    protected override void onChildCompleted(Task<T> child) {
+        setCompleted(child.GetStatus(), true);
     }
 }

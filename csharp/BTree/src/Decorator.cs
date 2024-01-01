@@ -108,6 +108,6 @@ public abstract class Decorator<T> : Task<T>
         get => child;
         set => child = value;
     }
-    
+
     #endregion
 }

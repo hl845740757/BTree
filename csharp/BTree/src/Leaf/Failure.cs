@@ -1,5 +1,4 @@
 ﻿#region LICENSE
-
 // Copyright 2023 wjybxx(845740757@qq.com)
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,20 +12,31 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 #endregion
 
-namespace Wjybxx.BTree;
+#pragma warning disable CS1591
+namespace Wjybxx.BTree.Leaf;
 
 /// <summary>
-/// <see cref="TaskEntry{T}"/>的事件处理
+/// 固定返回失败的子节点
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public interface TaskEntryHandler<T>
+public class Failure<T> : LeafTask<T>
 {
+    private int failureStatus;
+    
+    protected override void execute() {
+        setFailed(Status.ToFailure(failureStatus));
+    }
+
+    protected override void onEventImpl(object eventObj) {
+    }
+
     /// <summary>
-    /// 任务进入完成状态
+    /// 失败时使用的状态码
     /// </summary>
-    /// <param name="taskEntry"></param>
-    void OnCompleted(TaskEntry<T> taskEntry);
+    public int FailureStatus {
+        get => failureStatus;
+        set => failureStatus = value;
+    }
 }

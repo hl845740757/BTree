@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using log4net.Core;
 using Wjybxx.Commons;
 
@@ -41,7 +42,8 @@ namespace Wjybxx.BTree;
 ///
 /// <h3>非泛型</h3>
 /// C#的Task实现是非泛型的，因为行为树需要从资产文件中加载，泛型会增加对象映射障碍。
-/// 
+///
+/// <typeparam name="T">黑板的类型</typeparam>
 /// </summary>
 public abstract class Task<T>
 {
@@ -150,7 +152,7 @@ public abstract class Task<T>
 
     public int GetStatus() => status;
 
-    public short ReentryId => reentryId;
+    public Task<T> GetGuard() => guard;
 
     public T Blackboard {
         get => blackboard;
@@ -188,26 +190,35 @@ public abstract class Task<T>
 
     #region MyRegion
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsRunning() {
         return status == Status.RUNNING;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsCompleted() {
         return status >= Status.SUCCESS;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsSucceeded() {
         return status == Status.SUCCESS;
     }
 
+    /** 状态码是否表示取消 */
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsCancelled() {
         return status == Status.CANCELLED;
     }
 
+    /** 状态码是否表示失败 */
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsFailed() {
         return status > Status.CANCELLED;
     }
 
+    /** 状态码是否表示取消或失败 */
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsFailedOrCancelled() {
         return status >= Status.CANCELLED;
     }

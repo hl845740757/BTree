@@ -200,26 +200,32 @@ public abstract class Task<T> {
         return status;
     }
 
+    /** 任务是否正在运行 */
     public final boolean isRunning() {
         return status == Status.RUNNING;
     }
 
+    /** 任务是否已完成(成功、失败、取消) */
     public final boolean isCompleted() {
         return status >= Status.SUCCESS;
     }
 
+    /** 任务是否已成功 */
     public final boolean isSucceeded() {
         return status == Status.SUCCESS;
     }
 
+    /** 任务是否已被取消 */
     public final boolean isCancelled() {
         return status == Status.CANCELLED;
     }
 
+    /** 任务是否已失败 */
     public final boolean isFailed() {
         return status > Status.CANCELLED;
     }
 
+    /** 任务是否已失败或被取消 */
     public final boolean isFailedOrCancelled() {
         return status >= Status.CANCELLED;
     }

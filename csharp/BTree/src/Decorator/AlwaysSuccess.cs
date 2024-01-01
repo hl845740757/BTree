@@ -16,33 +16,24 @@
 
 #endregion
 
-namespace Wjybxx.BTree;
+#pragma warning disable CS1591
+namespace Wjybxx.BTree.Decorator;
 
 /// <summary>
-/// 条件节点
-/// 1. 大多数条件节点都只需要返回bool值，不需要详细的错误码，因此提供该模板实现。
-/// 2. 并非所有条件节点都需要继承该类。
+/// 在子节点完成之后固定返回成功
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class ConditionTask2<T> : LeafTask<T>
+public class AlwaysSuccess<T> : Decorator<T>
 {
-    protected sealed override void execute() {
-        int status = Test();
-        if (status == Status.SUCCESS) {
+    protected override void execute() {
+        if (child == null) {
             setSuccess();
         } else {
-            setFailed(status);
+            template_runChild(child);
         }
     }
 
-    protected abstract int Test();
-
-    /** 条件节点正常情况下不会触发事件 */
-    public override bool canHandleEvent(object _) {
-        return false;
-    }
-
-    /** 条件节点正常情况下不会触发事件 */
-    protected override void onEventImpl(object eventObj) {
+    protected override void onChildCompleted(Task<T> child) {
+        setSuccess();
     }
 }

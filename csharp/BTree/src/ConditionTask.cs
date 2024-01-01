@@ -36,6 +36,7 @@ public abstract class ConditionTask<T> : LeafTask<T>
 
     protected abstract bool Test();
 
+    /** 条件节点正常情况下不会触发事件 */
     public override bool canHandleEvent(object _) {
         return false;
     }

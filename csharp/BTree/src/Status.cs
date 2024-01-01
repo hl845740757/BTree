@@ -16,6 +16,8 @@
 
 #endregion
 
+using System.Runtime.CompilerServices;
+
 namespace Wjybxx.BTree;
 
 /// <summary>
@@ -47,32 +49,38 @@ public static class Status
     public const int MAX_PREV_STATUS = 63;
 
     //
-    /** 状态码是否表示运行中 */
+    /** 任务是否正在运行 */
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsRunning(int status) {
         return status == Status.RUNNING;
     }
 
-    /** 状态码是否表示已完成 */
+    /** 任务是否已完成(成功、失败、取消) */
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsCompleted(int status) {
         return status >= Status.SUCCESS;
     }
 
-    /** 状态码是否表示成功 */
+    /** 任务是否已成功 */
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsSucceeded(int status) {
         return status == Status.SUCCESS;
     }
 
-    /** 状态码是否表示取消 */
+    /** 任务是否已被取消 */
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsCancelled(int status) {
         return status == Status.CANCELLED;
     }
 
-    /** 状态码是否表示失败 */
+    /** 任务是否已失败 */
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsFailed(int status) {
         return status > Status.CANCELLED;
     }
 
-    /** 状态码是否表示取消或失败 */
+    /** 任务是否已失败或被取消 */
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsFailedOrCancelled(int status) {
         return status >= Status.CANCELLED;
     }
@@ -80,6 +88,7 @@ public static class Status
     //
 
     /** 将给定状态码归一化，所有的失败码将被转为<code>ERROR</code>  */
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int Normalize(int status) {
         if (status < 0) return 0;
         if (status > ERROR) return ERROR;
@@ -87,6 +96,7 @@ public static class Status
     }
 
     /** 如果给定状态是失败码，则返回参数，否则返回默认失败码 */
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ToFailure(int status) {
         return status < ERROR ? ERROR : status;
     }

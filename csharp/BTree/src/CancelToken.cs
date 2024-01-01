@@ -27,13 +27,12 @@ public class CancelToken
         return false;
     }
 
-    public void addListener<T>(Task<T> task)  {
+    public void addListener<T>(Task<T> task) {
     }
 
     public void removeListener<T>(Task<T> task) {
     }
 
     public void clear() {
-        
     }
 }

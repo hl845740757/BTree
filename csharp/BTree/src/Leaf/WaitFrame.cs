@@ -16,33 +16,31 @@
 
 #endregion
 
-namespace Wjybxx.BTree;
+#pragma warning disable CS1591
+namespace Wjybxx.BTree.Leaf;
 
 /// <summary>
-/// 条件节点
-/// 1. 大多数条件节点都只需要返回bool值，不需要详细的错误码，因此提供该模板实现。
-/// 2. 并非所有条件节点都需要继承该类。
+/// 等待一定帧数
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class ConditionTask2<T> : LeafTask<T>
+public class WaitFrame<T> : LeafTask<T>
 {
-    protected sealed override void execute() {
-        int status = Test();
-        if (status == Status.SUCCESS) {
+    private int required;
+
+    protected override void execute() {
+        if (getRunFrames() >= required) {
             setSuccess();
-        } else {
-            setFailed(status);
         }
     }
 
-    protected abstract int Test();
-
-    /** 条件节点正常情况下不会触发事件 */
-    public override bool canHandleEvent(object _) {
-        return false;
+    protected override void onEventImpl(object eventObj) {
     }
 
-    /** 条件节点正常情况下不会触发事件 */
-    protected override void onEventImpl(object eventObj) {
+    /// <summary>
+    /// 需要等待的帧数
+    /// </summary>
+    public int Required {
+        get => required;
+        set => required = value;
     }
 }

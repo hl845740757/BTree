@@ -35,9 +35,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Wjybxx.Commons.Core" Version="1.0.2" />
         <!-- 发现每个语言都没统一好日志库 -->
         <PackageReference Include="log4net" Version="2.0.15" />
+        <PackageReference Include="Wjybxx.Commons.Core" Version="1.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="libs" />
     </ItemGroup>
 
 </Project>

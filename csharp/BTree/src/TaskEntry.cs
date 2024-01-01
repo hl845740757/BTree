@@ -191,7 +191,7 @@ public class TaskEntry<T> : Task<T>
         return 0;
     }
 
-    protected override  Task<T> setChildImpl(int index, Task<T> task) {
+    protected override Task<T> setChildImpl(int index, Task<T> task) {
         if (index == 0 && rootTask != null) {
             Task<T> r = this.rootTask;
             rootTask = task;

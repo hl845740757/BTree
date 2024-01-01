@@ -16,55 +16,64 @@
 
 #endregion
 
-using System;
+
 using System.Collections.Generic;
-using Wjybxx.Commons;
-using Wjybxx.Commons.Ex;
+using Wjybxx.Commons.Collections;
 
 namespace Wjybxx.BTree;
 
 /// <summary>
-/// 叶子节点的超类
+/// 分支节点抽象
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class LeafTask<T> : Task<T>
+public abstract class BranchTask<T> : Task<T>
 {
-    protected sealed override void onChildRunning(Task<T> child) {
-        throw new AssertionError();
+    protected List<Task<T>> children;
+
+    protected BranchTask() {
+        children = new List<Task<T>>();
     }
 
-    protected sealed override void onChildCompleted(Task<T> child) {
-        throw new AssertionError();
+    protected BranchTask(List<Task<T>>? children) {
+        this.children = children ?? new List<Task<T>>();
     }
 
     #region child
 
-    public sealed override int indexChild(Task<T> task) {
-        return -1;
+    public sealed override void removeAllChild() {
+        children.ForEach(e => e.unsetControl());
+        children.Clear();
     }
 
+    public sealed override int indexChild(Task<T> task) {
+        return CollectionUtil.IndexOfRef(children, task);
+    }
+    
     public sealed override List<Task<T>> ListChildren() {
-        return new List<Task<T>>(0);
+        return new List<Task<T>>(children);
     }
 
     public sealed override int getChildCount() {
-        return 0;
+        return children.Count;
     }
-
+    
     public sealed override Task<T> getChild(int index) {
-        throw new IndexOutOfRangeException("A leaf task can not have any child");
+        return children[index];
     }
-
+    
     protected sealed override int addChildImpl(Task<T> task) {
-        throw new IllegalStateException("A leaf task cannot have any children");
+        children.Add(task);
+        return children.Count - 1;
     }
-
+    
     protected sealed override Task<T> setChildImpl(int index, Task<T> task) {
-        throw new IllegalStateException("A leaf task cannot have any children");
+        return children[index] = task;
     }
 
     protected sealed override Task<T> removeChildImpl(int index) {
-        throw new IndexOutOfRangeException("A leaf task can not have any child");
+        Task<T> child = children[index];
+        children.RemoveAt(index);
+        return child;
     }
 
     #endregion
