@@ -57,8 +57,7 @@ public class TaskEntry<T> extends Task<T> {
         this(null, null, null, null, null);
     }
 
-    public TaskEntry(String name,
-                     Task<T> rootTask, T blackboard,
+    public TaskEntry(String name, Task<T> rootTask, T blackboard,
                      Object entity, TreeLoader treeLoader) {
         this.name = name;
         this.rootTask = rootTask;
@@ -70,7 +69,7 @@ public class TaskEntry<T> extends Task<T> {
         cancelToken = new CancelToken();
     }
 
-    // setter
+    // getter/setter
     public String getName() {
         return name;
     }
@@ -103,10 +102,6 @@ public class TaskEntry<T> extends Task<T> {
         return treeLoader;
     }
 
-    public final void setTreeLoader(TreeLoader treeLoader) {
-        this.treeLoader = Objects.requireNonNullElse(treeLoader, TreeLoader.nullLoader());
-    }
-
     public TaskEntryHandler<T> getHandler() {
         return handler;
     }
@@ -115,6 +110,19 @@ public class TaskEntry<T> extends Task<T> {
         this.handler = handler;
     }
 
+    public final void setTreeLoader(TreeLoader treeLoader) {
+        this.treeLoader = Objects.requireNonNullElse(treeLoader, TreeLoader.nullLoader());
+    }
+
+    @Override
+    public final Object getEntity() {
+        return entity;
+    }
+
+    @Override
+    public final int getCurFrame() {
+        return curFrame;
+    }
     // endregion
 
     // region logic
@@ -158,7 +166,7 @@ public class TaskEntry<T> extends Task<T> {
         setCompleted(child.getStatus(), true);
         cancelToken.clear(); // 避免内存泄漏
         if (handler != null) {
-            handler.onEntryCompleted(this);
+            handler.onCompleted(this);
         }
     }
 
@@ -173,16 +181,6 @@ public class TaskEntry<T> extends Task<T> {
     @Override
     protected void onEventImpl(@Nonnull Object event) {
         rootTask.onEvent(event);
-    }
-
-    @Override
-    public final Object getEntity() {
-        return entity;
-    }
-
-    @Override
-    public final int getCurFrame() {
-        return curFrame;
     }
 
     @Override

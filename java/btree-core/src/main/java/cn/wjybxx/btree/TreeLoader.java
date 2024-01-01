@@ -43,11 +43,11 @@ public interface TreeLoader {
     Object tryLoadObject(String nameOrGuid);
 
     default Object loadObject(String nameOrGuid) {
-        Object object = tryLoadObject(nameOrGuid);
-        if (object == null) {
+        Object result = tryLoadObject(nameOrGuid);
+        if (result == null) {
             throw new IllegalArgumentException("target object is absent, name: " + nameOrGuid);
         }
-        return object;
+        return result;
     }
 
     /**
@@ -68,24 +68,24 @@ public interface TreeLoader {
     @Nullable
     @SuppressWarnings("unchecked")
     default <T> Task<T> tryLoadRootTask(String treeName) {
-        Object object = tryLoadObject(treeName);
-        if (object == null) return null;
-        if (!(object instanceof Task<?>)) {
+        Object result = tryLoadObject(treeName);
+        if (result == null) return null;
+        if (!(result instanceof Task<?>)) {
             throw new IllegalArgumentException("target object is not a task, name: " + treeName);
         }
-        return (Task<T>) object;
+        return (Task<T>) result;
     }
 
     @SuppressWarnings("unchecked")
     default <T> Task<T> loadRootTask(String treeName) {
-        Object object = tryLoadObject(treeName);
-        if (object == null) {
+        Object result = tryLoadObject(treeName);
+        if (result == null) {
             throw new IllegalArgumentException("target tree is absent, name: " + treeName);
         }
-        if (!(object instanceof Task<?>)) {
+        if (!(result instanceof Task<?>)) {
             throw new IllegalArgumentException("target object is not a task, name: " + treeName);
         }
-        return (Task<T>) object;
+        return (Task<T>) result;
     }
 
     default <T> TaskEntry<T> loadTree(String treeName) {

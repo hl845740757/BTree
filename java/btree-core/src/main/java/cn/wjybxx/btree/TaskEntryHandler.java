@@ -23,6 +23,6 @@ package cn.wjybxx.btree;
  */
 public interface TaskEntryHandler<T> {
 
-    void onEntryCompleted(TaskEntry<T> taskEntry);
+    void onCompleted(TaskEntry<T> taskEntry);
 
 }

@@ -132,7 +132,7 @@ public abstract class Task<T> {
      */
     protected int flags;
 
-    // region 简单查询
+    // region getter/setter
 
     public final TaskEntry<T> getTaskEntry() {
         return taskEntry;
@@ -178,20 +178,22 @@ public abstract class Task<T> {
         return enterFrame;
     }
 
+    public final int getExitFrame() {
+        return exitFrame;
+    }
+
     /** 慎重调用 */
     public void setEnterFrame(int enterFrame) {
         this.enterFrame = enterFrame;
-    }
-
-    public final int getExitFrame() {
-        return exitFrame;
     }
 
     /** 慎重调用 */
     public void setExitFrame(int exitFrame) {
         this.exitFrame = exitFrame;
     }
-    //
+    // endregion
+
+    // region status
 
     /** 获取原始的状态码 */
     public final int getStatus() {
@@ -230,7 +232,7 @@ public abstract class Task<T> {
     /**
      * 获取任务前一次的执行结果
      * 1.取值范围[0,63] -- 其实只要能区分成功失败就够；
-     * 2.这并不是一个运行时必须的属性，而是为Debug和Ui视图用的；Java端暂不实现了，C#会实现
+     * 2.这并不是一个运行时必须的属性，而是为Debug和UI视图服务的；
      */
     public final int getPrevStatus() {
         return ctl & MASK_PREV_STATUS;
