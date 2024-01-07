@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // Copyright 2024 wjybxx(845740757@qq.com)
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,6 +13,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 #endregion
 
 #pragma warning disable CS1591
@@ -23,6 +25,12 @@ namespace Wjybxx.BTree.Decorator;
 /// <typeparam name="T"></typeparam>
 public class AlwaysCheckGuard<T> : Decorator<T>
 {
+    public AlwaysCheckGuard() {
+    }
+
+    public AlwaysCheckGuard(Task<T> child) : base(child) {
+    }
+
     protected override void execute() {
         if (template_checkGuard(child!.GetGuard())) {
             template_runChildDirectly(child);

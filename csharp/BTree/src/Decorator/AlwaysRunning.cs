@@ -31,7 +31,13 @@ public class AlwaysRunning<T> : Decorator<T>
     /** 记录子节点上次的重入id，这样不论enter和execute是否分开执行都不影响 */
     [NonSerialized] private int childPrevReentryId;
 
-    protected override  void beforeEnter() {
+    public AlwaysRunning() {
+    }
+
+    public AlwaysRunning(Task<T> child) : base(child) {
+    }
+
+    protected override void beforeEnter() {
         base.beforeEnter();
         if (child == null) {
             childPrevReentryId = 0;
@@ -45,7 +51,7 @@ public class AlwaysRunning<T> : Decorator<T>
             return;
         }
         bool started = child.isExited(childPrevReentryId);
-        if (started && child.IsCompleted()) {  // 勿轻易调整
+        if (started && child.IsCompleted()) { // 勿轻易调整
             return;
         }
         template_runChild(child);
@@ -56,5 +62,4 @@ public class AlwaysRunning<T> : Decorator<T>
             setCancelled();
         }
     }
-
 }

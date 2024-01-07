@@ -19,6 +19,8 @@ import cn.wjybxx.btree.Status;
 import cn.wjybxx.btree.Task;
 
 /**
+ * Switch-选择一个分支运行，直到其结束
+ *
  * @author wjybxx
  * date - 2023/11/26
  */

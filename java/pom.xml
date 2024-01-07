@@ -59,14 +59,12 @@
 
         <slf4j.version>2.0.9</slf4j.version>
         <jsr305.version>3.0.2</jsr305.version>
-        <bsae.version>1.0.rc1</bsae.version>
-        <dson.version>1.4.rc1</dson.version>
+        <bsae.version>1.0.2</bsae.version>
 
+        <dson.version>1.4.0</dson.version>
         <!--测试依赖 -->
         <logback.version>1.4.14</logback.version>
         <junit.version>5.10.1</junit.version>
-        <commons-lang3.version>3.14.0</commons-lang3.version>
-        <commons-io.version>2.13.0</commons-io.version>
     </properties>
 	
     <dependencies>
@@ -101,13 +99,6 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>${commons-lang3.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

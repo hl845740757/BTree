@@ -1,6 +1,6 @@
 ﻿#region LICENSE
 
-// Copyright 2024 wjybxx(845740757@qq.com)
+// Copyright 2023-2024 wjybxx(845740757@qq.com)
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,30 +16,31 @@
 
 #endregion
 
-#pragma warning disable CS1591
 namespace Wjybxx.BTree.Decorator;
 
 /// <summary>
-/// 在子节点完成之后固定返回成功
+/// 只执行一次。
+/// 1.适用那些不论成功与否只执行一次的行为。
+/// 2.在调用<see cref="Task{T}.resetForRestart()"/>后可再次运行。
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class AlwaysSuccess<T> : Decorator<T>
+public class OnlyOnce<T> : Decorator<T>
 {
-    public AlwaysSuccess() {
+    public OnlyOnce() {
     }
 
-    public AlwaysSuccess(Task<T> child) : base(child) {
+    public OnlyOnce(Task<T> child) : base(child) {
     }
 
     protected override void execute() {
-        if (child == null) {
-            setSuccess();
+        if (child.IsCompleted()) {
+            setCompleted(child.GetStatus(), true);
         } else {
             template_runChild(child);
         }
     }
 
     protected override void onChildCompleted(Task<T> child) {
-        setSuccess();
+        setCompleted(child.GetStatus(), true);
     }
 }

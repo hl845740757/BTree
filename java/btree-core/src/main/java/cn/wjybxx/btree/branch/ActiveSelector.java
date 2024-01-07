@@ -18,6 +18,8 @@ package cn.wjybxx.btree.branch;
 import cn.wjybxx.btree.Status;
 import cn.wjybxx.btree.Task;
 
+import java.util.List;
+
 /**
  * 主动选择节点
  * 每次运行时都会重新测试节点的运行条件，选择一个新的可运行节点。
@@ -27,6 +29,13 @@ import cn.wjybxx.btree.Task;
  * date - 2023/11/26
  */
 public class ActiveSelector<T> extends SingleRunningChildBranch<T> {
+
+    public ActiveSelector() {
+    }
+
+    public ActiveSelector(List<Task<T>> children) {
+        super(children);
+    }
 
     @Override
     protected void execute() {

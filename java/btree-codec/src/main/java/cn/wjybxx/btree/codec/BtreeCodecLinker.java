@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cn.wjybxx.btree;
+package cn.wjybxx.btree.codec;
 
+import cn.wjybxx.btree.TaskEntry;
 import cn.wjybxx.btree.branch.*;
 import cn.wjybxx.btree.branch.join.*;
 import cn.wjybxx.btree.decorator.*;

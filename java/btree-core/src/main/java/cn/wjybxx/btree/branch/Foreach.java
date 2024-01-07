@@ -35,10 +35,6 @@ public class Foreach<T> extends SingleRunningChildBranch<T> {
         super(children);
     }
 
-    public Foreach(Task<T> first, @Nullable Task<T> second) {
-        super(first, second);
-    }
-
     @Override
     protected void onChildCompleted(Task<T> child) {
         runningChild = null;

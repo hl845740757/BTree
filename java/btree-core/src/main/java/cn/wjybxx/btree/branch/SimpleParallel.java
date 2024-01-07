@@ -18,17 +18,26 @@ package cn.wjybxx.btree.branch;
 import cn.wjybxx.btree.Task;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 
 /**
  * 简单并发节点。
- * 其中第一个任务为主要任务，其余任务为次要任务。
- * 一旦主要任务完成，则节点进入完成状态。
+ * 1.其中第一个任务为主要任务，其余任务为次要任务;
+ * 2.一旦主要任务完成，则节点进入完成状态。
+ * 3.外部事件将派发给主要任务。
  *
  * @author wjybxx
  * date - 2023/11/26
  */
 public class SimpleParallel<T> extends Parallel<T> {
+
+    public SimpleParallel() {
+    }
+
+    public SimpleParallel(List<Task<T>> children) {
+        super(children);
+    }
 
     @Override
     protected void execute() {

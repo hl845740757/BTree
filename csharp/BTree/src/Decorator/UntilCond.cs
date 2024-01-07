@@ -1,6 +1,6 @@
 ﻿#region LICENSE
 
-// Copyright 2024 wjybxx(845740757@qq.com)
+// Copyright 2023-2024 wjybxx(845740757@qq.com)
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,17 +16,30 @@
 
 #endregion
 
-namespace Wjybxx.BTree;
+using System;
+
+namespace Wjybxx.BTree.Decorator;
 
 /// <summary>
-/// <see cref="TaskEntry{T}"/>的事件处理
+/// 循环子节点直到给定的条件达成
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public interface ITaskEntryHandler<T>
+public class UntilCond<T> : LoopDecorator<T>
 {
+    /** 循环条件 -- 不能直接使用child的guard，意义不同 */
+    private Task<T>? cond;
+
+    protected override void onChildCompleted(Task<T> child) {
+        if (template_checkGuard(cond)) {
+            setSuccess();
+        }
+    }
+
     /// <summary>
-    /// 任务进入完成状态
+    /// 子节点的循条件
     /// </summary>
-    /// <param name="taskEntry"></param>
-    void OnCompleted(TaskEntry<T> taskEntry);
+    public Task<T>? Cond {
+        get => cond;
+        set => cond = value;
+    }
 }

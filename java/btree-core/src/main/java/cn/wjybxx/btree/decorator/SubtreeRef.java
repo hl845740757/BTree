@@ -26,19 +26,19 @@ import cn.wjybxx.btree.Task;
  */
 public class SubtreeRef<T> extends Decorator<T> {
 
-    private String treeName;
+    private String subtreeName;
 
     public SubtreeRef() {
     }
 
-    public SubtreeRef(String treeName) {
-        this.treeName = treeName;
+    public SubtreeRef(String subtreeName) {
+        this.subtreeName = subtreeName;
     }
 
     @Override
     protected void enter(int reentryId) {
         if (child == null) {
-            Task<T> rootTask = getTaskEntry().getTreeLoader().loadRootTask(treeName);
+            Task<T> rootTask = getTaskEntry().getTreeLoader().loadRootTask(subtreeName);
             addChild(rootTask);
         }
     }
@@ -53,11 +53,11 @@ public class SubtreeRef<T> extends Decorator<T> {
         setCompleted(child.getStatus(), true);
     }
 
-    public String getTreeName() {
-        return treeName;
+    public String getSubtreeName() {
+        return subtreeName;
     }
 
-    public void setTreeName(String treeName) {
-        this.treeName = treeName;
+    public void setSubtreeName(String subtreeName) {
+        this.subtreeName = subtreeName;
     }
 }

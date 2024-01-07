@@ -26,16 +26,19 @@ import java.util.List;
  * 多选Selector。
  * 如果{@link #required}小于等于0，则等同于{@link Success}
  * 如果{@link #required}等于1，则等同于{@link Selector}；
- * 如果{@link #required}等于{@code children.size}，则在所有child成功之后成功 -- 不会提前失败。
- * 如果{@link #required}大于{@code children.size}，则在所有child运行完成之后失败 -- 不会提前失败。
+ * 如果{@link #required}等于{@code children.size}，则在所有child成功之后成功 -- 默认不会提前失败。
+ * 如果{@link #required}大于{@code children.size}，则在所有child运行完成之后失败 -- 默认不会提前失败。
  *
  * @author wjybxx
  * date - 2023/11/26
  */
 public class SelectorN<T> extends SingleRunningChildBranch<T> {
 
+    /** 需要达成的次数 */
     private int required = 1;
+    /** 是否快速失败 */
     private boolean failFast;
+    /** 当前计数 */
     private transient int count;
 
     public SelectorN() {
@@ -90,7 +93,7 @@ public class SelectorN<T> extends SingleRunningChildBranch<T> {
     }
 
     private boolean checkFailFast() {
-        return failFast && (children.size() - getCompletedCount()) < required - count;
+        return failFast && (children.size() - getCompletedCount() < required - count);
     }
 
     public int getRequired() {
@@ -105,8 +108,7 @@ public class SelectorN<T> extends SingleRunningChildBranch<T> {
         return failFast;
     }
 
-    public SelectorN<T> setFailFast(boolean failFast) {
+    public void setFailFast(boolean failFast) {
         this.failFast = failFast;
-        return this;
     }
 }

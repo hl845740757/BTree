@@ -29,6 +29,10 @@ public class UntilFail<T> extends LoopDecorator<T> {
     public UntilFail() {
     }
 
+    public UntilFail(Task<T> child) {
+        super(child);
+    }
+
     @Override
     protected void onChildCompleted(Task<T> child) {
         if (child.isCancelled()) {

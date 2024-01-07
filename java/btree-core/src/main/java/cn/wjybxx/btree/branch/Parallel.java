@@ -18,6 +18,8 @@ package cn.wjybxx.btree.branch;
 import cn.wjybxx.btree.BranchTask;
 import cn.wjybxx.btree.Task;
 
+import java.util.List;
+
 /**
  * 并行节点基类
  * 定义该类主要说明一些注意事项，包括：
@@ -28,6 +30,13 @@ import cn.wjybxx.btree.Task;
  * date - 2023/11/26
  */
 public abstract class Parallel<T> extends BranchTask<T> {
+
+    public Parallel() {
+    }
+
+    public Parallel(List<Task<T>> children) {
+        super(children);
+    }
 
     /**
      * 并发节点通常不需要在该事件中将自己更新为运行状态，而是应该在{@link #execute()}方法的末尾更新

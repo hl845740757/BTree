@@ -27,6 +27,12 @@ public class AlwaysFail<T> : Decorator<T>
 {
     private int failureStatus;
 
+    public AlwaysFail() {
+    }
+
+    public AlwaysFail(Task<T> child) : base(child) {
+    }
+
     protected override void execute() {
         if (child == null) {
             setFailed(Status.ToFailure(failureStatus));

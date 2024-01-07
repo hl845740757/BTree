@@ -28,7 +28,9 @@ namespace Wjybxx.BTree;
 /// <typeparam name="T"></typeparam>
 public abstract class Decorator<T> : Task<T>
 {
-    protected Task<T>? child;
+#nullable disable
+    protected Task<T> child;
+#nullable enable
 
     public Decorator() {
     }

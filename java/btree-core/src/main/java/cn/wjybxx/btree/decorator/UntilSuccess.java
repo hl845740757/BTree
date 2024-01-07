@@ -18,12 +18,19 @@ package cn.wjybxx.btree.decorator;
 import cn.wjybxx.btree.Task;
 
 /**
+ * 重复运行子节点，直到该任务成功
+ * （超类做了死循环避免）
+ *
  * @author wjybxx
  * date - 2023/11/26
  */
 public class UntilSuccess<T> extends LoopDecorator<T> {
 
     public UntilSuccess() {
+    }
+
+    public UntilSuccess(Task<T> child) {
+        super(child);
     }
 
     @Override

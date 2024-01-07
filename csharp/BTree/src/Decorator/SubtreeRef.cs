@@ -1,6 +1,6 @@
 ﻿#region LICENSE
 
-// Copyright 2024 wjybxx(845740757@qq.com)
+// Copyright 2023-2024 wjybxx(845740757@qq.com)
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,30 +16,45 @@
 
 #endregion
 
-#pragma warning disable CS1591
 namespace Wjybxx.BTree.Decorator;
 
 /// <summary>
-/// 在子节点完成之后固定返回成功
+/// 子树引用
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class AlwaysSuccess<T> : Decorator<T>
+public class SubtreeRef<T> : Decorator<T>
 {
-    public AlwaysSuccess() {
+#nullable disable
+    private string subtreeName;
+#nullable enable
+
+    public SubtreeRef() {
     }
 
-    public AlwaysSuccess(Task<T> child) : base(child) {
+    public SubtreeRef(string subtreeName) {
+        this.subtreeName = subtreeName;
     }
 
-    protected override void execute() {
+    protected override void enter(int reentryId) {
         if (child == null) {
-            setSuccess();
-        } else {
-            template_runChild(child);
+            Task<T> rootTask = GetTaskEntry().TreeLoader.loadRootTask<T>(subtreeName);
+            addChild(rootTask);
         }
     }
 
+    protected override void execute() {
+        template_runChild(child);
+    }
+
     protected override void onChildCompleted(Task<T> child) {
-        setSuccess();
+        setCompleted(child.GetStatus(), true);
+    }
+
+    /// <summary>
+    /// 子树的名字
+    /// </summary>
+    public string SubtreeName {
+        get => subtreeName;
+        set => subtreeName = value;
     }
 }

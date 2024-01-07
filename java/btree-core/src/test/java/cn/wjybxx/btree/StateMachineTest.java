@@ -15,12 +15,12 @@
  */
 package cn.wjybxx.btree;
 
+import cn.wjybxx.base.mutable.MutableInt;
 import cn.wjybxx.btree.fsm.ChangeStateArgs;
 import cn.wjybxx.btree.fsm.ChangeStateTask;
 import cn.wjybxx.btree.fsm.StateMachineTask;
 import cn.wjybxx.btree.leaf.Success;
 import cn.wjybxx.btree.leaf.WaitFrame;
-import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -196,15 +196,15 @@ public class StateMachineTest {
         StateMachineTask<Blackboard> stateMachine = taskEntry.getRootStateMachine();
         fillRedoQueue(stateMachine);
 
-        MutableBoolean redoFinished = new MutableBoolean(false);
+        MutableInt redoFinished = new MutableInt(0);
         stateMachine.setStateMachineHandler((stateMachineTask, preState) -> {
-            if (!redoFinished.booleanValue()) {
+            if (redoFinished.intValue() == 0) {
                 if (stateMachineTask.redoChangeState()) {
                     return true;
                 }
                 Assertions.assertEquals(queue_size, global_count);
                 fillUndoQueue(stateMachine);
-                redoFinished.setTrue();
+                redoFinished.setValue(1);
             }
             return stateMachineTask.undoChangeState();
         });

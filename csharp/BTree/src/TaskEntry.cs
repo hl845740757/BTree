@@ -48,22 +48,22 @@ public class TaskEntry<T> : Task<T>
     /** 行为树绑定的实体 -- 最好也存储在黑板里；这里的字段本是为了提高性能 */
     [NonSerialized] private object? entity;
     /** 行为树加载器 -- 用于加载Task或配置 */
-    [NonSerialized] private TreeLoader treeLoader;
+    [NonSerialized] private ITreeLoader treeLoader;
     /** 当前帧号 */
     [NonSerialized] private int curFrame;
     /** 用于Entry的事件驱动 */
-    [NonSerialized] private TaskEntryHandler<T>? handler;
+    [NonSerialized] private ITaskEntryHandler<T>? handler;
 
     public TaskEntry()
         : this(null, null) {
     }
 
-    public TaskEntry(string? name, Task<T>? rootTask, object? entity = null, TreeLoader? treeLoader = null) {
+    public TaskEntry(string? name, Task<T>? rootTask, object? entity = null, ITreeLoader? treeLoader = null) {
         this.name = name;
         this.rootTask = rootTask;
         this.type = type;
         this.entity = entity;
-        this.treeLoader = treeLoader ?? TreeLoader.NullLoader();
+        this.treeLoader = treeLoader ?? ITreeLoader.NullLoader();
     }
 
     #region getter/setter
@@ -71,8 +71,8 @@ public class TaskEntry<T> : Task<T>
     public string? Name => name;
     public Task<T>? RootTask => rootTask;
     public int Type => type;
-    public TreeLoader TreeLoader => treeLoader;
-    public TaskEntryHandler<T>? Handler => handler;
+    public ITreeLoader TreeLoader => treeLoader;
+    public ITaskEntryHandler<T>? Handler => handler;
 
     public void SetName(string? name) {
         this.name = name;
@@ -90,11 +90,11 @@ public class TaskEntry<T> : Task<T>
         this.entity = entity;
     }
 
-    public void SetTreeLoader(TreeLoader? treeLoader) {
-        this.treeLoader = ObjectUtil.NullToDef(treeLoader, TreeLoader.NullLoader());
+    public void SetTreeLoader(ITreeLoader? treeLoader) {
+        this.treeLoader = ObjectUtil.NullToDef(treeLoader, ITreeLoader.NullLoader());
     }
 
-    public void SetHandler(TaskEntryHandler<T> handler) {
+    public void SetHandler(ITaskEntryHandler<T> handler) {
         this.handler = handler;
     }
 

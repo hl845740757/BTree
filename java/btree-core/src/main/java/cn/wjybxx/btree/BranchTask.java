@@ -54,6 +54,7 @@ public abstract class BranchTask<T> extends Task<T> {
 
     // region
 
+    /** 是否是第一个子节点 */
     public final boolean isFirstChild(Task<?> child) {
         if (this.children.isEmpty()) {
             return false;
@@ -61,6 +62,7 @@ public abstract class BranchTask<T> extends Task<T> {
         return this.children.get(0) == child;
     }
 
+    /** 是否是第最后一个子节点 */
     public final boolean isLastChild(Task<?> child) {
         if (children.isEmpty()) {
             return false;
@@ -68,44 +70,40 @@ public abstract class BranchTask<T> extends Task<T> {
         return children.getLast() == child;
     }
 
-    /** 主要为MainPolicy提供帮助 */
+    /**  获取第一个子节点 -- 主要为MainPolicy提供帮助 */
     @Nullable
     public final Task<T> getFirstChild() {
         final int size = children.size();
-        if (size > 0) {
-            return children.get(0);
-        }
-        return null;
+        return size > 0 ? children.get(0) : null;
     }
 
+    /** 获取最后一个子节点 */
     @Nullable
     public final Task<T> getLastChild() {
         final int size = children.size();
-        if (size > 0) {
-            return children.get(size - 1);
-        }
-        return null;
+        return size > 0 ? children.get(size - 1) : null;
     }
 
     public boolean isAllChildCompleted() {
         // 在判断是否全部完成这件事上，逆序遍历有优势
-        for (int i = 0, size = children.size(); i < size; i++) {
-            Task<?> child = children.get(i);
+        for (int idx = children.size() - 1; idx >= 0; idx--) {
+            Task<?> child = children.get(idx);
             if (child.isRunning()) {
                 return false;
             }
         }
         return true;
     }
-    // endregion
-
-    // region child
 
     /** 用于避免测试的子节点过于规律 */
     @VisibleForTesting
     public final void shuffleChild() {
         Collections.shuffle(children);
     }
+
+    // endregion
+
+    // region child
 
     @Override
     public final void removeAllChild() {

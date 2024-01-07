@@ -1,6 +1,6 @@
 ﻿#region LICENSE
 
-// Copyright 2024 wjybxx(845740757@qq.com)
+// Copyright 2023-2024 wjybxx(845740757@qq.com)
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,17 +16,27 @@
 
 #endregion
 
-namespace Wjybxx.BTree;
+namespace Wjybxx.BTree.Decorator;
 
 /// <summary>
-/// <see cref="TaskEntry{T}"/>的事件处理
+///  重复运行子节点，直到该任务成功
+/// （超类做了死循环避免）
 /// </summary>
-/// <typeparam name="T"></typeparam>
-public interface ITaskEntryHandler<T>
+public class UntilSuccess<T> : LoopDecorator<T>
 {
-    /// <summary>
-    /// 任务进入完成状态
-    /// </summary>
-    /// <param name="taskEntry"></param>
-    void OnCompleted(TaskEntry<T> taskEntry);
+    public UntilSuccess() {
+    }
+
+    public UntilSuccess(Task<T> child) : base(child) {
+    }
+
+    protected override void onChildCompleted(Task<T> child) {
+        if (child.IsCancelled()) {
+            setCancelled();
+            return;
+        }
+        if (child.IsSucceeded()) {
+            setSuccess();
+        }
+    }
 }

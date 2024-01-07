@@ -1,6 +1,5 @@
 ﻿#region LICENSE
-
-// Copyright 2024 wjybxx(845740757@qq.com)
+// Copyright 2023-2024 wjybxx(845740757@qq.com)
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,33 +12,39 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 #endregion
 
-#pragma warning disable CS1591
-namespace Wjybxx.BTree.Decorator;
+using System.Collections.Generic;
+
+namespace Wjybxx.BTree.Branch;
 
 /// <summary>
-/// 在子节点完成之后固定返回成功
+/// 
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class AlwaysSuccess<T> : Decorator<T>
+public class Sequence<T> : SingleRunningChildBranch<T>
 {
-    public AlwaysSuccess() {
+    public Sequence() {
     }
 
-    public AlwaysSuccess(Task<T> child) : base(child) {
+    public Sequence(List<Task<T>>? children) : base(children) {
     }
 
-    protected override void execute() {
-        if (child == null) {
-            setSuccess();
-        } else {
-            template_runChild(child);
-        }
+    public Sequence(Task<T> first, Task<T>? second) : base(first, second) {
     }
 
     protected override void onChildCompleted(Task<T> child) {
-        setSuccess();
+        runningChild = null;
+        if (child.IsCancelled()) {
+            setCancelled();
+            return;
+        }
+        if (child.IsFailed()) { // 失败码有传递的价值
+            setCompleted(child.GetStatus(), true);
+        } else if (isAllChildCompleted()) {
+            setSuccess();
+        } else if (!isExecuting()) {
+            template_execute();
+        }
     }
 }

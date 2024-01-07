@@ -17,6 +17,7 @@ package cn.wjybxx.btree.decorator;
 
 import cn.wjybxx.btree.Decorator;
 import cn.wjybxx.btree.Status;
+import cn.wjybxx.btree.Task;
 
 /**
  * 循环节点抽象
@@ -32,6 +33,10 @@ public abstract class LoopDecorator<T> extends Decorator<T> {
     protected int maxLoopPerFrame = 1;
 
     public LoopDecorator() {
+    }
+
+    public LoopDecorator(Task<T> child) {
+        super(child);
     }
 
     public LoopDecorator(int maxLoopPerFrame) {

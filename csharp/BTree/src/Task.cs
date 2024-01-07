@@ -147,7 +147,8 @@ public abstract class Task<T>
 
     #region props
 
-    public TaskEntry<T> TaskEntry => taskEntry;
+    public TaskEntry<T> GetTaskEntry() => taskEntry;
+
     public Task<T> Control => control;
 
     public int GetStatus() => status;
@@ -337,7 +338,7 @@ public abstract class Task<T>
     ///
     /// </summary>
     /// <param name="control">由于task未运行，其control可能尚未赋值，因此要传入；传null可不接收通知</param>
-    public void setGuardFailed(Task<T> control) {
+    public void setGuardFailed(Task<T>? control) {
         Debug.Assert(this.status != Status.RUNNING);
         if (control != null) { //测试null，适用entry的guard失败
             setControl(control);

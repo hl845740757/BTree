@@ -1,6 +1,6 @@
 ﻿#region LICENSE
 
-// Copyright 2024 wjybxx(845740757@qq.com)
+// Copyright 2023-2024 wjybxx(845740757@qq.com)
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,17 +16,32 @@
 
 #endregion
 
-namespace Wjybxx.BTree;
+using System.Collections.Generic;
+
+namespace Wjybxx.BTree.Branch;
 
 /// <summary>
-/// <see cref="TaskEntry{T}"/>的事件处理
+/// 迭代所有的子节点最后返回成功
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public interface ITaskEntryHandler<T>
+public class Foreach<T> : SingleRunningChildBranch<T>
 {
-    /// <summary>
-    /// 任务进入完成状态
-    /// </summary>
-    /// <param name="taskEntry"></param>
-    void OnCompleted(TaskEntry<T> taskEntry);
+    public Foreach() {
+    }
+
+    public Foreach(List<Task<T>>? children) : base(children) {
+    }
+    
+    protected override void onChildCompleted(Task<T> child) {
+        runningChild = null;
+        if (child.IsCancelled()) {
+            setCancelled();
+            return;
+        }
+        if (isAllChildCompleted()) {
+            setSuccess();
+        } else if (!isExecuting()) {
+            template_execute();
+        }
+    }
 }

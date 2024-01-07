@@ -1,6 +1,6 @@
 ﻿#region LICENSE
 
-// Copyright 2024 wjybxx(845740757@qq.com)
+// Copyright 2023-2024 wjybxx(845740757@qq.com)
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,30 +16,37 @@
 
 #endregion
 
-#pragma warning disable CS1591
-namespace Wjybxx.BTree.Decorator;
+using System.Collections.Generic;
+
+namespace Wjybxx.BTree.Branch;
 
 /// <summary>
-/// 在子节点完成之后固定返回成功
+/// 
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class AlwaysSuccess<T> : Decorator<T>
+public class Selector<T> : SingleRunningChildBranch<T>
 {
-    public AlwaysSuccess() {
+    public Selector() {
     }
 
-    public AlwaysSuccess(Task<T> child) : base(child) {
+    public Selector(List<Task<T>>? children) : base(children) {
     }
 
-    protected override void execute() {
-        if (child == null) {
-            setSuccess();
-        } else {
-            template_runChild(child);
-        }
+    public Selector(Task<T> first, Task<T>? second) : base(first, second) {
     }
 
     protected override void onChildCompleted(Task<T> child) {
-        setSuccess();
+        runningChild = null;
+        if (child.IsCancelled()) {
+            setCancelled();
+            return;
+        }
+        if (child.IsSucceeded()) {
+            setSuccess();
+        } else if (isAllChildCompleted()) {
+            setFailed(Status.ERROR);
+        } else if (!isExecuting()) {
+            template_execute();
+        }
     }
 }

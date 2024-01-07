@@ -29,7 +29,9 @@ import cn.wjybxx.btree.branch.SelectorN;
  */
 public class JoinSelectorN<T> implements JoinPolicy<T> {
 
+    /** 需要达成的次数 */
     private int required = 1;
+    /** 是否快速失败 */
     private boolean failFast;
 
     public JoinSelectorN() {

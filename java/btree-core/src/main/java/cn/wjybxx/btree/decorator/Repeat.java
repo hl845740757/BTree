@@ -32,7 +32,9 @@ public class Repeat<T> extends LoopDecorator<T> {
 
     /** 考虑到Java枚举与其它语言的兼容性问题，我们在编辑器中使用数字 */
     private int countMode = MODE_ALWAYS;
+    /** 需要重复的次数 */
     private int required = 1;
+    /** 当前计数 */
     private transient int count;
 
     @Override
@@ -61,13 +63,12 @@ public class Repeat<T> extends LoopDecorator<T> {
             setCancelled();
             return;
         }
-        boolean match;
-        switch (countMode) {
-            case MODE_ALWAYS -> match = true;
-            case MODE_ONLY_SUCCESS -> match = child.isSucceeded();
-            case MODE_ONLY_FAILED -> match = child.isFailed();
-            default -> match = false;
-        }
+        boolean match = switch (countMode) {
+            case MODE_ALWAYS -> true;
+            case MODE_ONLY_SUCCESS -> child.isSucceeded();
+            case MODE_ONLY_FAILED -> child.isFailed();
+            default -> false;
+        };
         if (match && ++count >= required) {
             setSuccess();
         }

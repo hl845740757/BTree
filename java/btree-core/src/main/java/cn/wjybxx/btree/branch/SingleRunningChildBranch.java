@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 /**
- * 非并行分支节点抽象
+ * 非并行分支节点抽象(最多只有一个运行中的子节点)
  * 如果{@link #execute()}方法是有循环体的，那么一定要注意：
  * 只有循环的尾部运行child才是安全的，如果在运行child后还读写其它数据，可能导致bug(小心递归)。
  *
@@ -67,6 +67,7 @@ public abstract class SingleRunningChildBranch<T> extends BranchTask<T> {
 
     // endregion
 
+    // region logic
     @Override
     public void resetForRestart() {
         super.resetForRestart();
@@ -144,7 +145,7 @@ public abstract class SingleRunningChildBranch<T> extends BranchTask<T> {
      *
      *  protected void onChildCompleted(Task child) {
      *      runningChild = null;
-     *      // 尝试计算结果
+     *      // 尝试计算结果（记得处理取消）
      *      ...
      *      // 如果未得出结果
      *      if (!isExecuting()) {
@@ -159,5 +160,6 @@ public abstract class SingleRunningChildBranch<T> extends BranchTask<T> {
         assert child == runningChild;
         runningChild = null; // 子类可直接重写此句以不调用super
     }
+    // endregion
 
 }

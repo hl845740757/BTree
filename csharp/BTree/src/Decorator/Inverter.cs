@@ -30,6 +30,12 @@ namespace Wjybxx.BTree.Decorator;
 /// <typeparam name="T"></typeparam>
 public class Inverter<T> : Decorator<T>
 {
+    public Inverter() {
+    }
+
+    public Inverter(Task<T> child) : base(child) {
+    }
+
     protected override void execute() {
         template_runChild(child!);
     }
