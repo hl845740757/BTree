@@ -16,6 +16,7 @@
 package cn.wjybxx.btree;
 
 import cn.wjybxx.btree.leaf.WaitFrame;
+import cn.wjybxx.unitask.UniCancelTokenSource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -60,7 +61,7 @@ public class LeafTest {
     @Test
     void testStillborn() {
         WaitFrame<Blackboard> waitFrame = new WaitFrame<>(10);
-        waitFrame.setCancelToken(new CancelToken(1)); // 提前赋值的token不会被覆盖和删除
+        waitFrame.setCancelToken(new UniCancelTokenSource(1)); // 提前赋值的token不会被覆盖和删除
         TaskEntry<Blackboard> taskEntry = BtreeTestUtil.newTaskEntry(waitFrame);
         BtreeTestUtil.untilCompleted(taskEntry);
 

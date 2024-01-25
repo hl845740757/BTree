@@ -16,6 +16,9 @@
 package cn.wjybxx.btree;
 
 import cn.wjybxx.btree.fsm.StateMachineTask;
+import cn.wjybxx.concurrent.ICancelToken;
+import cn.wjybxx.concurrent.ICancelTokenSource;
+import cn.wjybxx.unitask.UniCancelTokenSource;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -30,7 +33,7 @@ import java.util.stream.Stream;
  * 4. Entry默认不检查{@link #getGuard()}，如果需要由用户（逻辑上的control）检查。
  * 5. 如果要复用行为树，应当以树为单位整体复用，万莫以Task为单位复用 -- 节点之间的引用千丝万缕，容易内存泄漏。
  * 6. 该行为树虽然是事件驱动的，但心跳不是事件，仍需要每一帧调用{@link #update(int)}方法。
- * 7. 避免直接使用外部的{@link CancelToken}，可将Entry的Token注册为外部的Child -- {@link CancelToken#addChild(CancelToken)}。
+ * 7. 避免直接使用外部的{@link ICancelToken}，可将Entry的Token注册为外部的Child -- {@link ICancelToken#thenTransferTo(ICancelTokenSource)}。
  *
  * @author wjybxx
  * date - 2023/11/25
@@ -66,7 +69,7 @@ public class TaskEntry<T> extends Task<T> {
         this.treeLoader = Objects.requireNonNullElse(treeLoader, TreeLoader.nullLoader());
 
         taskEntry = this;
-        cancelToken = new CancelToken();
+        cancelToken = new UniCancelTokenSource();
     }
 
     // getter/setter
@@ -164,7 +167,7 @@ public class TaskEntry<T> extends Task<T> {
     @Override
     protected void onChildCompleted(Task<T> child) {
         setCompleted(child.getStatus(), true);
-        cancelToken.clear(); // 避免内存泄漏
+        cancelToken.reset(); // 避免内存泄漏
         if (handler != null) {
             handler.onCompleted(this);
         }
@@ -186,7 +189,7 @@ public class TaskEntry<T> extends Task<T> {
     @Override
     public void resetForRestart() {
         super.resetForRestart();
-        cancelToken.clear();
+        cancelToken.reset();
         curFrame = 0;
     }
 

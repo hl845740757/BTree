@@ -15,6 +15,9 @@
  */
 package cn.wjybxx.btree;
 
+import cn.wjybxx.concurrent.CancelTokenListener;
+import cn.wjybxx.concurrent.ICancelToken;
+import cn.wjybxx.unitask.UniCancelTokenSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +42,7 @@ import java.util.stream.Stream;
  * date - 2023/11/25
  */
 @SuppressWarnings("unused")
-public abstract class Task<T> {
+public abstract class Task<T> implements CancelTokenListener {
 
     public static final Logger logger = LoggerFactory.getLogger(Task.class);
 
@@ -86,7 +89,7 @@ public abstract class Task<T> {
      * 2.运行时不能为null；
      * 3.如果是自动继承的，exit后自动删除；如果是Control赋值的，则由control删除。
      */
-    protected transient CancelToken cancelToken;
+    protected transient UniCancelTokenSource cancelToken;
     /**
      * 共享属性（配置上下文）
      * 1.用于解决【数据和行为分离】架构下的配置需求，主要解决策划的配置问题，减少维护工作量。
@@ -150,11 +153,11 @@ public abstract class Task<T> {
         this.blackboard = blackboard;
     }
 
-    public final CancelToken getCancelToken() {
+    public final UniCancelTokenSource getCancelToken() {
         return cancelToken;
     }
 
-    public final void setCancelToken(CancelToken cancelToken) {
+    public final void setCancelToken(UniCancelTokenSource cancelToken) {
         this.cancelToken = cancelToken;
     }
 
@@ -437,7 +440,8 @@ public abstract class Task<T> {
      * 取消令牌的回调方法
      * 注意：如果未启动自动监听，手动监听时也建议绑定到该方法
      */
-    protected void onCancelRequested(CancelToken cancelToken) {
+    @Override
+    public void onCancelRequested(ICancelToken cancelToken) {
         if (isRunning()) setCancelled();
     }
 
@@ -708,7 +712,7 @@ public abstract class Task<T> {
         }
         ctl = initMask; // 初始化基础上下文后才可以检测取消，包括控制流标记
 
-        final CancelToken cancelToken = this.cancelToken;
+        final UniCancelTokenSource cancelToken = this.cancelToken;
         if (cancelToken.isCancelling() && isAutoCheckCancel()) { // 胎死腹中
             releaseContext();
             setCompleted(Status.CANCELLED, false);
@@ -746,7 +750,7 @@ public abstract class Task<T> {
                 return;
             }
             if (isAutoListenCancel()) {
-                cancelToken.addListener(this);
+                cancelToken.thenNotify(this);
             }
             execute();
             if (isExited(reentryId)) {
@@ -763,7 +767,7 @@ public abstract class Task<T> {
         }
     }
 
-    private void checkFireRunningAndCancel(Task<T> control, CancelToken cancelToken) {
+    private void checkFireRunningAndCancel(Task<T> control, UniCancelTokenSource cancelToken) {
         if (cancelToken.isCancelling() && isAutoCheckCancel()) {
             setDisableDelayNotify(true);
             setCancelled();
@@ -781,7 +785,7 @@ public abstract class Task<T> {
      * 2.该方法不可以递归执行，如果在正在执行的情况下想执行{@link #execute()}方法，就直接调用 -- {@link #isExecuting()}
      */
     public final void template_execute() {
-        final CancelToken cancelToken = this.cancelToken;
+        final UniCancelTokenSource cancelToken = this.cancelToken;
         final int reentryId = this.reentryId;
         if (cancelToken.isCancelling() && isAutoCheckCancel()) {
             setDisableDelayNotify(true);
@@ -814,7 +818,7 @@ public abstract class Task<T> {
         }
         exitFrame = taskEntry.getCurFrame();
         if (isAutoListenCancel()) {
-            cancelToken.removeListener(this);
+            cancelToken.unregister(this);
         }
         try {
             stopRunningChildren();

@@ -59,9 +59,9 @@
 
         <slf4j.version>2.0.9</slf4j.version>
         <jsr305.version>3.0.2</jsr305.version>
-        <bsae.version>1.0.2</bsae.version>
-
+        <base.version>1.0.5</base.version>
         <dson.version>1.4.0</dson.version>
+
         <!--测试依赖 -->
         <logback.version>1.4.14</logback.version>
         <junit.version>5.10.1</junit.version>
@@ -77,7 +77,12 @@
         <dependency>
             <groupId>cn.wjybxx.commons</groupId>
             <artifactId>base</artifactId>
-            <version>${bsae.version}</version>
+            <version>${base.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.wjybxx.commons</groupId>
+            <artifactId>concurrent</artifactId>
+            <version>${base.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
         <dependency>

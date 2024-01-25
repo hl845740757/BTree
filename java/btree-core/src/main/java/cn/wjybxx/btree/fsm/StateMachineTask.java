@@ -351,8 +351,8 @@ public class StateMachineTask<T> extends Decorator<T> {
     @Override
     protected void onChildCompleted(Task<T> child) {
         assert this.child == child;
-        cancelToken.removeChild(child.getCancelToken()); // 删除分配的子token
-        child.getCancelToken().clear();
+        cancelToken.unregister(child.getCancelToken()); // 删除分配的子token
+        child.getCancelToken().reset();
         child.setCancelToken(null);
 
         if (tempNextState == null) {
