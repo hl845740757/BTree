@@ -194,7 +194,7 @@ public class StateMachineTask<T> extends Decorator<T> {
 
     /***
      * 切换状态
-     * 1.如果当前有一个待切换的状态，则会被悄悄丢弃(可以增加一个通知)
+     * 1.如果当前有一个待切换的状态，则会被悄悄丢弃(todo 可以增加一个通知)
      * 2.无论何种模式，在当前状态进入完成状态时一定会触发
      * 3.如果状态机未运行，则仅仅保存在那里，等待下次运行的时候执行
      * 4.当前状态可先正常完成，然后再切换状态，就可以避免进入被取消状态；可参考{@link ChangeStateTask}
@@ -465,21 +465,6 @@ public class StateMachineTask<T> extends Decorator<T> {
     // endregion
 
     //
-    public Task<T> getInitState() {
-        return initState;
-    }
-
-    public void setInitState(Task<T> initState) {
-        this.initState = initState;
-    }
-
-    public Object getInitStateProps() {
-        return initStateProps;
-    }
-
-    public void setInitStateProps(Object initStateProps) {
-        this.initStateProps = initStateProps;
-    }
 
     public String getName() {
         return name;
@@ -497,6 +482,22 @@ public class StateMachineTask<T> extends Decorator<T> {
         this.noneChildStatus = noneChildStatus;
     }
 
+    public Task<T> getInitState() {
+        return initState;
+    }
+
+    public void setInitState(Task<T> initState) {
+        this.initState = initState;
+    }
+
+    public Object getInitStateProps() {
+        return initStateProps;
+    }
+
+    public void setInitStateProps(Object initStateProps) {
+        this.initStateProps = initStateProps;
+    }
+
     public StateMachineListener<T> getListener() {
         return listener;
     }
@@ -512,5 +513,4 @@ public class StateMachineTask<T> extends Decorator<T> {
     public void setStateMachineHandler(StateMachineHandler<T> stateMachineHandler) {
         this.stateMachineHandler = stateMachineHandler;
     }
-
 }

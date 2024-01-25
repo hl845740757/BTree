@@ -39,4 +39,8 @@ public class CancelToken
     public CancelToken newChild() {
         return new CancelToken();
     }
+
+    public void cancel(int cancelCode) {
+        throw new System.NotImplementedException();
+    }
 }
