@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using Wjybxx.Commons;
 using Wjybxx.Commons.Ex;
+#pragma warning disable CS1591
 
 namespace Wjybxx.BTree;
 

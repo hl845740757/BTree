@@ -656,7 +656,7 @@ public abstract class Task<T> implements CancelTokenListener {
     }
 
     /**
-     * 告知模板方法否将{@link #enter(int)}和{@link #execute()}方法分开执行 -- 首次不执行{@link #execute()}方法。
+     * 告知模板方法否将{@link #enter(int)}和{@link #execute()}方法分开执行。
      * 1.默认值由{@link #flags}中的信息指定，默认不分开执行
      * 2.要覆盖默认值应当在{@link #beforeEnter()}方法中调用
      * 3.该属性运行期间不应该调整，调整也无效
@@ -670,7 +670,7 @@ public abstract class Task<T> implements CancelTokenListener {
     }
 
     /**
-     * 告知模板方法是否在{@link #enter(int)}前自动调用{@link #resetChildrenForRestart()}
+     * 告知模板方法是否在{@link #beforeEnter()}前自动调用{@link #resetChildrenForRestart()}
      * 1.默认值由{@link #flags}中的信息指定，默认不启用
      * 2.要覆盖默认值应当在{@link #beforeEnter()}方法中调用
      * 3.部分任务可能在调用{@link #resetForRestart()}之前不会再次运行，因此需要该特性

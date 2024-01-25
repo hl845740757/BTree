@@ -49,17 +49,20 @@ public abstract class Task<T>
 {
     internal static readonly ILogger logger;
 
-    /*///低6位记录前一次的运行结果，范围 [0, 63] */
-    private const int MASK_PREV_STATUS = 63;
-    private const int MASK_ENTER_EXECUTE = 1 << 6;
-    private const int MASK_STOP_EXIT = 1 << 7;
-    private const int MASK_STILLBORN = 1 << 8;
-    private const int MASK_EXECUTING = 1 << 9;
-    private const int MASK_RUNNING_FIRED = 1 << 10;
-    private const int MASK_DISABLE_NOTIFY = 1 << 11;
-    private const int MASK_INHERITED_BLACKBOARD = 1 << 12;
-    private const int MASK_INHERITED_CANCEL_TOKEN = 1 << 13;
-    private const int MASK_INHERITED_PROPS = 1 << 14;
+    /** 低4位记录Task重写了哪些方法 */
+    private const int MASK_OVERRIDES = 15;
+    /** 低 5~10 位记录前一次的运行结果，范围 [0, 63] */
+    private const int MASK_PREV_STATUS = (63) << 4;
+    private const int OFFSET_PREV_STATUS = 4;
+
+    private const int MASK_ENTER_EXECUTE = 1 << 12;
+    private const int MASK_EXECUTING = 1 << 13;
+    private const int MASK_STOP_EXIT = 1 << 14;
+    private const int MASK_STILLBORN = 1 << 15;
+    private const int MASK_DISABLE_NOTIFY = 1 << 16;
+    private const int MASK_INHERITED_BLACKBOARD = 1 << 17;
+    private const int MASK_INHERITED_CANCEL_TOKEN = 1 << 18;
+    private const int MASK_INHERITED_PROPS = 1 << 19;
 
     private const int MASK_LOCK1 = 1 << 20;
     private const int MASK_LOCK2 = 1 << 21;
@@ -68,7 +71,7 @@ public abstract class Task<T>
     private const int MASK_LOCK_ALL = MASK_LOCK1 | MASK_LOCK2 | MASK_LOCK3 | MASK_LOCK4;
 
     // 高8位为控制流程相关bit（对外开放）
-    public const int MASK_DISABLE_ENTER_EXECUTE = 1 << 24;
+    public const int MASK_SLOW_START = 1 << 24;
     public const int MASK_DISABLE_DELAY_NOTIFY = 1 << 25;
     public const int MASK_DISABLE_AUTO_CHECK_CANCEL = 1 << 26;
     public const int MASK_AUTO_LISTEN_CANCEL = 1 << 27;
@@ -143,6 +146,10 @@ public abstract class Task<T>
     /// </summary>
     protected int flags;
 
+    protected Task() {
+        ctl = TaskOverrides.maskOfTask(GetType());
+    }
+
 #nullable enable
 
     #region props
@@ -159,14 +166,17 @@ public abstract class Task<T>
         get => blackboard;
         set => blackboard = value;
     }
+
     public CancelToken CancelToken {
         get => cancelToken;
         set => cancelToken = value;
     }
+
     public object SharedProps {
         get => sharedProps;
         set => sharedProps = value;
     }
+
     public object ControlData {
         get => controlData;
         set => controlData = value;
@@ -179,6 +189,7 @@ public abstract class Task<T>
         get => enterFrame;
         set => enterFrame = value;
     }
+
     /// <summary>
     /// 慎重调用set
     /// </summary>
@@ -232,7 +243,13 @@ public abstract class Task<T>
     /// 1.取值范围[0,63] -- 其实只要能区分成功失败就够；
     /// 2.这并不是一个运行时必须的属性，而是为Debug和Ui视图用的；Java端暂不实现了，C#会实现
     /// </summary>
-    public int PrevStatus => ctl & MASK_PREV_STATUS;
+    public int PrevStatus {
+        get => (ctl & MASK_PREV_STATUS) >> OFFSET_PREV_STATUS;
+        set {
+            value = Math.Clamp(value, 0, Status.MAX_PREV_STATUS);
+            ctl |= (value << OFFSET_PREV_STATUS);
+        }
+    }
 
     /// <summary>
     /// 获取行为树绑定的实体 -- 最好让Entity也在黑板中
@@ -246,6 +263,8 @@ public abstract class Task<T>
             }
             return taskEntry.Entity;
         }
+        // C#重写属性的时候不能增加set，因此超类默认抛出异常
+        set => throw new NotSupportedException();
     }
 
     /** 获取当前的帧号 */
@@ -256,6 +275,8 @@ public abstract class Task<T>
             }
             return taskEntry.CurFrame;
         }
+        // C#重写属性的时候不能增加set，因此超类默认抛出异常
+        set => throw new NotSupportedException();
     }
 
     /** 获取行为树入口绑定的黑板 */
@@ -361,12 +382,12 @@ public abstract class Task<T>
             template_exit(0);
         } else {
             // 未调用Enter和Exit，需要补偿 -- 保留当前的ctl会更好
-            ctl &= ~MASK_PREV_STATUS;
-            ctl |= Math.Min(MASK_PREV_STATUS, prevStatus);
-            ctl |= MASK_STILLBORN;
-            this.status = status;
+            PrevStatus = prevStatus;
             this.enterFrame = exitFrame;
             this.reentryId++;
+
+            ctl |= MASK_STILLBORN;
+            this.status = status;
         }
         if (checkImmediateNotifyMask(ctl) && control != null) {
             control.onChildCompleted(this);
@@ -498,7 +519,7 @@ public abstract class Task<T>
             unsetControl();
         }
         status = 0;
-        ctl = 0;
+        ctl &= MASK_OVERRIDES; // 保留Overrides信息
         enterFrame = 0;
         exitFrame = 0;
         reentryId++; // 上下文变动，和之前的执行分开
@@ -655,22 +676,22 @@ public abstract class Task<T>
     }
 
     /// <summary>
-    /// 告知模板方法否将{@link #enter(int)}和{@link #execute()}方法分开执行，
+    /// 告知模板方法否将{@link #enter(int)}和{@link #execute()}方法分开执行。
     /// 1.默认值由{@link #flags}中的信息指定，默认不分开执行
     /// 2.要覆盖默认值应当在{@link #beforeEnter()}方法中调用
     /// 3.该属性运行期间不应该调整，调整也无效
     /// </summary>
     /// <param name="disable">是否禁用</param>
-    public void setDisableEnterExecute(bool disable) {
-        setCtlBit(MASK_DISABLE_ENTER_EXECUTE, disable);
+    public void setSlowStart(bool disable) {
+        setCtlBit(MASK_SLOW_START, disable);
     }
 
-    public bool isDisableEnterExecute() {
-        return (ctl & MASK_DISABLE_ENTER_EXECUTE) != 0;
+    public bool isSlowStart() {
+        return (ctl & MASK_SLOW_START) != 0;
     }
 
     /// <summary>
-    /// 告知模板方法是否在{@link #enter(int)}前自动调用{@link #resetChildrenForRestart()}
+    /// 告知模板方法是否在{@link #beforeEnter()}前自动调用{@link #resetChildrenForRestart()}
     /// 1.默认值由{@link #flags}中的信息指定，默认不启用
     /// 2.要覆盖默认值应当在{@link #beforeEnter()}方法中调用
     /// 3.部分任务可能在调用{@link #resetForRestart()}之前不会再次运行，因此需要该特性
@@ -819,7 +840,8 @@ public abstract class Task<T>
 
     /** enter方法不暴露，否则以后难以改动 */
     internal void template_enterExecute(Task<T>? control, int initMask) {
-        initMask |= (flags & MASK_CONTROL_FLOW_FLAGS);
+        initMask |= (ctl & MASK_OVERRIDES); // 方法实现bits
+        initMask |= (flags & MASK_CONTROL_FLOW_FLAGS); // 控制流bits
         if (control != null) {
             initMask |= captureContext(control);
         }
@@ -832,38 +854,42 @@ public abstract class Task<T>
             return;
         }
 
-        int prevStatus = this.status;
-        initMask |= Math.Min(MASK_PREV_STATUS, prevStatus);
+        int prevStatus = Math.Min(Status.MAX_PREV_STATUS, this.status);
         initMask |= (MASK_ENTER_EXECUTE | MASK_EXECUTING);
+        initMask |= (prevStatus << OFFSET_PREV_STATUS);
         ctl = initMask;
 
         status = Status.RUNNING; // 先更新为running状态，以避免执行过程中外部查询task的状态时仍处于上一次的结束status
         enterFrame = exitFrame = taskEntry.CurFrame;
         int reentryId = ++this.reentryId; // 和上次执行的exit分开
         try {
-            beforeEnter();
             if (prevStatus != Status.NEW && isAutoResetChildren()) {
                 resetChildrenForRestart();
             }
-            enter(reentryId);
-            if (isExited(reentryId)) { // enter 可能导致结束
-                if (reentryId + 1 == this.reentryId && checkDelayNotifyMask(ctl) && control != null) {
-                    control.onChildCompleted(this);
-                }
-                return;
+            if ((initMask & TaskOverrides.MASK_BEFORE_ENTER) != 0) {
+                beforeEnter();
             }
-            if (isDisableEnterExecute()) { // 需要下一帧执行execute
+            if ((initMask & TaskOverrides.MASK_ENTER) != 0) {
+                enter(reentryId);
+                if (isExited(reentryId)) { // enter 可能导致结束
+                    if (reentryId + 1 == this.reentryId && checkDelayNotifyMask(ctl) && control != null) {
+                        control.onChildCompleted(this);
+                    }
+                    return;
+                }
+                if (cancelToken.isCancelling() && isAutoCheckCancel()) { // token基本为false，autoCheck基本为true
+                    setDisableDelayNotify(true);
+                    setCancelled();
+                    return;
+                }
+            }
+
+            if (isSlowStart()) { // 需要下一帧执行execute
                 checkFireRunningAndCancel(control, cancelToken);
                 return;
             }
-
-            if (cancelToken.isCancelling() && isAutoCheckCancel()) { // token基本为false，autoCheck基本为true
-                setDisableDelayNotify(true);
-                setCancelled();
-                return;
-            }
             if (isAutoListenCancel()) {
-                cancelToken.addListener(this);
+                cancelToken.register(this);
             }
             execute();
             if (isExited(reentryId)) {
@@ -933,7 +959,7 @@ public abstract class Task<T>
         }
         exitFrame = taskEntry.CurFrame;
         if (isAutoListenCancel()) {
-            cancelToken.removeListener(this);
+            cancelToken.unregister(this);
         }
         try {
             stopRunningChildren();
@@ -1180,7 +1206,7 @@ public abstract class Task<T>
                 task.stop();
             }
             catch (Exception e) {
-                logger.LogWarning("task stop caught exception", e);
+                // logger.LogWarning("task stop caught exception", e);
             }
         }
     }

@@ -86,8 +86,9 @@ public interface ITreeLoader
     }
 
     TaskEntry<T> loadTree<T>(string treeName) {
-        Task<T> rootTask = loadRootTask(treeName);
-        return new TaskEntry<T>(treeName, rootTask, null, this);
+        // Task<T> rootTask = loadRootTask(treeName);
+        // return new TaskEntry<T>(treeName, rootTask, null, this);
+        throw new NotImplementedException();
     }
 
     # region entry

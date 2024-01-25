@@ -68,40 +68,40 @@ public class TaskEntry<T> : Task<T>
 
     #region getter/setter
 
-    public string? Name => name;
-    public Task<T>? RootTask => rootTask;
-    public int Type => type;
-    public ITreeLoader TreeLoader => treeLoader;
-    public ITaskEntryHandler<T>? Handler => handler;
-
-    public void SetName(string? name) {
-        this.name = name;
+    public string? Name {
+        get => name;
+        set => name = value;
     }
 
-    public void SetRootTask(Task<T>? rootTask) {
-        this.rootTask = rootTask;
+    public Task<T>? RootTask {
+        get => rootTask;
+        set => rootTask = value;
     }
 
-    public void SetType(int type) {
-        this.type = type;
+    public int Type {
+        get => type;
+        set => type = value;
     }
 
-    public void SetEntity(object? entity) {
-        this.entity = entity;
+    public ITreeLoader TreeLoader {
+        get => treeLoader;
+        set => treeLoader = ObjectUtil.NullToDef(value, ITreeLoader.NullLoader());
     }
 
-    public void SetTreeLoader(ITreeLoader? treeLoader) {
-        this.treeLoader = ObjectUtil.NullToDef(treeLoader, ITreeLoader.NullLoader());
+    public ITaskEntryHandler<T>? Handler {
+        get => handler;
+        set => handler = value;
+    }
+    
+    public override object? Entity {
+        get => entity;
+        set => entity = value;
     }
 
-    public void SetHandler(ITaskEntryHandler<T> handler) {
-        this.handler = handler;
+    public override int CurFrame {
+        get => curFrame;
+        set => curFrame = value;
     }
-
-    // C#重写属性的时候不能增加set，还是有点麻烦
-    public override object Entity => entity;
-
-    public override int CurFrame => curFrame;
 
     #endregion
 
@@ -130,7 +130,7 @@ public class TaskEntry<T> : Task<T>
 
     protected override void onChildCompleted(Task<T> child) {
         setCompleted(child.GetStatus(), true);
-        cancelToken.clear(); // 避免内存泄漏
+        cancelToken.reset(); // 避免内存泄漏
         if (handler != null) {
             handler.OnCompleted(this);
         }
@@ -149,7 +149,7 @@ public class TaskEntry<T> : Task<T>
 
     public override void resetForRestart() {
         base.resetForRestart();
-        cancelToken.clear();
+        cancelToken.reset();
         curFrame = 0;
     }
 
