@@ -30,7 +30,7 @@ public class CancelToken
     public void register<T>(Task<T> task) {
     }
 
-    public void unregister<T>(Task<T> task) {
+    public void unregister(object action) {
     }
 
     public void reset() {

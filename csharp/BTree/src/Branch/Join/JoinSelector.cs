@@ -17,27 +17,34 @@
 #endregion
 
 #pragma warning disable CS1591
-namespace Wjybxx.BTree.Decorator;
+namespace Wjybxx.BTree.Branch.Join;
 
 /// <summary>
-///  重复运行子节点，直到该任务成功
-/// （超类做了死循环避免）
+/// Join版本的Selector
 /// </summary>
-public class UntilSuccess<T> : LoopDecorator<T>
+/// <typeparam name="T"></typeparam>
+public class JoinSelector<T> : JoinPolicy<T>
 {
-    public UntilSuccess() {
+    public void resetForRestart() {
     }
 
-    public UntilSuccess(Task<T> child) : base(child) {
+    public void beforeEnter(Join<T> join) {
     }
 
-    protected override void onChildCompleted(Task<T> child) {
-        if (child.IsCancelled()) {
-            setCancelled();
-            return;
+    public void enter(Join<T> join) {
+        if (join.getChildCount() == 0) {
+            join.setFailed(Status.CHILDLESS);
         }
+    }
+
+    public void onChildCompleted(Join<T> join, Task<T> child) {
         if (child.IsSucceeded()) {
-            setSuccess();
+            join.setSuccess();
+        } else if (join.isAllChildCompleted()) {
+            join.setFailed(Status.ERROR);
         }
+    }
+
+    public void onEvent(Join<T> join, object eventObj) {
     }
 }

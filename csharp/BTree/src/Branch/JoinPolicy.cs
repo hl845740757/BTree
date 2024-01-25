@@ -1,5 +1,4 @@
 ﻿#region LICENSE
-
 // Copyright 2024 wjybxx(845740757@qq.com)
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,31 +12,29 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 #endregion
 
-#pragma warning disable CS1591
-namespace Wjybxx.BTree.Decorator;
+namespace Wjybxx.BTree.Branch;
 
-/// <summary>
-///  重复运行子节点，直到该任务成功
-/// （超类做了死循环避免）
-/// </summary>
-public class UntilSuccess<T> : LoopDecorator<T>
+public interface JoinPolicy<T>
 {
-    public UntilSuccess() {
-    }
+    /** 重置自身数据 */
+    void resetForRestart();
 
-    public UntilSuccess(Task<T> child) : base(child) {
-    }
+    /** 启动前初始化 */
+    void beforeEnter(Join<T> join);
 
-    protected override void onChildCompleted(Task<T> child) {
-        if (child.IsCancelled()) {
-            setCancelled();
-            return;
-        }
-        if (child.IsSucceeded()) {
-            setSuccess();
-        }
-    }
+    /** 启动 */
+    void enter(Join<T> join);
+
+    /**
+     * Join在调用该方法前更新了完成计数和成功计数
+     */
+    void onChildCompleted(Join<T> join, Task<T> child);
+
+    /**
+     * join节点收到外部事件
+     */
+    void onEvent(Join<T> join, object eventObj);
+
 }

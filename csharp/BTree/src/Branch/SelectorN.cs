@@ -1,6 +1,6 @@
 ﻿#region LICENSE
 
-// Copyright 2023-2024 wjybxx(845740757@qq.com)
+// Copyright 2024 wjybxx(845740757@qq.com)
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@
 using System;
 using Wjybxx.BTree.Leaf;
 
+#pragma warning disable CS1591
 namespace Wjybxx.BTree.Branch;
 
 /// <summary>
@@ -54,7 +55,7 @@ public class SelectorN<T> : SingleRunningChildBranch<T>
             setSuccess();
         } else if (getChildCount() == 0) {
             setFailed(Status.CHILDLESS);
-        } else if (checkFailFast()) {
+        } else if (CheckFailFast()) {
             setFailed(Status.INSUFFICIENT_CHILD);
         }
     }
@@ -67,22 +68,23 @@ public class SelectorN<T> : SingleRunningChildBranch<T>
         }
         if (child.IsSucceeded() && ++count >= required) {
             setSuccess();
-        } else if (isAllChildCompleted() || checkFailFast()) {
+        } else if (isAllChildCompleted() || CheckFailFast()) {
             setFailed(Status.ERROR);
         } else if (!isExecuting()) {
             template_execute();
         }
     }
 
-    private bool checkFailFast() {
+    private bool CheckFailFast() {
         return failFast && (children.Count - getCompletedCount() < required - count);
     }
 
-    //
+    /** 需要达成的次数 */
     public int Required {
         get => required;
         set => required = value;
     }
+    /** 是否快速失败 */
     public bool FailFast {
         get => failFast;
         set => failFast = value;

@@ -47,8 +47,6 @@ namespace Wjybxx.BTree;
 /// </summary>
 public abstract class Task<T>
 {
-    internal static readonly ILogger logger;
-
     /** 低4位记录Task重写了哪些方法 */
     private const int MASK_OVERRIDES = 15;
     /** 低 5~10 位记录前一次的运行结果，范围 [0, 63] */
@@ -150,8 +148,6 @@ public abstract class Task<T>
         ctl = TaskOverrides.maskOfTask(GetType());
     }
 
-#nullable enable
-
     #region props
 
     public TaskEntry<T> GetTaskEntry() => taskEntry;
@@ -200,7 +196,9 @@ public abstract class Task<T>
 
     #endregion
 
-    #region MyRegion
+#nullable enable
+
+    #region 状态查询
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsRunning() {
@@ -1208,7 +1206,7 @@ public abstract class Task<T>
                 task.stop();
             }
             catch (Exception e) {
-                // logger.LogWarning("task stop caught exception", e);
+                TaskLogger.warning(e, "task stop caught exception");
             }
         }
     }

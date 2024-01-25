@@ -11,7 +11,7 @@
     <artifactId>btree-codec</artifactId>
 
     <name>btree-codec</name>
-    <description>为生成树生成编解码器</description>
+    <description>为行为树生成编解码器</description>
     <url>https://github.com/hl845740757/BTree</url>
 
     <dependencies>

@@ -1,6 +1,6 @@
 ﻿#region LICENSE
 
-// Copyright 2023-2024 wjybxx(845740757@qq.com)
+// Copyright 2024 wjybxx(845740757@qq.com)
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 #endregion
 
+#pragma warning disable CS1591
 namespace Wjybxx.BTree.Decorator;
 
 /// <summary>

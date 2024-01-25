@@ -16,28 +16,24 @@
 
 #endregion
 
-#pragma warning disable CS1591
-namespace Wjybxx.BTree.Decorator;
+using System;
+
+namespace Wjybxx.BTree;
 
 /// <summary>
-///  重复运行子节点，直到该任务成功
-/// （超类做了死循环避免）
+/// 用于行为树记录日志
 /// </summary>
-public class UntilSuccess<T> : LoopDecorator<T>
+public class TaskLogger
 {
-    public UntilSuccess() {
+    public static void info(string format, params object[] args) {
     }
 
-    public UntilSuccess(Task<T> child) : base(child) {
+    public static void info(Exception? ex, string format, params object[] args) {
     }
 
-    protected override void onChildCompleted(Task<T> child) {
-        if (child.IsCancelled()) {
-            setCancelled();
-            return;
-        }
-        if (child.IsSucceeded()) {
-            setSuccess();
-        }
+    public static void warning(string format, params object[] args) {
+    }
+
+    public static void warning(Exception? ex, string format, params object[] args) {
     }
 }

@@ -1,6 +1,6 @@
 ﻿#region LICENSE
 
-// Copyright 2023-2024 wjybxx(845740757@qq.com)
+// Copyright 2024 wjybxx(845740757@qq.com)
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Wjybxx.Commons;
-#pragma warning disable CS1591
 
+#pragma warning disable CS1591
 namespace Wjybxx.BTree.Branch;
 
 /// <summary>
@@ -132,7 +132,7 @@ public abstract class SingleRunningChildBranch<T> : BranchTask<T>
     /// <summary>
     ///  子类的实现模板：
     /// <code>
-    ///  protected void onChildCompleted(Task child) {
+    ///  protected void OnChildCompleted(Task child) {
     ///     runningChild = null;
     ///     // 尝试计算结果（记得处理取消）
     ///      ...

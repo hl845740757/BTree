@@ -1,6 +1,6 @@
 ﻿#region LICENSE
 
-// Copyright 2023-2024 wjybxx(845740757@qq.com)
+// Copyright 2024 wjybxx(845740757@qq.com)
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,15 +39,15 @@ public class FixedSwitch<T> : Switch<T>
     protected override void beforeEnter() {
         base.beforeEnter();
         if (children.Count == 0) {
-            addChildIfNotNull(branch1);
-            addChildIfNotNull(branch2);
-            addChildIfNotNull(branch3);
-            addChildIfNotNull(branch4);
-            addChildIfNotNull(branch5);
+            AddChildIfNotNull(branch1);
+            AddChildIfNotNull(branch2);
+            AddChildIfNotNull(branch3);
+            AddChildIfNotNull(branch4);
+            AddChildIfNotNull(branch5);
         }
     }
 
-    private void addChildIfNotNull(Task<T>? branch) {
+    private void AddChildIfNotNull(Task<T>? branch) {
         if (branch != null) {
             addChild(branch);
         }

@@ -1,6 +1,6 @@
 ﻿#region LICENSE
 
-// Copyright 2023-2024 wjybxx(845740757@qq.com)
+// Copyright 2024 wjybxx(845740757@qq.com)
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,10 +31,13 @@ internal class TaskOverrides
     private const int MASK_ALL = 15;
 
     private static readonly Type TypeTask = typeof(Task<>);
-    private static readonly ConcurrentDictionary<Type, int> maskCacheMap = new ConcurrentDictionary<Type, int>();
+    private static readonly ConcurrentDictionary<Type, int> MaskCacheMap = new ConcurrentDictionary<Type, int>();
 
     public static int maskOfTask(Type clazz) {
-        if (maskCacheMap.TryGetValue(clazz, out int cachedMask)) {
+        if (clazz.IsGenericType) {
+            clazz = clazz.GetGenericTypeDefinition();
+        }
+        if (MaskCacheMap.TryGetValue(clazz, out int cachedMask)) {
             return cachedMask;
         }
         int mask = MASK_ALL; // 默认为全部重写
@@ -51,22 +54,18 @@ internal class TaskOverrides
         }
         catch (Exception) {
         }
-        maskCacheMap.TryAdd(clazz, mask);
+        MaskCacheMap.TryAdd(clazz, mask);
         return mask;
     }
 
     private static bool IsSkippable(Type handlerType, string methodName, params Type[] paramTypes) {
-        MethodInfo methodInfo = handlerType.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, paramTypes);
+        MethodInfo methodInfo = handlerType.GetMethod(methodName,
+            BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, paramTypes);
         if (methodInfo == null) {
             return true;
         }
         Type declaringType = methodInfo.DeclaringType;
         Debug.Assert(declaringType != null);
-        return IsSkippable(declaringType);
-    }
-
-    private static bool IsSkippable(Type type) {
-        type = type.GetGenericTypeDefinition();
-        return type == TypeTask;
+        return declaringType == TypeTask;
     }
 }

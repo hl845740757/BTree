@@ -54,12 +54,10 @@
         <maven.compiler.encoding>UTF-8</maven.compiler.encoding>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>utf-8</project.reporting.outputEncoding>
-        <!-- 父模块不发布，子模块需要变更为false -->
-        <maven.deploy.skip>true</maven.deploy.skip>
 
         <slf4j.version>2.0.9</slf4j.version>
         <jsr305.version>3.0.2</jsr305.version>
-        <base.version>1.0.5</base.version>
+        <commons.version>1.0.5</commons.version>
         <dson.version>1.4.0</dson.version>
 
         <!--测试依赖 -->
@@ -77,12 +75,12 @@
         <dependency>
             <groupId>cn.wjybxx.commons</groupId>
             <artifactId>base</artifactId>
-            <version>${base.version}</version>
+            <version>${commons.version}</version>
         </dependency>
         <dependency>
             <groupId>cn.wjybxx.commons</groupId>
             <artifactId>concurrent</artifactId>
-            <version>${base.version}</version>
+            <version>${commons.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
         <dependency>

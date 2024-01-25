@@ -17,27 +17,32 @@
 #endregion
 
 #pragma warning disable CS1591
-namespace Wjybxx.BTree.Decorator;
+namespace Wjybxx.BTree.Branch.Join;
 
 /// <summary>
-///  重复运行子节点，直到该任务成功
-/// （超类做了死循环避免）
+/// 默认的AnyOf，不特殊处理取消
+/// 相当于并发编程中的anyOf
 /// </summary>
-public class UntilSuccess<T> : LoopDecorator<T>
+/// <typeparam name="T"></typeparam>
+public class JoinAnyOf<T> : JoinPolicy<T>
 {
-    public UntilSuccess() {
+    public void resetForRestart() {
     }
 
-    public UntilSuccess(Task<T> child) : base(child) {
+    public void beforeEnter(Join<T> join) {
     }
 
-    protected override void onChildCompleted(Task<T> child) {
-        if (child.IsCancelled()) {
-            setCancelled();
-            return;
+    public void enter(Join<T> join) {
+        // 不能成功，失败也不能
+        if (join.getChildCount() == 0) {
+            TaskLogger.info("JonAnyOf: children is empty");
         }
-        if (child.IsSucceeded()) {
-            setSuccess();
-        }
+    }
+
+    public void onChildCompleted(Join<T> join, Task<T> child) {
+        join.setCompleted(child.GetStatus(), true);
+    }
+
+    public void onEvent(Join<T> join, object eventObj) {
     }
 }
