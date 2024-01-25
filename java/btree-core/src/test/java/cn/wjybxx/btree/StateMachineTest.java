@@ -285,7 +285,7 @@ public class StateMachineTest {
         @Override
         protected void beforeEnter() {
             super.beforeEnter();
-            setDisableEnterExecute(true);
+            setSlowStart(true);
         }
 
         @Override

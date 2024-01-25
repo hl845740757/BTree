@@ -15,6 +15,7 @@
  */
 package cn.wjybxx.btree;
 
+import cn.wjybxx.base.MathCommon;
 import cn.wjybxx.concurrent.CancelTokenListener;
 import cn.wjybxx.concurrent.ICancelToken;
 import cn.wjybxx.unitask.UniCancelTokenSource;
@@ -46,17 +47,20 @@ public abstract class Task<T> implements CancelTokenListener {
 
     public static final Logger logger = LoggerFactory.getLogger(Task.class);
 
-    /** 低6位记录前一次的运行结果，范围 [0, 63] */
-    private static final int MASK_PREV_STATUS = 63;
-    private static final int MASK_ENTER_EXECUTE = 1 << 6;
-    private static final int MASK_STOP_EXIT = 1 << 7;
-    private static final int MASK_STILLBORN = 1 << 8;
-    private static final int MASK_EXECUTING = 1 << 9;
-    private static final int MASK_RUNNING_FIRED = 1 << 10;
-    private static final int MASK_DISABLE_NOTIFY = 1 << 11;
-    private static final int MASK_INHERITED_BLACKBOARD = 1 << 12;
-    private static final int MASK_INHERITED_CANCEL_TOKEN = 1 << 13;
-    private static final int MASK_INHERITED_PROPS = 1 << 14;
+    /** 低4位记录Task重写了哪些方法 */
+    private static final int MASK_OVERRIDES = 15;
+    /** 低 5~10 位记录前一次的运行结果，范围 [0, 63] */
+    private static final int MASK_PREV_STATUS = (63) << 4;
+    private static final int OFFSET_PREV_STATUS = 4;
+
+    private static final int MASK_ENTER_EXECUTE = 1 << 12;
+    private static final int MASK_EXECUTING = 1 << 13;
+    private static final int MASK_STOP_EXIT = 1 << 14;
+    private static final int MASK_STILLBORN = 1 << 15;
+    private static final int MASK_DISABLE_NOTIFY = 1 << 16;
+    private static final int MASK_INHERITED_BLACKBOARD = 1 << 17;
+    private static final int MASK_INHERITED_CANCEL_TOKEN = 1 << 18;
+    private static final int MASK_INHERITED_PROPS = 1 << 19;
 
     private static final int MASK_LOCK1 = 1 << 20;
     private static final int MASK_LOCK2 = 1 << 21;
@@ -65,7 +69,7 @@ public abstract class Task<T> implements CancelTokenListener {
     private static final int MASK_LOCK_ALL = MASK_LOCK1 | MASK_LOCK2 | MASK_LOCK3 | MASK_LOCK4;
 
     // 高8位为控制流程相关bit（对外开放）
-    public static final int MASK_DISABLE_ENTER_EXECUTE = 1 << 24;
+    public static final int MASK_SLOW_START = 1 << 24;
     public static final int MASK_DISABLE_DELAY_NOTIFY = 1 << 25;
     public static final int MASK_DISABLE_AUTO_CHECK_CANCEL = 1 << 26;
     public static final int MASK_AUTO_LISTEN_CANCEL = 1 << 27;
@@ -134,6 +138,10 @@ public abstract class Task<T> implements CancelTokenListener {
      * 3.高8位为流程控制特征值，会在任务运行前拷贝到ctl -- 以支持在编辑器导出文件中指定。
      */
     protected int flags;
+
+    public Task() {
+        ctl = TaskOverrides.maskOfTask(getClass());
+    }
 
     // region getter/setter
 
@@ -244,7 +252,12 @@ public abstract class Task<T> implements CancelTokenListener {
      * 2.这并不是一个运行时必须的属性，而是为Debug和UI视图服务的；
      */
     public final int getPrevStatus() {
-        return ctl & MASK_PREV_STATUS;
+        return (ctl & MASK_PREV_STATUS) >> OFFSET_PREV_STATUS;
+    }
+
+    public final void setPrevStatus(int prevStatus) {
+        prevStatus = MathCommon.clamp(prevStatus, 0, Status.MAX_PREV_STATUS);
+        ctl |= (prevStatus << OFFSET_PREV_STATUS);
     }
 
     /** 获取行为树绑定的实体 -- 最好让Entity也在黑板中 */
@@ -367,12 +380,12 @@ public abstract class Task<T> implements CancelTokenListener {
             template_exit(0);
         } else {
             // 未调用Enter和Exit，需要补偿 -- 保留当前的ctl会更好
-            ctl &= ~MASK_PREV_STATUS;
-            ctl |= Math.min(MASK_PREV_STATUS, prevStatus);
-            ctl |= MASK_STILLBORN;
-            this.status = status;
+            setPrevStatus(prevStatus);
             this.enterFrame = exitFrame;
             this.reentryId++;
+
+            this.status = status;
+            ctl |= MASK_STILLBORN;
         }
         if (checkImmediateNotifyMask(ctl) && control != null) {
             control.onChildCompleted(this);
@@ -499,7 +512,7 @@ public abstract class Task<T> implements CancelTokenListener {
             unsetControl();
         }
         status = 0;
-        ctl = 0;
+        ctl &= MASK_OVERRIDES; // 保留Overrides信息
         enterFrame = 0;
         exitFrame = 0;
         reentryId++; // 上下文变动，和之前的执行分开
@@ -604,7 +617,7 @@ public abstract class Task<T> implements CancelTokenListener {
     /**
      * run方法是否是enter触发的
      * 1.用于{@link #execute()}方法判断当前是否和{@link #enter(int)}在同一帧，以决定是否执行某些逻辑。
-     * 2.如果仅仅是想在下一帧运行{@link #execute()}的逻辑，可通过{@link #setDisableEnterExecute(boolean)} 实现。
+     * 2.如果仅仅是想在下一帧运行{@link #execute()}的逻辑，可通过{@link #setSlowStart(boolean)} 实现。
      * 3.部分Task的{@link #execute()}可能在一帧内执行多次，因此不能通过运行帧数为0代替。
      */
     public final boolean isExecuteTriggeredByEnter() {
@@ -643,17 +656,17 @@ public abstract class Task<T> implements CancelTokenListener {
     }
 
     /**
-     * 告知模板方法否将{@link #enter(int)}和{@link #execute()}方法分开执行，
+     * 告知模板方法否将{@link #enter(int)}和{@link #execute()}方法分开执行 -- 首次不执行{@link #execute()}方法。
      * 1.默认值由{@link #flags}中的信息指定，默认不分开执行
      * 2.要覆盖默认值应当在{@link #beforeEnter()}方法中调用
      * 3.该属性运行期间不应该调整，调整也无效
      */
-    public final void setDisableEnterExecute(boolean disable) {
-        setCtlBit(MASK_DISABLE_ENTER_EXECUTE, disable);
+    public final void setSlowStart(boolean disable) {
+        setCtlBit(MASK_SLOW_START, disable);
     }
 
-    public final boolean isDisableEnterExecute() {
-        return (ctl & MASK_DISABLE_ENTER_EXECUTE) != 0;
+    public final boolean isSlowStart() {
+        return (ctl & MASK_SLOW_START) != 0;
     }
 
     /**
@@ -706,7 +719,8 @@ public abstract class Task<T> implements CancelTokenListener {
 
     /** enter方法不暴露，否则以后难以改动 */
     final void template_enterExecute(final Task<T> control, int initMask) {
-        initMask |= (flags & MASK_CONTROL_FLOW_FLAGS);
+        initMask |= (ctl & MASK_OVERRIDES); // 方法实现bits
+        initMask |= (flags & MASK_CONTROL_FLOW_FLAGS); // 控制流bits
         if (control != null) {
             initMask |= captureContext(control);
         }
@@ -719,34 +733,38 @@ public abstract class Task<T> implements CancelTokenListener {
             return;
         }
 
-        int prevStatus = this.status;
-        initMask |= Math.min(MASK_PREV_STATUS, prevStatus);
+        final int prevStatus = Math.min(Status.MAX_PREV_STATUS, this.status);
         initMask |= (MASK_ENTER_EXECUTE | MASK_EXECUTING);
+        initMask |= (prevStatus << OFFSET_PREV_STATUS);
         ctl = initMask;
 
         status = Status.RUNNING; // 先更新为running状态，以避免执行过程中外部查询task的状态时仍处于上一次的结束status
         enterFrame = exitFrame = taskEntry.getCurFrame();
         final int reentryId = ++this.reentryId;  // 和上次执行的exit分开
         try {
-            beforeEnter();
             if (prevStatus != Status.NEW && isAutoResetChildren()) {
                 resetChildrenForRestart();
             }
-            enter(reentryId);
-            if (isExited(reentryId)) { // enter 可能导致结束
-                if (reentryId + 1 == this.reentryId && checkDelayNotifyMask(ctl) && control != null) {
-                    control.onChildCompleted(this);
-                }
-                return;
+            if ((initMask & TaskOverrides.MASK_BEFORE_ENTER) != 0) {
+                beforeEnter();
             }
-            if (isDisableEnterExecute()) { // 需要下一帧执行execute
-                checkFireRunningAndCancel(control, cancelToken);
-                return;
+            if ((initMask & TaskOverrides.MASK_ENTER) != 0) {
+                enter(reentryId);
+                if (isExited(reentryId)) { // enter 可能导致结束
+                    if (reentryId + 1 == this.reentryId && checkDelayNotifyMask(ctl) && control != null) {
+                        control.onChildCompleted(this);
+                    }
+                    return;
+                }
+                if (cancelToken.isCancelling() && isAutoCheckCancel()) { // token基本为false，autoCheck基本为true
+                    setDisableDelayNotify(true);
+                    setCancelled();
+                    return;
+                }
             }
 
-            if (cancelToken.isCancelling() && isAutoCheckCancel()) { // token基本为false，autoCheck基本为true
-                setDisableDelayNotify(true);
-                setCancelled();
+            if (isSlowStart()) { // 需要下一帧执行execute
+                checkFireRunningAndCancel(control, cancelToken);
                 return;
             }
             if (isAutoListenCancel()) {
