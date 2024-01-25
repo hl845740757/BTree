@@ -963,7 +963,9 @@ public abstract class Task<T>
         }
         try {
             stopRunningChildren();
-            exit();
+            if ((ctl & TaskOverrides.MASK_EXIT) != 0) {
+                exit();
+            }
         }
         finally {
             reentryId++;
