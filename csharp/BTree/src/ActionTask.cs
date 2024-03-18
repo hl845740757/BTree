@@ -27,10 +27,10 @@ namespace Wjybxx.BTree;
 /// <typeparam name="T"></typeparam>
 public abstract class ActionTask<T> : LeafTask<T>
 {
-    protected sealed override void execute() {
-        int reentryId = getReentryId();
+    protected sealed override void Execute() {
+        int reentryId = GetReentryId();
         int status = ExecuteImpl();
-        if (isExited(reentryId)) {
+        if (IsExited(reentryId)) {
             return;
         }
         switch (status) {
@@ -41,15 +41,15 @@ public abstract class ActionTask<T> : LeafTask<T>
                 break;
             }
             case Status.SUCCESS: {
-                setSuccess();
+                SetSuccess();
                 break;
             }
             case Status.CANCELLED: {
-                setCancelled();
+                SetCancelled();
                 break;
             }
             default: {
-                setFailed(status);
+                SetFailed(status);
                 break;
             }
         }

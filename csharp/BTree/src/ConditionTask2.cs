@@ -26,23 +26,23 @@ namespace Wjybxx.BTree;
 /// <typeparam name="T"></typeparam>
 public abstract class ConditionTask2<T> : LeafTask<T>
 {
-    protected sealed override void execute() {
+    protected sealed override void Execute() {
         int status = Test();
         if (status == Status.SUCCESS) {
-            setSuccess();
+            SetSuccess();
         } else {
-            setFailed(status);
+            SetFailed(status);
         }
     }
 
     protected abstract int Test();
 
     /** 条件节点正常情况下不会触发事件 */
-    public override bool canHandleEvent(object _) {
+    public override bool CanHandleEvent(object _) {
         return false;
     }
 
     /** 条件节点正常情况下不会触发事件 */
-    protected override void onEventImpl(object eventObj) {
+    protected override void OnEventImpl(object eventObj) {
     }
 }

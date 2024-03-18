@@ -27,13 +27,13 @@ public class WaitFrame<T> : LeafTask<T>
 {
     private int required;
 
-    protected override void execute() {
-        if (getRunFrames() >= required) {
-            setSuccess();
+    protected override void Execute() {
+        if (GetRunFrames() >= required) {
+            SetSuccess();
         }
     }
 
-    protected override void onEventImpl(object eventObj) {
+    protected override void OnEventImpl(object eventObj) {
     }
 
     /// <summary>

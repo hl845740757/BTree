@@ -27,7 +27,7 @@ namespace Wjybxx.BTree.Branch;
 /// <summary>
 /// 非并行分支节点抽象（最多只有一个运行中的子节点）
 ///
-/// 如果<see cref="Task{T}.execute()"/>方法是有循环体的，那么一定要注意：
+/// 如果<see cref="Task{T}.Execute"/>方法是有循环体的，那么一定要注意：
 /// 只有循环的尾部运行child才是安全的，如果在运行child后还读写其它数据，可能导致bug(小心递归)。
 /// </summary>
 /// <typeparam name="T"></typeparam>
@@ -64,42 +64,42 @@ public abstract class SingleRunningChildBranch<T> : BranchTask<T>
 
     #region logic
 
-    public override void resetForRestart() {
-        base.resetForRestart();
+    public override void ResetForRestart() {
+        base.ResetForRestart();
         runningChild = null;
         runningIndex = -1;
     }
 
-    protected override void beforeEnter() {
+    protected override void BeforeEnter() {
         // 这里不调用super是安全的
         runningChild = null;
         runningIndex = -1;
     }
 
-    protected override void exit() {
+    protected override void Exit() {
         // index不立即重置，允许返回后查询
         runningChild = null;
     }
 
-    protected override void stopRunningChildren() {
-        stop(runningChild);
+    protected override void StopRunningChildren() {
+        Stop(runningChild);
     }
 
-    protected override void onEventImpl(object eventObj) {
+    protected override void OnEventImpl(object eventObj) {
         if (runningChild != null) {
-            runningChild.onEvent(eventObj);
+            runningChild.OnEvent(eventObj);
         }
     }
 
-    protected override void execute() {
-        int reentryId = getReentryId();
+    protected override void Execute() {
+        int reentryId = GetReentryId();
         Task<T> runningChild = this.runningChild;
         for (int i = 0, retryCount = children.Count; i < retryCount; i++) { // 避免死循环
             if (runningChild == null) {
                 this.runningChild = runningChild = nextChild();
             }
             template_runChild(runningChild);
-            if (checkCancel(reentryId)) { // 得出结果或被取消
+            if (CheckCancel(reentryId)) { // 得出结果或被取消
                 return;
             }
             if (runningChild.IsRunning()) { // 子节点未结束
@@ -125,7 +125,7 @@ public abstract class SingleRunningChildBranch<T> : BranchTask<T>
         return $"numChildren: {children.Count}, currentIndex: {runningIndex}";
     }
 
-    protected override void onChildRunning(Task<T> child) {
+    protected override void OnChildRunning(Task<T> child) {
         runningChild = child; // 部分实现可能未在选择child之后就赋值
     }
 
@@ -144,7 +144,7 @@ public abstract class SingleRunningChildBranch<T> : BranchTask<T>
     /// </code> 
     /// </summary>
     /// <param name="child"></param>
-    protected override void onChildCompleted(Task<T> child) {
+    protected override void OnChildCompleted(Task<T> child) {
         Debug.Assert(child == runningChild);
         runningChild = null; // 子类可直接重写此句以不调用super
     }

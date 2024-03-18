@@ -22,8 +22,14 @@ using System.Diagnostics.CodeAnalysis;
 using Wjybxx.Commons;
 using Wjybxx.Commons.Collections;
 
+#pragma warning disable CS1591
+
 namespace Wjybxx.BTree.FSM;
 
+/// <summary>
+/// 状态机节点
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public class StateMachineTask<T> : Decorator<T>
 {
     /** 状态机名字 */
@@ -136,7 +142,7 @@ public class StateMachineTask<T> : Decorator<T>
     /// <param name="changeStateArgs">状态切换参数</param>
     /// <returns>如果有前一个状态则返回true</returns>
     public virtual bool undoChangeState(ChangeStateArgs changeStateArgs) {
-        if (!changeStateArgs.isUndo()) {
+        if (!changeStateArgs.IsUndo()) {
             throw new ArgumentException();
         }
         // 真正切换以后再删除
@@ -161,7 +167,7 @@ public class StateMachineTask<T> : Decorator<T>
     /// <param name="changeStateArgs">状态切换参数</param>
     /// <returns>如果有下一个状态则返回true</returns>
     public virtual bool redoChangeState(ChangeStateArgs changeStateArgs) {
-        if (!changeStateArgs.isRedo()) {
+        if (!changeStateArgs.IsRedo()) {
             throw new ArgumentException();
         }
         // 真正切换以后再删除
@@ -204,8 +210,8 @@ public class StateMachineTask<T> : Decorator<T>
             return;
         }
         if (changeStateArgs.delayMode == ChangeStateArgs.DELAY_NONE) {
-            if (isExecuting()) {
-                execute();
+            if (IsExecuting()) {
+                Execute();
             } else {
                 template_execute();
             }
@@ -219,12 +225,12 @@ public class StateMachineTask<T> : Decorator<T>
             if (changeStateArgs.delayMode == ChangeStateArgs.DELAY_NEXT_FRAME) {
                 throw new ArgumentException("invalid args");
             }
-            return changeStateArgs.withDelayMode(ChangeStateArgs.DELAY_NONE);
+            return changeStateArgs.WithDelayMode(ChangeStateArgs.DELAY_NONE);
         }
         // 运行中一定可以拿到帧号
         if (changeStateArgs.delayMode == ChangeStateArgs.DELAY_NEXT_FRAME) {
             if (changeStateArgs.frame < 0) {
-                return changeStateArgs.withFrame(CurFrame + 1);
+                return changeStateArgs.WithFrame(CurFrame + 1);
             }
         }
         return changeStateArgs;
@@ -234,21 +240,21 @@ public class StateMachineTask<T> : Decorator<T>
 
     #region logic
 
-    public override void resetForRestart() {
-        base.resetForRestart();
+    public override void ResetForRestart() {
+        base.ResetForRestart();
         if (initState != null) {
-            initState.resetForRestart();
+            initState.ResetForRestart();
         }
         if (child != null) {
-            removeChild(0);
+            RemoveChild(0);
         }
         tempNextState = null;
         undoQueue.Clear(); // 保留用户的设置
         redoQueue.Clear();
     }
 
-    protected override void beforeEnter() {
-        base.beforeEnter();
+    protected override void BeforeEnter() {
+        base.BeforeEnter();
         if (noneChildStatus == 0) { // 兼容编辑器忘记赋值，默认成功退出更安全
             noneChildStatus = Status.SUCCESS;
         }
@@ -263,33 +269,33 @@ public class StateMachineTask<T> : Decorator<T>
         }
         if (child != null) {
             TaskLogger.warning("The child of StateMachine is not null");
-            removeChild(0);
+            RemoveChild(0);
         }
     }
 
-    protected override void exit() {
+    protected override void Exit() {
         if (child != null) {
-            removeChild(0);
+            RemoveChild(0);
         }
         tempNextState = null;
         undoQueue.Clear();
         redoQueue.Clear();
-        base.exit();
+        base.Exit();
     }
 
-    protected override void execute() {
+    protected override void Execute() {
         Task<T> curState = this.child;
         Task<T> nextState = this.tempNextState;
         if (nextState != null && isReady(curState, nextState)) {
             this.tempNextState = null;
             if (!template_checkGuard(nextState.GetGuard())) { // 下个状态无效
-                nextState.setGuardFailed(null);
+                nextState.SetGuardFailed(null);
                 if (stateMachineHandler != null) { // 通知特殊情况
-                    stateMachineHandler.onNextStateGuardFailed(this, nextState);
+                    stateMachineHandler.OnNextStateGuardFailed(this, nextState);
                 }
             } else {
                 if (curState != null) {
-                    curState.stop();
+                    curState.Stop();
                 }
                 ChangeStateArgs changeStateArgs = (ChangeStateArgs)nextState.ControlData;
                 switch (changeStateArgs.cmd) {
@@ -322,9 +328,9 @@ public class StateMachineTask<T> : Decorator<T>
                 curState.CancelToken = cancelToken.newChild(); // state可独立取消
                 curState.ControlData = null;
                 if (child != null) {
-                    setChild(0, curState);
+                    SetChild(0, curState);
                 } else {
-                    addChild(curState);
+                    AddChild(curState);
                 }
             }
         }
@@ -335,27 +341,27 @@ public class StateMachineTask<T> : Decorator<T>
         template_runChildDirectly(curState); // 继续运行或新状态enter；在尾部才能保证安全
     }
 
-    protected override void onChildCompleted(Task<T> child) {
+    protected override void OnChildCompleted(Task<T> child) {
         Debug.Assert(this.child == child);
         cancelToken.unregister(child.CancelToken); // 删除分配的子token
         child.CancelToken.reset();
         child.CancelToken = null;
 
         if (tempNextState == null) {
-            if (stateMachineHandler != null && stateMachineHandler.onNextStateAbsent(this, child)) {
+            if (stateMachineHandler != null && stateMachineHandler.OnNextStateAbsent(this, child)) {
                 return;
             }
             undoQueue.AddLast(child);
-            removeChild(0);
+            RemoveChild(0);
             notifyChangeState(child, null);
             onNoChildRunning();
         } else {
             ChangeStateArgs changeStateArgs = (ChangeStateArgs)tempNextState.ControlData;
             if (changeStateArgs != null) { // 需要保留命令
-                tempNextState.ControlData = changeStateArgs.withDelayMode(ChangeStateArgs.DELAY_NONE);
+                tempNextState.ControlData = changeStateArgs.WithDelayMode(ChangeStateArgs.DELAY_NONE);
             }
-            if (isExecuting()) {
-                execute();
+            if (IsExecuting()) {
+                Execute();
             } else {
                 template_execute();
             }
@@ -364,7 +370,7 @@ public class StateMachineTask<T> : Decorator<T>
 
     protected void onNoChildRunning() {
         if (noneChildStatus != Status.RUNNING) {
-            setCompleted(noneChildStatus, false);
+            SetCompleted(noneChildStatus, false);
         }
     }
 
@@ -402,7 +408,7 @@ public class StateMachineTask<T> : Decorator<T>
                 return stateMachineTask1;
             }
             // 长兄节点
-            Task<T> eldestBrother = control.getChild(0);
+            Task<T> eldestBrother = control.GetChild(0);
             if (eldestBrother is StateMachineTask<T> stateMachineTask2) {
                 return stateMachineTask2;
             }
@@ -428,8 +434,8 @@ public class StateMachineTask<T> : Decorator<T>
                 return stateMachine;
             }
             // 兄弟节点
-            for (int i = 0, n = control.getChildCount(); i < n; i++) {
-                Task<T> brother = control.getChild(i);
+            for (int i = 0, n = control.GetChildCount(); i < n; i++) {
+                Task<T> brother = control.GetChild(i);
                 if ((stateMachine = castAsStateMachine(brother, name)) != null) {
                     return stateMachine;
                 }
@@ -449,26 +455,36 @@ public class StateMachineTask<T> : Decorator<T>
 
     #endregion
 
+    public string? Name {
+        get => name;
+        set => name = value;
+    }
+
     public int NoneChildStatus {
         get => noneChildStatus;
         set => noneChildStatus = value;
     }
+
     public Task<T>? InitState {
         get => initState;
         set => initState = value;
     }
+
     public object? InitStateProps {
         get => initStateProps;
         set => initStateProps = value;
     }
+
     public Task<T>? TempNextState {
         get => tempNextState;
         set => tempNextState = value;
     }
+
     public StateMachineListener<T>? Listener {
         get => listener;
         set => listener = value;
     }
+
     public StateMachineHandler<T>? StateMachineHandler {
         get => stateMachineHandler;
         set => stateMachineHandler = value;

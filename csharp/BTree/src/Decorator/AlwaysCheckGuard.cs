@@ -31,16 +31,16 @@ public class AlwaysCheckGuard<T> : Decorator<T>
     public AlwaysCheckGuard(Task<T> child) : base(child) {
     }
 
-    protected override void execute() {
+    protected override void Execute() {
         if (template_checkGuard(child!.GetGuard())) {
             template_runChildDirectly(child);
         } else {
-            child.stop();
-            setFailed(Status.ERROR);
+            child.Stop();
+            SetFailed(Status.ERROR);
         }
     }
 
-    protected override void onChildCompleted(Task<T> child) {
-        setCompleted(child.GetStatus(), true);
+    protected override void OnChildCompleted(Task<T> child) {
+        SetCompleted(child.GetStatus(), true);
     }
 }

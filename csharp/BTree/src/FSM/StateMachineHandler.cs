@@ -26,7 +26,7 @@ public interface StateMachineHandler<T>
     /// </summary>
     /// <param name="stateMachineTask">状态机</param>
     /// <param name="nextState">下一个状态</param>
-    void onNextStateGuardFailed(StateMachineTask<T> stateMachineTask, Task<T> nextState) {
+    void OnNextStateGuardFailed(StateMachineTask<T> stateMachineTask, Task<T> nextState) {
     }
 
     /// <summary>
@@ -40,5 +40,5 @@ public interface StateMachineHandler<T>
     /// <param name="stateMachineTask">v</param>
     /// <param name="preState">前一个状态，用于计算下一个状态</param>
     /// <returns>用户是否执行了状态切换操作</returns>
-    bool onNextStateAbsent(StateMachineTask<T> stateMachineTask, Task<T> preState);
+    bool OnNextStateAbsent(StateMachineTask<T> stateMachineTask, Task<T> preState);
 }

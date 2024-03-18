@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+#pragma warning disable CS1591
 
 namespace Wjybxx.BTree.FSM;
 
@@ -68,42 +69,42 @@ public class ChangeStateArgs
     /** 通过原型对象创建 */
     private ChangeStateArgs(int cmd, int delayMode, int frame, object extraInfo) {
 //        checkCmd(cmd); // 封闭构造方法后可不校验
-        checkDelayMode(delayMode);
+        CheckDelayMode(delayMode);
         this.delayMode = delayMode;
         this.cmd = cmd;
         this.frame = frame;
         this.extraInfo = extraInfo;
     }
 
-    public bool isPlain() {
+    public bool IsPlain() {
         return cmd == 0;
     }
 
-    public bool isUndo() {
+    public bool IsUndo() {
         return cmd == CMD_UNDO;
     }
 
-    public bool isRedo() {
+    public bool IsRedo() {
         return cmd == CMD_REDO;
     }
 
     // region 原型方法
 
-    public ChangeStateArgs withDelayMode(int delayMode) {
+    public ChangeStateArgs WithDelayMode(int delayMode) {
         if (delayMode == this.delayMode) {
             return this;
         }
         return new ChangeStateArgs(cmd, delayMode, frame, extraInfo);
     }
 
-    public ChangeStateArgs withFrame(int frame) {
+    public ChangeStateArgs WithFrame(int frame) {
         if (frame == this.frame) {
             return this;
         }
         return new ChangeStateArgs(cmd, delayMode, frame, extraInfo);
     }
 
-    public ChangeStateArgs withExtraInfo(Object extraInfo) {
+    public ChangeStateArgs WithExtraInfo(Object extraInfo) {
         if (extraInfo == this.extraInfo) {
             return this;
         }
@@ -111,13 +112,13 @@ public class ChangeStateArgs
     }
     // endregion
 
-    private static void checkCmd(int cmd) {
+    private static void CheckCmd(int cmd) {
         if (cmd < CMD_NONE || cmd > CMD_REDO) {
             throw new ArgumentException("cmd: " + cmd);
         }
     }
 
-    private static void checkDelayMode(int delayMode) {
+    private static void CheckDelayMode(int delayMode) {
         if (delayMode < DELAY_NONE || delayMode > DELAY_NEXT_FRAME) {
             throw new ArgumentException("invalid delayMode: " + delayMode);
         }

@@ -36,17 +36,17 @@ public class Selector<T> : SingleRunningChildBranch<T>
     public Selector(Task<T> first, Task<T>? second) : base(first, second) {
     }
 
-    protected override void onChildCompleted(Task<T> child) {
+    protected override void OnChildCompleted(Task<T> child) {
         runningChild = null;
         if (child.IsCancelled()) {
-            setCancelled();
+            SetCancelled();
             return;
         }
         if (child.IsSucceeded()) {
-            setSuccess();
+            SetSuccess();
         } else if (isAllChildCompleted()) {
-            setFailed(Status.ERROR);
-        } else if (!isExecuting()) {
+            SetFailed(Status.ERROR);
+        } else if (!IsExecuting()) {
             template_execute();
         }
     }

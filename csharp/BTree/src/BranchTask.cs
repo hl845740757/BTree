@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using Wjybxx.Commons.Collections;
+
 #pragma warning disable CS1591
 
 namespace Wjybxx.BTree;
@@ -104,12 +105,12 @@ public abstract class BranchTask<T> : Task<T>
 
     #region child
 
-    public sealed override void removeAllChild() {
-        children.ForEach(e => e.unsetControl());
+    public sealed override void RemoveAllChild() {
+        children.ForEach(e => e.UnsetControl());
         children.Clear();
     }
 
-    public sealed override int indexChild(Task<T> task) {
+    public sealed override int IndexChild(Task<T> task) {
         return CollectionUtil.IndexOfRef(children, task);
     }
 
@@ -117,24 +118,24 @@ public abstract class BranchTask<T> : Task<T>
         return new List<Task<T>>(children);
     }
 
-    public sealed override int getChildCount() {
+    public sealed override int GetChildCount() {
         return children.Count;
     }
 
-    public sealed override Task<T> getChild(int index) {
+    public sealed override Task<T> GetChild(int index) {
         return children[index];
     }
 
-    protected sealed override int addChildImpl(Task<T> task) {
+    protected sealed override int AddChildImpl(Task<T> task) {
         children.Add(task);
         return children.Count - 1;
     }
 
-    protected sealed override Task<T> setChildImpl(int index, Task<T> task) {
+    protected sealed override Task<T> SetChildImpl(int index, Task<T> task) {
         return children[index] = task;
     }
 
-    protected sealed override Task<T> removeChildImpl(int index) {
+    protected sealed override Task<T> RemoveChildImpl(int index) {
         Task<T> child = children[index];
         children.RemoveAt(index);
         return child;

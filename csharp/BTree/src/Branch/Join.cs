@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using Wjybxx.BTree.Branch.Join;
 using Wjybxx.Commons;
 
 #pragma warning disable CS1591
@@ -42,27 +43,27 @@ public class Join<T> : Parallel<T>
     public Join(List<Task<T>>? children) : base(children) {
     }
 
-    public override void resetForRestart() {
-        base.resetForRestart();
+    public override void ResetForRestart() {
+        base.ResetForRestart();
         completedCount = 0;
         succeededCount = 0;
-        policy.resetForRestart();
+        policy.ResetForRestart();
     }
 
-    protected override void beforeEnter() {
+    protected override void BeforeEnter() {
         if (policy == null) {
-            policy = JoinSequence.getInstance();
+            policy = JoinSequence<T>.GetInstance();
         }
         completedCount = 0;
         succeededCount = 0;
         // policy的数据重置
-        policy.beforeEnter(this);
+        policy.BeforeEnter(this);
     }
 
-    protected override void enter(int reentryId) {
+    protected override void Enter(int reentryId) {
         // 记录子类上下文 -- 由于beforeEnter可能改变子节点信息，因此在enter时处理
         recordContext();
-        policy.enter(this);
+        policy.Enter(this);
     }
 
     private void recordContext() {
@@ -73,25 +74,25 @@ public class Join<T> : Parallel<T>
         for (int i = 0; i < children.Count; i++) {
             Task<T> child = children[i];
             child.CancelToken = cancelToken.newChild(); // child默认可读取取消
-            childPrevReentryIds[i] = child.getReentryId();
+            childPrevReentryIds[i] = child.GetReentryId();
         }
     }
 
-    protected override void execute() {
+    protected override void Execute() {
         List<Task<T>> children = this.children;
         if (children.Count == 0) {
             return;
         }
         int[] childPrevReentryIds = this.childPrevReentryIds;
-        int reentryId = getReentryId();
+        int reentryId = GetReentryId();
         for (int i = 0; i < children.Count; i++) {
             Task<T> child = children[i];
-            bool started = child.isExited(childPrevReentryIds[i]);
+            bool started = child.IsExited(childPrevReentryIds[i]);
             if (started && child.IsCompleted()) { // 勿轻易调整
                 continue;
             }
             template_runChild(child);
-            if (checkCancel(reentryId)) {
+            if (CheckCancel(reentryId)) {
                 return;
             }
         }
@@ -100,7 +101,7 @@ public class Join<T> : Parallel<T>
         }
     }
 
-    protected override void onChildCompleted(Task<T> child) {
+    protected override void OnChildCompleted(Task<T> child) {
         completedCount++;
         if (child.IsSucceeded()) {
             succeededCount++;
@@ -109,11 +110,11 @@ public class Join<T> : Parallel<T>
         child.CancelToken.reset();
         child.CancelToken = null;
 
-        policy.onChildCompleted(this, child);
+        policy.OnChildCompleted(this, child);
     }
 
-    protected override void onEventImpl(object eventObj) {
-        policy.onEvent(this, eventObj);
+    protected override void OnEventImpl(object eventObj) {
+        policy.OnEvent(this, eventObj);
     }
 
     // region

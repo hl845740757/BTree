@@ -33,16 +33,16 @@ public class AlwaysFail<T> : Decorator<T>
     public AlwaysFail(Task<T> child) : base(child) {
     }
 
-    protected override void execute() {
+    protected override void Execute() {
         if (child == null) {
-            setFailed(Status.ToFailure(failureStatus));
+            SetFailed(Status.ToFailure(failureStatus));
         } else {
             template_runChild(child);
         }
     }
 
-    protected override void onChildCompleted(Task<T> child) {
-        setCompleted(Status.ToFailure(child.GetStatus()), true); // 错误码有传播的价值
+    protected override void OnChildCompleted(Task<T> child) {
+        SetCompleted(Status.ToFailure(child.GetStatus()), true); // 错误码有传播的价值
     }
 
     /// <summary>

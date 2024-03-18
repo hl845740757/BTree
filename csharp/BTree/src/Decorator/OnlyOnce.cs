@@ -22,7 +22,7 @@ namespace Wjybxx.BTree.Decorator;
 /// <summary>
 /// 只执行一次。
 /// 1.适用那些不论成功与否只执行一次的行为。
-/// 2.在调用<see cref="Task{T}.resetForRestart()"/>后可再次运行。
+/// 2.在调用<see cref="Task{T}.ResetForRestart()"/>后可再次运行。
 /// </summary>
 /// <typeparam name="T"></typeparam>
 public class OnlyOnce<T> : Decorator<T>
@@ -33,15 +33,15 @@ public class OnlyOnce<T> : Decorator<T>
     public OnlyOnce(Task<T> child) : base(child) {
     }
 
-    protected override void execute() {
+    protected override void Execute() {
         if (child.IsCompleted()) {
-            setCompleted(child.GetStatus(), true);
+            SetCompleted(child.GetStatus(), true);
         } else {
             template_runChild(child);
         }
     }
 
-    protected override void onChildCompleted(Task<T> child) {
-        setCompleted(child.GetStatus(), true);
+    protected override void OnChildCompleted(Task<T> child) {
+        SetCompleted(child.GetStatus(), true);
     }
 }

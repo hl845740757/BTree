@@ -36,22 +36,22 @@ public class Inverter<T> : Decorator<T>
     public Inverter(Task<T> child) : base(child) {
     }
 
-    protected override void execute() {
+    protected override void Execute() {
         template_runChild(child!);
     }
 
-    protected override void onChildCompleted(Task<T> child) {
+    protected override void OnChildCompleted(Task<T> child) {
         switch (child.NormalizedStatus) {
             case Status.SUCCESS: {
-                setFailed(Status.ERROR);
+                SetFailed(Status.ERROR);
                 break;
             }
             case Status.ERROR: {
-                setSuccess();
+                SetSuccess();
                 break;
             }
             case Status.CANCELLED: {
-                setCancelled(); // 取消是个奇葩情况
+                SetCancelled(); // 取消是个奇葩情况
                 break;
             }
             default: throw new AssertionError();

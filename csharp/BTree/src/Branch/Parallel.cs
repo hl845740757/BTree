@@ -37,8 +37,8 @@ public abstract class Parallel<T> : BranchTask<T>
     }
 
     /**
-     * 并发节点通常不需要在该事件中将自己更新为运行状态，而是应该在<see cref="Task{T}.execute()"/>方法的末尾更新
+     * 并发节点通常不需要在该事件中将自己更新为运行状态，而是应该在<see cref="Task{T}.Execute"/>方法的末尾更新
      */
-    protected override void onChildRunning(Task<T> child) {
+    protected override void OnChildRunning(Task<T> child) {
     }
 }

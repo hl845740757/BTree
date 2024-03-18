@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using Wjybxx.Commons;
 using Wjybxx.Commons.Ex;
+
 #pragma warning disable CS1591
 
 namespace Wjybxx.BTree;
@@ -30,17 +31,17 @@ namespace Wjybxx.BTree;
 /// <typeparam name="T"></typeparam>
 public abstract class LeafTask<T> : Task<T>
 {
-    protected sealed override void onChildRunning(Task<T> child) {
+    protected sealed override void OnChildRunning(Task<T> child) {
         throw new AssertionError();
     }
 
-    protected sealed override void onChildCompleted(Task<T> child) {
+    protected sealed override void OnChildCompleted(Task<T> child) {
         throw new AssertionError();
     }
 
     #region child
 
-    public sealed override int indexChild(Task<T> task) {
+    public sealed override int IndexChild(Task<T> task) {
         return -1;
     }
 
@@ -48,23 +49,23 @@ public abstract class LeafTask<T> : Task<T>
         return new List<Task<T>>(0);
     }
 
-    public sealed override int getChildCount() {
+    public sealed override int GetChildCount() {
         return 0;
     }
 
-    public sealed override Task<T> getChild(int index) {
+    public sealed override Task<T> GetChild(int index) {
         throw new IndexOutOfRangeException("A leaf task can not have any child");
     }
 
-    protected sealed override int addChildImpl(Task<T> task) {
+    protected sealed override int AddChildImpl(Task<T> task) {
         throw new IllegalStateException("A leaf task cannot have any children");
     }
 
-    protected sealed override Task<T> setChildImpl(int index, Task<T> task) {
+    protected sealed override Task<T> SetChildImpl(int index, Task<T> task) {
         throw new IllegalStateException("A leaf task cannot have any children");
     }
 
-    protected sealed override Task<T> removeChildImpl(int index) {
+    protected sealed override Task<T> RemoveChildImpl(int index) {
         throw new IndexOutOfRangeException("A leaf task can not have any child");
     }
 

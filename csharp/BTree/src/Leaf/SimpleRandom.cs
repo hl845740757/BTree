@@ -34,15 +34,15 @@ public class SimpleRandom<T> : LeafTask<T>
         this.p = p;
     }
 
-    protected override void execute() {
+    protected override void Execute() {
         if (Random.Shared.NextSingle() <= p) {
-            setSuccess();
+            SetSuccess();
         } else {
-            setFailed(Status.ERROR);
+            SetFailed(Status.ERROR);
         }
     }
 
-    protected override void onEventImpl(object _) {
+    protected override void OnEventImpl(object _) {
     }
 
     /// <summary>

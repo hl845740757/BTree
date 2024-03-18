@@ -92,7 +92,7 @@ public class TaskEntry<T> : Task<T>
         get => handler;
         set => handler = value;
     }
-    
+
     public override object? Entity {
         get => entity;
         set => entity = value;
@@ -121,34 +121,34 @@ public class TaskEntry<T> : Task<T>
         }
     }
 
-    protected override void execute() {
+    protected override void Execute() {
         template_runChild(rootTask);
     }
 
-    protected override void onChildRunning(Task<T> child) {
+    protected override void OnChildRunning(Task<T> child) {
     }
 
-    protected override void onChildCompleted(Task<T> child) {
-        setCompleted(child.GetStatus(), true);
+    protected override void OnChildCompleted(Task<T> child) {
+        SetCompleted(child.GetStatus(), true);
         cancelToken.reset(); // 避免内存泄漏
         if (handler != null) {
             handler.OnCompleted(this);
         }
     }
 
-    public override bool canHandleEvent(object eventObj) {
+    public override bool CanHandleEvent(object eventObj) {
         if (IsRunning()) {
             return true;
         }
         return rootTask != null && blackboard != null; // 只测isInited的关键属性即可
     }
 
-    protected override void onEventImpl(object eventObj) {
-        rootTask.onEvent(eventObj);
+    protected override void OnEventImpl(object eventObj) {
+        rootTask.OnEvent(eventObj);
     }
 
-    public override void resetForRestart() {
-        base.resetForRestart();
+    public override void ResetForRestart() {
+        base.ResetForRestart();
         cancelToken.reset();
         curFrame = 0;
     }
@@ -161,7 +161,7 @@ public class TaskEntry<T> : Task<T>
 
     #region child
 
-    public sealed override int indexChild(Task<T>? task) {
+    public sealed override int IndexChild(Task<T>? task) {
         if (task != null && task == this.rootTask) {
             return 0;
         }
@@ -172,18 +172,18 @@ public class TaskEntry<T> : Task<T>
         return rootTask == null ? new List<Task<T>>() : new List<Task<T>> { rootTask };
     }
 
-    public override int getChildCount() {
+    public override int GetChildCount() {
         return rootTask == null ? 0 : 1;
     }
 
-    public override Task<T> getChild(int index) {
+    public override Task<T> GetChild(int index) {
         if (index == 0 && rootTask != null) {
             return rootTask;
         }
         throw new IndexOutOfRangeException(index.ToString());
     }
 
-    protected override int addChildImpl(Task<T> task) {
+    protected override int AddChildImpl(Task<T> task) {
         if (rootTask != null) {
             throw new IllegalStateException("A task entry cannot have more than one child");
         }
@@ -191,7 +191,7 @@ public class TaskEntry<T> : Task<T>
         return 0;
     }
 
-    protected override Task<T> setChildImpl(int index, Task<T> task) {
+    protected override Task<T> SetChildImpl(int index, Task<T> task) {
         if (index == 0 && rootTask != null) {
             Task<T> r = this.rootTask;
             rootTask = task;
@@ -200,7 +200,7 @@ public class TaskEntry<T> : Task<T>
         throw new IndexOutOfRangeException(index.ToString());
     }
 
-    protected override Task<T> removeChildImpl(int index) {
+    protected override Task<T> RemoveChildImpl(int index) {
         if (index == 0 && rootTask != null) {
             Task<T> r = this.rootTask;
             rootTask = null;

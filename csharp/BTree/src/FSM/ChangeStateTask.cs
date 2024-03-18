@@ -43,9 +43,9 @@ public class ChangeStateTask<T> : LeafTask<T>
         this.nextState = nextState;
     }
 
-    protected override void execute() {
+    protected override void Execute() {
         if (nextState == null) {
-            nextState = GetTaskEntry().getTreeLoader().loadRootTask(nextStateGuid);
+            nextState = GetTaskEntry().TreeLoader.loadRootTask<T>(nextStateGuid);
         }
         if (stateProps != null) {
             nextState.SharedProps = stateProps;
@@ -53,48 +53,53 @@ public class ChangeStateTask<T> : LeafTask<T>
         StateMachineTask<T> stateMachine = StateMachineTask<T>.findStateMachine(this, machineName);
         Task<T> curState = stateMachine.getCurState();
         // 在切换状态前将当前状态标记为成功或失败；只有延迟通知的情况下才可以设置状态的结果，否则状态机会切换到其它状态
-        if (Status.IsCompleted(curStateResult) && curState != null && !curState.isDisableDelayNotify()) {
-            curState.setCompleted(curStateResult, false);
+        if (Status.IsCompleted(curStateResult) && curState != null && !curState.IsDisableDelayNotify()) {
+            curState.SetCompleted(curStateResult, false);
         }
 
-        if (!isDisableDelayNotify()) {
+        if (!IsDisableDelayNotify()) {
             // 先设置成功，然后再切换状态，当前Task可保持为成功状态；
             // 记得先把nextState保存下来，因为会先执行exit；最好只在未禁用延迟通知的情况下采用
-            setSuccess();
-            stateMachine.changeState(nextState, ChangeStateArgs.PLAIN.withDelayMode(delayMode));
+            SetSuccess();
+            stateMachine.changeState(nextState, ChangeStateArgs.PLAIN.WithDelayMode(delayMode));
         } else {
             // 该路径基本不会走到，这里只是给个示例
-            int reentryId = getReentryId();
-            stateMachine.changeState(nextState, ChangeStateArgs.PLAIN.withDelayMode(delayMode));
-            if (!isExited(reentryId)) {
-                setSuccess();
+            int reentryId = GetReentryId();
+            stateMachine.changeState(nextState, ChangeStateArgs.PLAIN.WithDelayMode(delayMode));
+            if (!IsExited(reentryId)) {
+                SetSuccess();
             }
         }
     }
 
-    protected override void onEventImpl(object eventObj) {
+    protected override void OnEventImpl(object eventObj) {
     }
 
     public string? NextStateGuid {
         get => nextStateGuid;
         set => nextStateGuid = value;
     }
+
     public Task<T>? NextState {
         get => nextState;
         set => nextState = value;
     }
+
     public object? StateProps {
         get => stateProps;
         set => stateProps = value;
     }
+
     public int CurStateResult {
         get => curStateResult;
         set => curStateResult = value;
     }
+
     public string? MachineName {
         get => machineName;
         set => machineName = value;
     }
+
     public int DelayMode {
         get => delayMode;
         set => delayMode = value;

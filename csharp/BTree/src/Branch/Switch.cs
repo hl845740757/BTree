@@ -33,9 +33,9 @@ public class Switch<T> : SingleRunningChildBranch<T>
     public Switch(List<Task<T>>? children) : base(children) {
     }
 
-    protected override void execute() {
+    protected override void Execute() {
         if (runningChild == null && !selectChild()) {
-            setFailed(Status.ERROR);
+            SetFailed(Status.ERROR);
             return;
         }
         template_runChildDirectly(runningChild);
@@ -45,7 +45,7 @@ public class Switch<T> : SingleRunningChildBranch<T>
         for (int idx = 0; idx < children.Count; idx++) {
             Task<T> child = children[idx];
             if (!template_checkGuard(child.GetGuard())) {
-                child.setGuardFailed(null); // 不接收通知
+                child.SetGuardFailed(null); // 不接收通知
                 continue;
             }
             this.runningChild = child;
@@ -55,8 +55,8 @@ public class Switch<T> : SingleRunningChildBranch<T>
         return false;
     }
 
-    protected override void onChildCompleted(Task<T> child) {
+    protected override void OnChildCompleted(Task<T> child) {
         runningChild = null;
-        setCompleted(child.GetStatus(), true);
+        SetCompleted(child.GetStatus(), true);
     }
 }

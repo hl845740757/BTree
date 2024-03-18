@@ -27,11 +27,11 @@ public class Failure<T> : LeafTask<T>
 {
     private int failureStatus;
 
-    protected override void execute() {
-        setFailed(Status.ToFailure(failureStatus));
+    protected override void Execute() {
+        SetFailed(Status.ToFailure(failureStatus));
     }
 
-    protected override void onEventImpl(object eventObj) {
+    protected override void OnEventImpl(object eventObj) {
     }
 
     /// <summary>

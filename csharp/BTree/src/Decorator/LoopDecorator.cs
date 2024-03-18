@@ -34,19 +34,19 @@ public abstract class LoopDecorator<T> : Decorator<T>
     protected LoopDecorator(Task<T> child) : base(child) {
     }
 
-    protected override void execute() {
+    protected override void Execute() {
         if (maxLoopPerFrame < 1) {
-            setFailed(Status.ERROR);
+            SetFailed(Status.ERROR);
             return;
         }
         if (maxLoopPerFrame == 1) {
             template_runChild(child);
             return;
         }
-        int reentryId = getReentryId();
+        int reentryId = GetReentryId();
         for (int _i = maxLoopPerFrame - 1; _i >= 0; _i--) {
             template_runChild(child);
-            if (checkCancel(reentryId)) {
+            if (CheckCancel(reentryId)) {
                 return;
             }
             if (child.IsRunning()) { // 子节点未完成

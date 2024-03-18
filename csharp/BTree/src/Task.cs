@@ -249,6 +249,7 @@ public abstract class Task<T>
         }
     }
 
+#nullable disable
     /// <summary>
     /// 获取行为树绑定的实体 -- 最好让Entity也在黑板中
     /// </summary>
@@ -264,6 +265,7 @@ public abstract class Task<T>
         // C#重写属性的时候不能增加set，因此超类默认抛出异常
         set => throw new NotSupportedException();
     }
+#nullable enable
 
     /** 获取当前的帧号 */
     public virtual int CurFrame {
@@ -296,7 +298,7 @@ public abstract class Task<T>
     /// 1.不命名为init，是因为init通常让人觉得只调用一次。
     /// 2.该方法不可以使自身进入完成状态。
     /// </summary>
-    protected virtual void beforeEnter() {
+    protected virtual void BeforeEnter() {
     }
 
     /// <summary>
@@ -306,7 +308,7 @@ public abstract class Task<T>
     /// 3.允许更新自己为完成状态
     /// </summary>
     /// <param name="reentryId">用于判断父类是否使任务进入了完成状态；虽然也可先捕获再调用超类方法，但传入会方便许多。</param>
-    protected virtual void enter(int reentryId) {
+    protected virtual void Enter(int reentryId) {
     }
 
     /// <summary>
@@ -315,7 +317,7 @@ public abstract class Task<T>
     /// 2.运行中可通过{@link #setSuccess()}、{@link #setFailed(int)} ()}、{@link #setCancelled()}将自己更新为完成状态。
     /// 3.不建议直接调用该方法，而是通过模板方法运行。
     /// </summary>
-    protected abstract void execute();
+    protected abstract void Execute();
 
     /// <summary>
     /// 该方法在Task进入完成状态时执行
@@ -323,31 +325,31 @@ public abstract class Task<T>
     /// 2.该方法也用于清理部分运行时产生的临时数据。
     /// 3.一定记得取消注册的各种监听器。
     /// </summary>
-    protected virtual void exit() {
+    protected virtual void Exit() {
     }
 
 
     /** 设置为运行成功 */
-    public void setSuccess() {
+    public void SetSuccess() {
         Debug.Assert(this.status == Status.RUNNING);
         this.status = Status.SUCCESS;
         template_exit(0);
-        if (checkImmediateNotifyMask(ctl) && control != null) {
-            control.onChildCompleted(this);
+        if (CheckImmediateNotifyMask(ctl) && control != null) {
+            control.OnChildCompleted(this);
         }
     }
 
     /** 设置为取消 */
-    public void setCancelled() {
-        setCompleted(Status.CANCELLED, false);
+    public void SetCancelled() {
+        SetCompleted(Status.CANCELLED, false);
     }
 
     /** 设置为执行失败 -- 兼容{@link #setGuardFailed(Task)} */
-    public void setFailed(int status) {
+    public void SetFailed(int status) {
         if (status < Status.ERROR) {
             throw new ArgumentException("status " + status);
         }
-        setCompleted(status, false);
+        SetCompleted(status, false);
     }
 
     /// <summary>
@@ -357,16 +359,16 @@ public abstract class Task<T>
     ///
     /// </summary>
     /// <param name="control">由于task未运行，其control可能尚未赋值，因此要传入；传null可不接收通知</param>
-    public void setGuardFailed(Task<T>? control) {
+    public void SetGuardFailed(Task<T>? control) {
         Debug.Assert(this.status != Status.RUNNING);
         if (control != null) { //测试null，适用entry的guard失败
-            setControl(control);
+            SetControl(control);
         }
-        setCompleted(Status.GUARD_FAILED, false);
+        SetCompleted(Status.GUARD_FAILED, false);
     }
 
     /** 设置为完成 -- 通常用于通过子节点的结果设置自己 */
-    public void setCompleted(int status, bool fromChild) {
+    public void SetCompleted(int status, bool fromChild) {
         if (status < Status.SUCCESS) throw new ArgumentException();
         if (fromChild && status == Status.GUARD_FAILED) {
             status = Status.ERROR; // GUARD_FAILED 不能向上传播
@@ -387,8 +389,8 @@ public abstract class Task<T>
             ctl |= MASK_STILLBORN;
             this.status = status;
         }
-        if (checkImmediateNotifyMask(ctl) && control != null) {
-            control.onChildCompleted(this);
+        if (CheckImmediateNotifyMask(ctl) && control != null) {
+            control.OnChildCompleted(this);
         }
     }
 
@@ -398,7 +400,7 @@ public abstract class Task<T>
     /// 2.该方法不应该触发状态迁移，即不应该使自己进入完成状态
     /// </summary>
     /// <param name="child"></param>
-    protected abstract void onChildRunning(Task<T> child);
+    protected abstract void OnChildRunning(Task<T> child);
 
     /// <summary>
     /// 子节点进入完成状态
@@ -411,16 +413,16 @@ public abstract class Task<T>
     /// 7.任何的回调和事件方法中都由用户自身检测取消信号
     /// </summary>
     /// <param name="child"></param>
-    protected abstract void onChildCompleted(Task<T> child);
+    protected abstract void OnChildCompleted(Task<T> child);
 
     /// <summary>
     /// Task收到外部事件
     /// @see #onEventImpl(Object)
     /// </summary>
     /// <param name="eventObj">外部事件</param>
-    public void onEvent(object eventObj) {
-        if (canHandleEvent(eventObj)) {
-            onEventImpl(eventObj);
+    public void OnEvent(object eventObj) {
+        if (CanHandleEvent(eventObj)) {
+            OnEventImpl(eventObj);
         }
     }
 
@@ -439,7 +441,7 @@ public abstract class Task<T>
     /// </summary>
     /// <param name="eventObj"></param>
     /// <returns></returns>
-    public virtual bool canHandleEvent(object eventObj) {
+    public virtual bool CanHandleEvent(object eventObj) {
         return status == Status.RUNNING;
     }
 
@@ -451,7 +453,7 @@ public abstract class Task<T>
     /// 2.在AI这样的领域中，建议将事件转化为信息存储在Task或黑板中，而不是尝试立即做出反应。
     /// 3.{@link #isExecuting()}方法很重要
     /// </summary>
-    protected abstract void onEventImpl(object eventObj);
+    protected abstract void OnEventImpl(object eventObj);
 
 
     /// <summary>
@@ -459,8 +461,8 @@ public abstract class Task<T>
     /// 注意：如果未启动自动监听，手动监听时也建议绑定到该方法
     /// </summary>
     /// <param name="cancelToken">进入取消状态的取消令牌</param>
-    protected void onCancelRequested(CancelToken cancelToken) {
-        if (IsRunning()) setCancelled();
+    protected void OnCancelRequested(CancelToken cancelToken) {
+        if (IsRunning()) SetCancelled();
     }
 
     /// <summary>
@@ -469,7 +471,7 @@ public abstract class Task<T>
     /// 2.未完成的任务默认会进入Cancelled状态
     /// 3.不命名为cancel，否则容易误用；我们设计的cancel是协作式的，可通过{@link #cancelToken}发出请求请求。
     /// </summary>
-    public void stop() {
+    public void Stop() {
         // 被显式调用stop的task一定不能通知父节点，只要任务执行过就需要标记
         if (status == Status.RUNNING) {
             status = Status.CANCELLED;
@@ -484,12 +486,12 @@ public abstract class Task<T>
     /// 1.该方法在自身的exit之前调用
     /// 2.如果有特殊的子节点（钩子任务），也需要在这里停止
     /// </summary>
-    protected virtual void stopRunningChildren() {
+    protected virtual void StopRunningChildren() {
         // 停止child时默认逆序停止；一般而言都是后面的子节点依赖前面的子节点
-        for (int idx = getChildCount() - 1; idx >= 0; idx--) {
-            Task<T> child = getChild(idx);
+        for (int idx = GetChildCount() - 1; idx >= 0; idx--) {
+            Task<T> child = GetChild(idx);
             if (child.status == Status.RUNNING) {
-                child.stop();
+                child.Stop();
             }
         }
     }
@@ -502,19 +504,19 @@ public abstract class Task<T>
     /// 3. 与{@link #beforeEnter()}相同，重写方法时，应先执行父类逻辑，再重置自身属性。
     /// 4. 有临时数据的Task都应该重写该方法，行为树通常是需要反复执行的。
     /// </summary>
-    public virtual void resetForRestart() {
+    public virtual void ResetForRestart() {
         if (status == Status.NEW) {
             return;
         }
         if (status == Status.RUNNING) {
-            stop();
+            Stop();
         }
-        resetChildrenForRestart();
+        ResetChildrenForRestart();
         if (guard != null) {
-            guard.resetForRestart();
+            guard.ResetForRestart();
         }
         if (this != taskEntry) { // unsetControl
-            unsetControl();
+            UnsetControl();
         }
         status = 0;
         ctl &= MASK_OVERRIDES; // 保留Overrides信息
@@ -527,12 +529,12 @@ public abstract class Task<T>
     /// 重置所有的子节点
     /// 1.如果有需要重置的特殊子节点，可以重写该方法以确保无遗漏
     /// </summary>
-    protected virtual void resetChildrenForRestart() {
+    protected virtual void ResetChildrenForRestart() {
         // 逆序重置，与stop一致
-        for (int idx = getChildCount() - 1; idx >= 0; idx--) {
-            Task<T> child = getChild(idx);
+        for (int idx = GetChildCount() - 1; idx >= 0; idx--) {
+            Task<T> child = GetChild(idx);
             if (child.status != Status.NEW) {
-                child.resetForRestart();
+                child.ResetForRestart();
             }
         }
     }
@@ -543,7 +545,7 @@ public abstract class Task<T>
     /// 利用得当可大幅降低代码复杂度，减少调用栈深度，提高性能。
     /// </summary>
     /// <returns></returns>
-    protected bool isExecuting() {
+    protected bool IsExecuting() {
         return (ctl & MASK_EXECUTING) != 0;
     }
 
@@ -553,12 +555,12 @@ public abstract class Task<T>
     /// </summary>
     /// <param name="rid">重入id；方法保存的局部变量</param>
     /// <returns>任务是否已进入完成状态；如果返回true，调用者应立即退出</returns>
-    public bool checkCancel(int rid) {
+    public bool CheckCancel(int rid) {
         if (rid != this.reentryId) { // exit
             return true;
         }
         if (cancelToken.isCancelling()) {
-            setCancelled();
+            SetCancelled();
             return true;
         }
         return false;
@@ -572,7 +574,7 @@ public abstract class Task<T>
     /// </summary>
     /// <param name="rid">重入id；方法保存的局部变量</param>
     /// <returns>重入id对应的任务是否已退出</returns>
-    public bool isExited(int rid) {
+    public bool IsExited(int rid) {
         return rid != this.reentryId;
     }
 
@@ -584,7 +586,7 @@ public abstract class Task<T>
     /// </summary>
     /// <param name="rid">重入id；方法保存的局部变量</param>
     /// <returns></returns>
-    public bool isReentered(int rid) {
+    public bool IsReentered(int rid) {
         return (rid != this.reentryId) && (rid + 1 != this.reentryId);
     }
 
@@ -594,7 +596,7 @@ public abstract class Task<T>
     /// 2.如果执行的外部逻辑可能触发状态切换，在执行外部逻辑前最好捕获重入id，再执行外部逻辑后以检查是否可进行运行。
     /// </summary>
     /// <returns></returns>
-    public int getReentryId() {
+    public int GetReentryId() {
         return reentryId; // 勿修改返回值类型，以便以后扩展
     }
 
@@ -604,7 +606,7 @@ public abstract class Task<T>
     /// 2. 任务开始前检测到取消
     /// </summary>
     /// <returns>未成功启动则返回true</returns>
-    public bool isStillborn() {
+    public bool IsStillborn() {
         return (ctl & MASK_STILLBORN) != 0;
     }
 
@@ -614,7 +616,7 @@ public abstract class Task<T>
     /// 2.运行帧数是非常重要的统计属性，值得我们定义在顶层.
     /// </summary>
     /// <returns></returns>
-    public int getRunFrames() {
+    public int GetRunFrames() {
         if (status == Status.RUNNING) {
             return taskEntry.CurFrame - enterFrame;
         }
@@ -631,7 +633,7 @@ public abstract class Task<T>
     /// 3.部分Task的{@link #execute()}可能在一帧内执行多次，因此不能通过运行帧数为0代替。
     /// </summary>
     /// <returns></returns>
-    public bool isExecuteTriggeredByEnter() {
+    public bool IsExecuteTriggeredByEnter() {
         return (ctl & MASK_ENTER_EXECUTE) != 0;
     }
 
@@ -639,7 +641,7 @@ public abstract class Task<T>
     /// exit方法是否是由{@link #stop()}方法触发的
     /// </summary>
     /// <returns></returns>
-    public bool isExitTriggeredByStop() {
+    public bool IsExitTriggeredByStop() {
         return (ctl & MASK_STOP_EXIT) != 0;
     }
 
@@ -650,11 +652,11 @@ public abstract class Task<T>
     /// 2.自动检测取消信号是一个动态的属性，可随时更改 -- 因此不要轻易缓存。
     /// </summary>
     /// <param name="enable">是否启用</param>
-    public void setAutoCheckCancel(bool enable) {
-        setCtlBit(MASK_DISABLE_AUTO_CHECK_CANCEL, !enable);
+    public void SetAutoCheckCancel(bool enable) {
+        SetCtlBit(MASK_DISABLE_AUTO_CHECK_CANCEL, !enable);
     }
 
-    public bool isAutoCheckCancel() {
+    public bool IsAutoCheckCancel() {
         return (ctl & MASK_DISABLE_AUTO_CHECK_CANCEL) == 0; // 执行频率很高，不调用封装方法
     }
 
@@ -665,11 +667,11 @@ public abstract class Task<T>
     /// 2.要覆盖默认值应当在{@link #beforeEnter()}方法中调用
     /// </summary>
     /// <param name="enable">是否启用</param>
-    public void setAutoListenCancel(bool enable) {
-        setCtlBit(MASK_AUTO_LISTEN_CANCEL, enable);
+    public void SetAutoListenCancel(bool enable) {
+        SetCtlBit(MASK_AUTO_LISTEN_CANCEL, enable);
     }
 
-    public bool isAutoListenCancel() {
+    public bool IsAutoListenCancel() {
         return (ctl & MASK_AUTO_LISTEN_CANCEL) != 0;
     }
 
@@ -680,11 +682,11 @@ public abstract class Task<T>
     /// 3.该属性运行期间不应该调整，调整也无效
     /// </summary>
     /// <param name="disable">是否禁用</param>
-    public void setSlowStart(bool disable) {
-        setCtlBit(MASK_SLOW_START, disable);
+    public void SetSlowStart(bool disable) {
+        SetCtlBit(MASK_SLOW_START, disable);
     }
 
-    public bool isSlowStart() {
+    public bool IsSlowStart() {
         return (ctl & MASK_SLOW_START) != 0;
     }
 
@@ -695,11 +697,11 @@ public abstract class Task<T>
     /// 3.部分任务可能在调用{@link #resetForRestart()}之前不会再次运行，因此需要该特性
     /// </summary>
     /// <param name="enable"></param>
-    public void setAutoResetChildren(bool enable) {
-        setCtlBit(MASK_AUTO_RESET_CHILDREN, enable);
+    public void SetAutoResetChildren(bool enable) {
+        SetCtlBit(MASK_AUTO_RESET_CHILDREN, enable);
     }
 
-    public bool isAutoResetChildren() {
+    public bool IsAutoResetChildren() {
         return (ctl & MASK_AUTO_RESET_CHILDREN) != 0;
     }
 
@@ -714,23 +716,23 @@ public abstract class Task<T>
     /// 理论基础：99.99% 的情况下，Task在调用 setRunning 等方法后会立即return，那么在当前方法退出后再通知父节点就不会破坏时序。
     /// </summary>
     /// <param name="disable">是否禁用</param>
-    public void setDisableDelayNotify(bool disable) {
-        setCtlBit(MASK_DISABLE_DELAY_NOTIFY, disable);
+    public void SetDisableDelayNotify(bool disable) {
+        SetCtlBit(MASK_DISABLE_DELAY_NOTIFY, disable);
     }
 
-    public bool isDisableDelayNotify() {
+    public bool IsDisableDelayNotify() {
         return (ctl & MASK_DISABLE_DELAY_NOTIFY) != 0;
     }
 
-    private static bool checkNotifyMask(int ctl) {
+    private static bool CheckNotifyMask(int ctl) {
         return (ctl & (MASK_DISABLE_NOTIFY | MASK_STOP_EXIT)) == 0;
     }
 
-    private static bool checkDelayNotifyMask(int ctl) {
+    private static bool CheckDelayNotifyMask(int ctl) {
         return (ctl & (MASK_DISABLE_NOTIFY | MASK_STOP_EXIT | MASK_DISABLE_DELAY_NOTIFY)) == 0;
     }
 
-    private static bool checkImmediateNotifyMask(int ctl) {
+    private static bool CheckImmediateNotifyMask(int ctl) {
         return (ctl & (MASK_DISABLE_NOTIFY | MASK_STOP_EXIT)) == 0 // 被stop取消的任务不能通知
                && ((ctl & MASK_DISABLE_DELAY_NOTIFY) != 0 || (ctl & MASK_EXECUTING) == 0); // 前者多为true，否则多为false
     }
@@ -742,14 +744,14 @@ public abstract class Task<T>
     /**
      * 1.尽量不要在运行时增删子节点（危险操作）
      * 2.不建议将Task从一棵树转移到另一棵树，可能产生内存泄漏（引用未删除干净）
-     * 3.如果需要知道task的索引，可提前调用{@link #getChildCount()}
+     * 3.如果需要知道task的索引，可提前调用{@link #GetChildCount()}
      *
      * @param task 要添加的子节点
      * @return this
      */
-    public Task<T> addChild(Task<T> task) {
-        checkAddChild(task);
-        addChildImpl(task);
+    public Task<T> AddChild(Task<T> task) {
+        CheckAddChild(task);
+        AddChildImpl(task);
         return this;
     }
 
@@ -759,12 +761,12 @@ public abstract class Task<T>
      *
      * @return index对应的旧节点
      */
-    public Task<T> setChild(int index, Task<T> newTask) {
-        checkAddChild(newTask);
-        return setChildImpl(index, newTask);
+    public Task<T> SetChild(int index, Task<T> newTask) {
+        CheckAddChild(newTask);
+        return SetChildImpl(index, newTask);
     }
 
-    private void checkAddChild(Task<T> child) {
+    private void CheckAddChild(Task<T> child) {
         if (child == null) throw new ArgumentNullException(nameof(child));
         if (child.control != this) {
             // 必须先从旧的父节点上删除，但有可能是自己之前放在一边的子节点
@@ -778,36 +780,36 @@ public abstract class Task<T>
         Debug.Assert(!child.IsRunning());
     }
 
-    public bool removeChild(Task<T> task) {
+    public bool RemoveChild(Task<T> task) {
         if (task == null) throw new ArgumentNullException(nameof(task));
         // child未启动的情况下，control可能尚未赋值，因此不能检查control来判别
-        int index = indexChild(task);
+        int index = IndexChild(task);
         if (index > 0) {
-            removeChildImpl(index);
-            task.unsetControl();
+            RemoveChildImpl(index);
+            task.UnsetControl();
             return true;
         }
         return false;
     }
 
     /** 删除指定索引的child */
-    public Task<T> removeChild(int index) {
-        Task<T> child = removeChildImpl(index);
-        child.unsetControl();
+    public Task<T> RemoveChild(int index) {
+        Task<T> child = RemoveChildImpl(index);
+        child.UnsetControl();
         return child;
     }
 
     /** 删除所有的child -- 不是个常用方法 */
-    public virtual void removeAllChild() {
-        for (int idx = 0, size = getChildCount(); idx < size; idx++) {
-            removeChildImpl(idx).unsetControl();
+    public virtual void RemoveAllChild() {
+        for (int idx = 0, size = GetChildCount(); idx < size; idx++) {
+            RemoveChildImpl(idx).UnsetControl();
         }
     }
 
     /** @return index or -1 */
-    public virtual int indexChild(Task<T>? task) {
-        for (int idx = 0, size = getChildCount(); idx < size; idx++) {
-            if (getChild(idx) == task) {
+    public virtual int IndexChild(Task<T>? task) {
+        for (int idx = 0, size = GetChildCount(); idx < size; idx++) {
+            if (GetChild(idx) == task) {
                 return idx;
             }
         }
@@ -818,19 +820,19 @@ public abstract class Task<T>
     public abstract List<Task<T>> ListChildren();
 
     /** 子节点的数量（仅包括普通意义上的child，不包括钩子任务） */
-    public abstract int getChildCount();
+    public abstract int GetChildCount();
 
     /** 获取指定索引的child */
-    public abstract Task<T> getChild(int index);
+    public abstract Task<T> GetChild(int index);
 
     /** @return 为child分配的index */
-    protected abstract int addChildImpl(Task<T> task);
+    protected abstract int AddChildImpl(Task<T> task);
 
     /** @return 索引位置旧的child */
-    protected abstract Task<T> setChildImpl(int index, Task<T> task);
+    protected abstract Task<T> SetChildImpl(int index, Task<T> task);
 
     /** @return index对应的child */
-    protected abstract Task<T> removeChildImpl(int index);
+    protected abstract Task<T> RemoveChildImpl(int index);
 
     #endregion
 
@@ -841,14 +843,14 @@ public abstract class Task<T>
         initMask |= (ctl & MASK_OVERRIDES); // 方法实现bits
         initMask |= (flags & MASK_CONTROL_FLOW_FLAGS); // 控制流bits
         if (control != null) {
-            initMask |= captureContext(control);
+            initMask |= CaptureContext(control);
         }
         ctl = initMask; // 初始化基础上下文后才可以检测取消，包括控制流标记
 
         CancelToken cancelToken = this.cancelToken;
-        if (cancelToken.isCancelling() && isAutoCheckCancel()) { // 胎死腹中
-            releaseContext();
-            setCompleted(Status.CANCELLED, false);
+        if (cancelToken.isCancelling() && IsAutoCheckCancel()) { // 胎死腹中
+            ReleaseContext();
+            SetCompleted(Status.CANCELLED, false);
             return;
         }
 
@@ -861,38 +863,38 @@ public abstract class Task<T>
         enterFrame = exitFrame = taskEntry.CurFrame;
         int reentryId = ++this.reentryId; // 和上次执行的exit分开
         try {
-            if (prevStatus != Status.NEW && isAutoResetChildren()) {
-                resetChildrenForRestart();
+            if (prevStatus != Status.NEW && IsAutoResetChildren()) {
+                ResetChildrenForRestart();
             }
             if ((initMask & TaskOverrides.MASK_BEFORE_ENTER) != 0) {
-                beforeEnter();
+                BeforeEnter();
             }
             if ((initMask & TaskOverrides.MASK_ENTER) != 0) {
-                enter(reentryId);
-                if (isExited(reentryId)) { // enter 可能导致结束
-                    if (reentryId + 1 == this.reentryId && checkDelayNotifyMask(ctl) && control != null) {
-                        control.onChildCompleted(this);
+                Enter(reentryId);
+                if (IsExited(reentryId)) { // enter 可能导致结束
+                    if (reentryId + 1 == this.reentryId && CheckDelayNotifyMask(ctl) && control != null) {
+                        control.OnChildCompleted(this);
                     }
                     return;
                 }
-                if (cancelToken.isCancelling() && isAutoCheckCancel()) { // token基本为false，autoCheck基本为true
-                    setDisableDelayNotify(true);
-                    setCancelled();
+                if (cancelToken.isCancelling() && IsAutoCheckCancel()) { // token基本为false，autoCheck基本为true
+                    SetDisableDelayNotify(true);
+                    SetCancelled();
                     return;
                 }
             }
 
-            if (isSlowStart()) { // 需要下一帧执行execute
+            if (IsSlowStart()) { // 需要下一帧执行execute
                 checkFireRunningAndCancel(control, cancelToken);
                 return;
             }
-            if (isAutoListenCancel()) {
+            if (IsAutoListenCancel()) {
                 cancelToken.register(this);
             }
-            execute();
-            if (isExited(reentryId)) {
-                if (reentryId + 1 == this.reentryId && checkDelayNotifyMask(ctl) && control != null) {
-                    control.onChildCompleted(this);
+            Execute();
+            if (IsExited(reentryId)) {
+                if (reentryId + 1 == this.reentryId && CheckDelayNotifyMask(ctl) && control != null) {
+                    control.OnChildCompleted(this);
                 }
             } else {
                 checkFireRunningAndCancel(control, cancelToken);
@@ -906,13 +908,13 @@ public abstract class Task<T>
     }
 
     private void checkFireRunningAndCancel(Task<T> control, CancelToken cancelToken) {
-        if (cancelToken.isCancelling() && isAutoCheckCancel()) {
-            setDisableDelayNotify(true);
-            setCancelled();
+        if (cancelToken.isCancelling() && IsAutoCheckCancel()) {
+            SetDisableDelayNotify(true);
+            SetCancelled();
             return;
         }
-        if (checkNotifyMask(ctl) && control != null) {
-            control.onChildRunning(this);
+        if (CheckNotifyMask(ctl) && control != null) {
+            control.OnChildRunning(this);
         }
     }
 
@@ -925,28 +927,28 @@ public abstract class Task<T>
     public void template_execute() {
         CancelToken cancelToken = this.cancelToken;
         int reentryId = this.reentryId;
-        if (cancelToken.isCancelling() && isAutoCheckCancel()) {
-            setDisableDelayNotify(true);
-            setCancelled();
+        if (cancelToken.isCancelling() && IsAutoCheckCancel()) {
+            SetDisableDelayNotify(true);
+            SetCancelled();
             return;
         }
         ctl |= MASK_EXECUTING;
         try {
-            execute();
+            Execute();
         }
         finally {
             if (reentryId == this.reentryId || reentryId + 1 == this.reentryId) { // 否则可能清理掉递归任务的数据
                 ctl &= ~MASK_EXECUTING;
             }
         }
-        if (isExited(reentryId)) {
-            if (reentryId + 1 == this.reentryId && checkDelayNotifyMask(ctl) && control != null) {
-                control.onChildCompleted(this);
+        if (IsExited(reentryId)) {
+            if (reentryId + 1 == this.reentryId && CheckDelayNotifyMask(ctl) && control != null) {
+                control.OnChildCompleted(this);
             }
         } else {
-            if (cancelToken.isCancelling() && isAutoCheckCancel()) {
-                setDisableDelayNotify(true);
-                setCancelled();
+            if (cancelToken.isCancelling() && IsAutoCheckCancel()) {
+                SetDisableDelayNotify(true);
+                SetCancelled();
             }
         }
     }
@@ -956,18 +958,18 @@ public abstract class Task<T>
             ctl |= extraMask;
         }
         exitFrame = taskEntry.CurFrame;
-        if (isAutoListenCancel()) {
+        if (IsAutoListenCancel()) {
             cancelToken.unregister(this);
         }
         try {
-            stopRunningChildren();
+            StopRunningChildren();
             if ((ctl & TaskOverrides.MASK_EXIT) != 0) {
-                exit();
+                Exit();
             }
         }
         finally {
             reentryId++;
-            releaseContext();
+            ReleaseContext();
         }
     }
 
@@ -977,19 +979,19 @@ public abstract class Task<T>
     /// @param child 普通子节点，或需要接收通知的钩子任务
      */
     public void template_runChild(Task<T> child) {
-        Debug.Assert(isReady(), "Task is not ready");
+        Debug.Assert(IsReady(), "Task is not ready");
         if (child.status == Status.RUNNING) {
             child.template_execute();
         } else if (child.guard == null || template_checkGuard(child.guard)) {
             child.template_enterExecute(this, 0);
         } else {
-            child.setGuardFailed(this);
+            child.SetGuardFailed(this);
         }
     }
 
     /** 运行子节点，不检查子节点的前置条件 */
     public void template_runChildDirectly(Task<T> child) {
-        Debug.Assert(isReady(), "Task is not ready");
+        Debug.Assert(IsReady(), "Task is not ready");
         if (child.status == Status.RUNNING) {
             child.template_execute();
         } else {
@@ -1005,19 +1007,19 @@ public abstract class Task<T>
     /// @param hook 钩子任务，或不需要接收事件通知的子节点
      */
     public void template_runHook(Task<T> hook) {
-        Debug.Assert(isReady(), "Task is not ready");
+        Debug.Assert(IsReady(), "Task is not ready");
         if (hook.status == Status.RUNNING) {
             hook.template_execute();
         } else if (hook.guard == null || template_checkGuard(hook.guard)) {
             hook.template_enterExecute(this, MASK_DISABLE_NOTIFY);
         } else {
-            hook.setGuardFailed(this);
+            hook.SetGuardFailed(this);
         }
     }
 
     /** 执行钩子任务，不检查前置条件 */
     public void template_runHookDirectly(Task<T> hook) {
-        Debug.Assert(isReady(), "Task is not ready");
+        Debug.Assert(IsReady(), "Task is not ready");
         if (hook.status == Status.RUNNING) {
             hook.template_execute();
         } else {
@@ -1036,7 +1038,7 @@ public abstract class Task<T>
     /// @param guard 前置条件；可以是子节点的guard属性，也可以是条件子节点，也可以是外部的条件节点
      */
     public bool template_checkGuard(Task<T>? guard) {
-        Debug.Assert(isReady(), "Task is not ready");
+        Debug.Assert(IsReady(), "Task is not ready");
         if (guard == null) {
             return true;
         }
@@ -1059,12 +1061,12 @@ public abstract class Task<T>
             }
         }
         finally {
-            guard.unsetControl(); // 条件类节点总是及时清理
+            guard.UnsetControl(); // 条件类节点总是及时清理
         }
     }
 
     /** @return 内部使用的mask */
-    private int captureContext(Task<T> control) {
+    private int CaptureContext(Task<T> control) {
         this.taskEntry = control.taskEntry;
         this.control = control;
 
@@ -1086,7 +1088,7 @@ public abstract class Task<T>
     }
 
     /** 释放自动捕获的上下文 -- 如果保留上次的上下文，下次执行就会出错（guard是典型） */
-    private void releaseContext() {
+    private void ReleaseContext() {
         int ctl = this.ctl;
         if ((ctl & MASK_INHERITED_BLACKBOARD) != 0) {
             blackboard = default;
@@ -1105,7 +1107,7 @@ public abstract class Task<T>
     /// </summary>
     /// <param name="control">控制节点</param>
     /// <exception cref="Exception"></exception>
-    public void setControl(Task<T> control) {
+    public void SetControl(Task<T> control) {
         Debug.Assert(control != this);
         if (this == taskEntry) {
             throw new Exception();
@@ -1119,7 +1121,7 @@ public abstract class Task<T>
     /// 该方法在任务结束时并不会自动调用，因为Task上的数据可能是有用的，不能立即删除，只有用户知道是否可以清理。
     /// </summary>
     /// <exception cref="Exception"></exception>
-    public void unsetControl() {
+    public void UnsetControl() {
         if (this == taskEntry) {
             throw new Exception();
         }
@@ -1193,17 +1195,17 @@ public abstract class Task<T>
         };
     }
 
-    public static void stop(Task<T>? task) {
+    public static void Stop(Task<T>? task) {
         // java不支持 obj?.method 语法，我们只能封装额外的方法实现
         if (task != null && task.status == Status.RUNNING) {
-            task.stop();
+            task.Stop();
         }
     }
 
-    public static void stopSafely(Task<T>? task) {
+    public static void StopSafely(Task<T>? task) {
         if (task != null && task.status == Status.RUNNING) {
             try {
-                task.stop();
+                task.Stop();
             }
             catch (Exception e) {
                 TaskLogger.warning(e, "task stop caught exception");
@@ -1211,14 +1213,14 @@ public abstract class Task<T>
         }
     }
 
-    public static void resetForRestart(Task<T>? task) {
+    public static void ResetForRestart(Task<T>? task) {
         if (task != null && task.status != Status.NEW) {
-            task.resetForRestart();
+            task.ResetForRestart();
         }
     }
 
     /** 测试Task是否处于可执行状态 -- 该测试并不完全，仅用于简单的断言 */
-    private bool isReady() {
+    private bool IsReady() {
         if (IsRunning()) {
             return true;
         }
@@ -1228,7 +1230,7 @@ public abstract class Task<T>
         return taskEntry != null && control != null && blackboard != null && cancelToken != null;
     }
 
-    private void setCtlBit(int mask, bool enable) {
+    private void SetCtlBit(int mask, bool enable) {
         if (enable) {
             ctl |= mask;
         } else {
@@ -1236,7 +1238,7 @@ public abstract class Task<T>
         }
     }
 
-    private bool getCtlBit(int mask) {
+    private bool GetCtlBit(int mask) {
         return (ctl & mask) != 0;
     }
 

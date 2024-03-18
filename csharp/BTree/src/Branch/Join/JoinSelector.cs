@@ -25,26 +25,31 @@ namespace Wjybxx.BTree.Branch.Join;
 /// <typeparam name="T"></typeparam>
 public class JoinSelector<T> : JoinPolicy<T>
 {
-    public void resetForRestart() {
+    /** 单例 */
+    private static readonly JoinSelector<T> Inst = new JoinSelector<T>();
+
+    public static JoinSelector<T> GetInstance() => Inst;
+
+    public void ResetForRestart() {
     }
 
-    public void beforeEnter(Join<T> join) {
+    public void BeforeEnter(Join<T> join) {
     }
 
-    public void enter(Join<T> join) {
-        if (join.getChildCount() == 0) {
-            join.setFailed(Status.CHILDLESS);
+    public void Enter(Join<T> join) {
+        if (join.GetChildCount() == 0) {
+            join.SetFailed(Status.CHILDLESS);
         }
     }
 
-    public void onChildCompleted(Join<T> join, Task<T> child) {
+    public void OnChildCompleted(Join<T> join, Task<T> child) {
         if (child.IsSucceeded()) {
-            join.setSuccess();
+            join.SetSuccess();
         } else if (join.isAllChildCompleted()) {
-            join.setFailed(Status.ERROR);
+            join.SetFailed(Status.ERROR);
         }
     }
 
-    public void onEvent(Join<T> join, object eventObj) {
+    public void OnEvent(Join<T> join, object eventObj) {
     }
 }

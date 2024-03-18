@@ -25,9 +25,9 @@ namespace Wjybxx.BTree.Leaf;
 /// <typeparam name="T"></typeparam>
 public class Running<T> : LeafTask<T>
 {
-    protected override void execute() {
+    protected override void Execute() {
     }
 
-    protected override void onEventImpl(object eventObj) {
+    protected override void OnEventImpl(object eventObj) {
     }
 }

@@ -26,24 +26,29 @@ namespace Wjybxx.BTree.Branch.Join;
 /// <typeparam name="T"></typeparam>
 public class JoinWaitAll<T> : JoinPolicy<T>
 {
-    public void resetForRestart() {
+    /** 单例 */
+    private static readonly JoinWaitAll<T> Inst = new JoinWaitAll<T>();
+
+    public static JoinWaitAll<T> GetInstance() => Inst;
+
+    public void ResetForRestart() {
     }
 
-    public void beforeEnter(Join<T> join) {
+    public void BeforeEnter(Join<T> join) {
     }
 
-    public void enter(Join<T> join) {
-        if (join.getChildCount() == 0) {
-            join.setSuccess();
+    public void Enter(Join<T> join) {
+        if (join.GetChildCount() == 0) {
+            join.SetSuccess();
         }
     }
 
-    public void onChildCompleted(Join<T> join, Task<T> child) {
+    public void OnChildCompleted(Join<T> join, Task<T> child) {
         if (join.isAllChildCompleted()) {
-            join.setSuccess();
+            join.SetSuccess();
         }
     }
 
-    public void onEvent(Join<T> join, object eventObj) {
+    public void OnEvent(Join<T> join, object eventObj) {
     }
 }

@@ -32,16 +32,16 @@ public class Foreach<T> : SingleRunningChildBranch<T>
 
     public Foreach(List<Task<T>>? children) : base(children) {
     }
-    
-    protected override void onChildCompleted(Task<T> child) {
+
+    protected override void OnChildCompleted(Task<T> child) {
         runningChild = null;
         if (child.IsCancelled()) {
-            setCancelled();
+            SetCancelled();
             return;
         }
         if (isAllChildCompleted()) {
-            setSuccess();
-        } else if (!isExecuting()) {
+            SetSuccess();
+        } else if (!IsExecuting()) {
             template_execute();
         }
     }

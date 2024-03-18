@@ -30,9 +30,9 @@ public class UntilCond<T> : LoopDecorator<T>
     /** 循环条件 -- 不能直接使用child的guard，意义不同 */
     private Task<T>? cond;
 
-    protected override void onChildCompleted(Task<T> child) {
+    protected override void OnChildCompleted(Task<T> child) {
         if (template_checkGuard(cond)) {
-            setSuccess();
+            SetSuccess();
         }
     }
 

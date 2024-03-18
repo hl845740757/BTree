@@ -29,27 +29,32 @@ namespace Wjybxx.BTree.Branch.Join;
 /// <typeparam name="T"></typeparam>
 public class JoinMain<T> : JoinPolicy<T>
 {
-    public void resetForRestart() {
+    /** 单例 */
+    private static readonly JoinMain<T> Inst = new JoinMain<T>();
+
+    public static JoinMain<T> GetInstance() => Inst;
+
+    public void ResetForRestart() {
     }
 
-    public void beforeEnter(Join<T> join) {
+    public void BeforeEnter(Join<T> join) {
     }
 
-    public void enter(Join<T> join) {
-        if (join.getChildCount() == 0) {
-            join.setFailed(Status.CHILDLESS);
+    public void Enter(Join<T> join) {
+        if (join.GetChildCount() == 0) {
+            join.SetFailed(Status.CHILDLESS);
         }
     }
 
-    public void onChildCompleted(Join<T> join, Task<T> child) {
+    public void OnChildCompleted(Join<T> join, Task<T> child) {
         if (join.isFirstChild(child)) {
-            join.setCompleted(child.GetStatus(), true);
+            join.SetCompleted(child.GetStatus(), true);
         }
     }
 
-    public void onEvent(Join<T> join, object eventObj) { // 就没见过这么扯淡的设计，event做为关键字
+    public void OnEvent(Join<T> join, object eventObj) { // 就没见过这么扯淡的设计，event做为关键字
         Task<T> firstChild = join.getFirstChild();
         Debug.Assert(firstChild != null);
-        firstChild.onEvent(eventObj);
+        firstChild.OnEvent(eventObj);
     }
 }

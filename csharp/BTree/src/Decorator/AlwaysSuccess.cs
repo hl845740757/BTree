@@ -31,15 +31,15 @@ public class AlwaysSuccess<T> : Decorator<T>
     public AlwaysSuccess(Task<T> child) : base(child) {
     }
 
-    protected override void execute() {
+    protected override void Execute() {
         if (child == null) {
-            setSuccess();
+            SetSuccess();
         } else {
             template_runChild(child);
         }
     }
 
-    protected override void onChildCompleted(Task<T> child) {
-        setSuccess();
+    protected override void OnChildCompleted(Task<T> child) {
+        SetSuccess();
     }
 }

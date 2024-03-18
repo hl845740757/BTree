@@ -36,8 +36,8 @@ public class FixedSwitch<T> : Switch<T>
     public FixedSwitch() {
     }
 
-    protected override void beforeEnter() {
-        base.beforeEnter();
+    protected override void BeforeEnter() {
+        base.BeforeEnter();
         if (children.Count == 0) {
             AddChildIfNotNull(branch1);
             AddChildIfNotNull(branch2);
@@ -49,26 +49,30 @@ public class FixedSwitch<T> : Switch<T>
 
     private void AddChildIfNotNull(Task<T>? branch) {
         if (branch != null) {
-            addChild(branch);
+            AddChild(branch);
         }
     }
-    
+
     public Task<T>? Branch1 {
         get => branch1;
         set => branch1 = value;
     }
+
     public Task<T>? Branch2 {
         get => branch2;
         set => branch2 = value;
     }
+
     public Task<T>? Branch3 {
         get => branch3;
         set => branch3 = value;
     }
+
     public Task<T>? Branch4 {
         get => branch4;
         set => branch4 = value;
     }
+
     public Task<T>? Branch5 {
         get => branch5;
         set => branch5 = value;

@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // Copyright 2024 wjybxx(845740757@qq.com)
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,6 +13,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 #endregion
 
 using System.Collections.Generic;
@@ -34,17 +36,17 @@ public class Sequence<T> : SingleRunningChildBranch<T>
     public Sequence(Task<T> first, Task<T>? second) : base(first, second) {
     }
 
-    protected override void onChildCompleted(Task<T> child) {
+    protected override void OnChildCompleted(Task<T> child) {
         runningChild = null;
         if (child.IsCancelled()) {
-            setCancelled();
+            SetCancelled();
             return;
         }
         if (child.IsFailed()) { // 失败码有传递的价值
-            setCompleted(child.GetStatus(), true);
+            SetCompleted(child.GetStatus(), true);
         } else if (isAllChildCompleted()) {
-            setSuccess();
-        } else if (!isExecuting()) {
+            SetSuccess();
+        } else if (!IsExecuting()) {
             template_execute();
         }
     }

@@ -31,31 +31,31 @@ namespace Wjybxx.BTree.Branch;
 /// <typeparam name="T"></typeparam>
 public class SimpleParallel<T> : Parallel<T>
 {
-    protected override void execute() {
+    protected override void Execute() {
         List<Task<T>> children = this.children;
         Task<T> mainTask = children[0];
 
-        int reentryId = getReentryId();
+        int reentryId = GetReentryId();
         template_runChild(mainTask);
-        if (checkCancel(reentryId)) { // 得出结果或取消
+        if (CheckCancel(reentryId)) { // 得出结果或取消
             return;
         }
 
         for (int idx = 1; idx < children.Count; idx++) {
             Task<T> child = children[idx];
             template_runHook(child);
-            if (checkCancel(reentryId)) { // 得出结果或取消
+            if (CheckCancel(reentryId)) { // 得出结果或取消
                 return;
             }
         }
     }
 
-    protected override void onChildCompleted(Task<T> child) {
+    protected override void OnChildCompleted(Task<T> child) {
         Debug.Assert(child == children[0]);
-        setCompleted(child.GetStatus(), true);
+        SetCompleted(child.GetStatus(), true);
     }
 
-    protected override void onEventImpl(object eventObj) {
-        children[0].onEvent(eventObj);
+    protected override void OnEventImpl(object eventObj) {
+        children[0].OnEvent(eventObj);
     }
 }

@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using Wjybxx.Commons;
+
 #pragma warning disable CS1591
 
 namespace Wjybxx.BTree;
@@ -40,22 +41,22 @@ public abstract class Decorator<T> : Task<T>
         this.child = child;
     }
 
-    protected override void stopRunningChildren() {
-        stop(child);
+    protected override void StopRunningChildren() {
+        Stop(child);
     }
 
-    protected override void onChildRunning(Task<T> child) {
+    protected override void OnChildRunning(Task<T> child) {
     }
 
-    protected override void onEventImpl(object eventObj) {
+    protected override void OnEventImpl(object eventObj) {
         if (child != null) {
-            child.onEvent(eventObj);
+            child.OnEvent(eventObj);
         }
     }
 
     #region child
 
-    public sealed override int indexChild(Task<T>? task) {
+    public sealed override int IndexChild(Task<T>? task) {
         if (task != null && task == this.child) {
             return 0;
         }
@@ -66,18 +67,18 @@ public abstract class Decorator<T> : Task<T>
         return child == null ? new List<Task<T>>(0) : new List<Task<T>> { child };
     }
 
-    public sealed override int getChildCount() {
+    public sealed override int GetChildCount() {
         return child == null ? 0 : 1;
     }
 
-    public sealed override Task<T> getChild(int index) {
+    public sealed override Task<T> GetChild(int index) {
         if (index == 0 && child != null) {
             return child;
         }
         throw new IndexOutOfRangeException(index.ToString());
     }
 
-    protected sealed override int addChildImpl(Task<T> task) {
+    protected sealed override int AddChildImpl(Task<T> task) {
         if (child != null) {
             throw new IllegalStateException("A task entry cannot have more than one child");
         }
@@ -85,7 +86,7 @@ public abstract class Decorator<T> : Task<T>
         return 0;
     }
 
-    protected sealed override Task<T> setChildImpl(int index, Task<T> task) {
+    protected sealed override Task<T> SetChildImpl(int index, Task<T> task) {
         if (index == 0 && child != null) {
             Task<T> r = this.child;
             child = task;
@@ -94,7 +95,7 @@ public abstract class Decorator<T> : Task<T>
         throw new IndexOutOfRangeException(index.ToString());
     }
 
-    protected sealed override Task<T> removeChildImpl(int index) {
+    protected sealed override Task<T> RemoveChildImpl(int index) {
         if (index == 0 && child != null) {
             Task<T> r = this.child;
             child = null;

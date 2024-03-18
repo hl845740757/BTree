@@ -37,29 +37,29 @@ public class AlwaysRunning<T> : Decorator<T>
     public AlwaysRunning(Task<T> child) : base(child) {
     }
 
-    protected override void beforeEnter() {
-        base.beforeEnter();
+    protected override void BeforeEnter() {
+        base.BeforeEnter();
         if (child == null) {
             childPrevReentryId = 0;
         } else {
-            childPrevReentryId = child.getReentryId();
+            childPrevReentryId = child.GetReentryId();
         }
     }
 
-    protected override void execute() {
+    protected override void Execute() {
         if (child == null) {
             return;
         }
-        bool started = child.isExited(childPrevReentryId);
+        bool started = child.IsExited(childPrevReentryId);
         if (started && child.IsCompleted()) { // 勿轻易调整
             return;
         }
         template_runChild(child);
     }
 
-    protected override void onChildCompleted(Task<T> child) {
+    protected override void OnChildCompleted(Task<T> child) {
         if (child.IsCancelled()) { // 不响应其它状态，但还是需要响应取消...
-            setCancelled();
+            SetCancelled();
         }
     }
 }

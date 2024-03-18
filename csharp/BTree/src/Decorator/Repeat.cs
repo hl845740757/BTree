@@ -43,26 +43,26 @@ public class Repeat<T> : LoopDecorator<T>
     /** 当前计数 */
     [NonSerialized] private int count;
 
-    public override void resetForRestart() {
-        base.resetForRestart();
+    public override void ResetForRestart() {
+        base.ResetForRestart();
         count = 0;
     }
 
-    protected override void beforeEnter() {
-        base.beforeEnter();
+    protected override void BeforeEnter() {
+        base.BeforeEnter();
         count = 0;
     }
 
-    protected override void enter(int reentryId) {
-        base.enter(reentryId);
+    protected override void Enter(int reentryId) {
+        base.Enter(reentryId);
         if (required < 1) {
-            setSuccess();
+            SetSuccess();
         }
     }
 
-    protected override void onChildCompleted(Task<T> child) {
+    protected override void OnChildCompleted(Task<T> child) {
         if (child.IsCancelled()) {
-            setCancelled();
+            SetCancelled();
             return;
         }
         bool match = countMode switch // 还是更喜欢Java的switch...
@@ -73,7 +73,7 @@ public class Repeat<T> : LoopDecorator<T>
             _ => false
         };
         if (match && ++count >= required) {
-            setSuccess();
+            SetSuccess();
         }
     }
 

@@ -26,23 +26,28 @@ namespace Wjybxx.BTree.Branch.Join;
 /// <typeparam name="T"></typeparam>
 public class JoinAnyOf<T> : JoinPolicy<T>
 {
-    public void resetForRestart() {
+    /** 单例 */
+    private static readonly JoinAnyOf<T> Inst = new JoinAnyOf<T>();
+
+    public static JoinAnyOf<T> GetInstance() => Inst;
+
+    public void ResetForRestart() {
     }
 
-    public void beforeEnter(Join<T> join) {
+    public void BeforeEnter(Join<T> join) {
     }
 
-    public void enter(Join<T> join) {
+    public void Enter(Join<T> join) {
         // 不能成功，失败也不能
-        if (join.getChildCount() == 0) {
+        if (join.GetChildCount() == 0) {
             TaskLogger.info("JonAnyOf: children is empty");
         }
     }
 
-    public void onChildCompleted(Join<T> join, Task<T> child) {
-        join.setCompleted(child.GetStatus(), true);
+    public void OnChildCompleted(Join<T> join, Task<T> child) {
+        join.SetCompleted(child.GetStatus(), true);
     }
 
-    public void onEvent(Join<T> join, object eventObj) {
+    public void OnEvent(Join<T> join, object eventObj) {
     }
 }

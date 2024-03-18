@@ -37,7 +37,7 @@ public class ServiceParallel<T> : Parallel<T>
     public ServiceParallel(List<Task<T>>? children) : base(children) {
     }
 
-    protected override void execute() {
+    protected override void Execute() {
         List<Task<T>> children = this.children;
         Task<T> mainTask = children[0];
         template_runChild(mainTask);
@@ -47,18 +47,18 @@ public class ServiceParallel<T> : Parallel<T>
             template_runHook(child);
         }
         if (mainTask.IsCompleted()) {
-            setCompleted(mainTask.GetStatus(), true);
+            SetCompleted(mainTask.GetStatus(), true);
         }
     }
 
-    protected override void onChildCompleted(Task<T> child) {
+    protected override void OnChildCompleted(Task<T> child) {
         Debug.Assert(child == children[0]);
-        if (!isExecuting()) {
-            setSuccess();
+        if (!IsExecuting()) {
+            SetSuccess();
         }
     }
 
-    protected override void onEventImpl(object eventObj) {
-        children[0].onEvent(eventObj);
+    protected override void OnEventImpl(object eventObj) {
+        children[0].OnEvent(eventObj);
     }
 }

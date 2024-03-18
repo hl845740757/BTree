@@ -1,4 +1,5 @@
 ﻿#region LICENSE
+
 // Copyright 2024 wjybxx(845740757@qq.com)
 // 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,29 +13,29 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 #endregion
 
 namespace Wjybxx.BTree.Branch;
 
+/// <summary>
+/// <see cref="Join{T}"/>的完成策略
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public interface JoinPolicy<T>
 {
     /** 重置自身数据 */
-    void resetForRestart();
+    void ResetForRestart();
 
     /** 启动前初始化 */
-    void beforeEnter(Join<T> join);
+    void BeforeEnter(Join<T> join);
 
     /** 启动 */
-    void enter(Join<T> join);
+    void Enter(Join<T> join);
 
-    /**
-     * Join在调用该方法前更新了完成计数和成功计数
-     */
-    void onChildCompleted(Join<T> join, Task<T> child);
+    /** Join在调用该方法前更新了完成计数和成功计数 */
+    void OnChildCompleted(Join<T> join, Task<T> child);
 
-    /**
-     * join节点收到外部事件
-     */
-    void onEvent(Join<T> join, object eventObj);
-
+    /** join节点收到外部事件 */
+    void OnEvent(Join<T> join, object eventObj);
 }

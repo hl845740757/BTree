@@ -40,37 +40,37 @@ public class SelectorN<T> : SingleRunningChildBranch<T>
     [NonSerialized] private int count;
 
     public void resetForRestart() {
-        base.resetForRestart();
+        base.ResetForRestart();
         count = 0;
     }
 
-    protected override void beforeEnter() {
-        base.beforeEnter();
+    protected override void BeforeEnter() {
+        base.BeforeEnter();
         count = 0;
     }
 
-    protected override void enter(int reentryId) {
-        base.enter(reentryId);
+    protected override void Enter(int reentryId) {
+        base.Enter(reentryId);
         if (required < 1) {
-            setSuccess();
-        } else if (getChildCount() == 0) {
-            setFailed(Status.CHILDLESS);
+            SetSuccess();
+        } else if (GetChildCount() == 0) {
+            SetFailed(Status.CHILDLESS);
         } else if (CheckFailFast()) {
-            setFailed(Status.INSUFFICIENT_CHILD);
+            SetFailed(Status.INSUFFICIENT_CHILD);
         }
     }
 
-    protected override void onChildCompleted(Task<T> child) {
+    protected override void OnChildCompleted(Task<T> child) {
         runningChild = null;
         if (child.IsCancelled()) {
-            setCancelled();
+            SetCancelled();
             return;
         }
         if (child.IsSucceeded() && ++count >= required) {
-            setSuccess();
+            SetSuccess();
         } else if (isAllChildCompleted() || CheckFailFast()) {
-            setFailed(Status.ERROR);
-        } else if (!isExecuting()) {
+            SetFailed(Status.ERROR);
+        } else if (!IsExecuting()) {
             template_execute();
         }
     }
@@ -84,6 +84,7 @@ public class SelectorN<T> : SingleRunningChildBranch<T>
         get => required;
         set => required = value;
     }
+
     /** 是否快速失败 */
     public bool FailFast {
         get => failFast;

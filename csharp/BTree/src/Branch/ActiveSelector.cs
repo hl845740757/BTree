@@ -35,13 +35,13 @@ public class ActiveSelector<T> : SingleRunningChildBranch<T>
     public ActiveSelector(List<Task<T>>? children) : base(children) {
     }
 
-    protected override void execute() {
+    protected override void Execute() {
         Task<T> childToRun = null;
         int childIndex = -1;
         for (int idx = 0; idx < children.Count; idx++) {
             Task<T> child = children[idx];
             if (!template_checkGuard(child.GetGuard())) {
-                child.setGuardFailed(null); // 不接收通知
+                child.SetGuardFailed(null); // 不接收通知
                 continue;
             }
             childToRun = child;
@@ -51,13 +51,13 @@ public class ActiveSelector<T> : SingleRunningChildBranch<T>
 
         Task<T>? runningChild = this.runningChild;
         if (runningChild != null && runningChild != childToRun) {
-            runningChild.stop();
+            runningChild.Stop();
             this.runningChild = null;
             this.runningIndex = -1;
         }
 
         if (childToRun == null) {
-            setFailed(Status.ERROR);
+            SetFailed(Status.ERROR);
             return;
         }
 
@@ -66,8 +66,8 @@ public class ActiveSelector<T> : SingleRunningChildBranch<T>
         template_runChildDirectly(childToRun);
     }
 
-    protected override void onChildCompleted(Task<T> child) {
+    protected override void OnChildCompleted(Task<T> child) {
         runningChild = null;
-        setCompleted(child.GetStatus(), true);
+        SetCompleted(child.GetStatus(), true);
     }
 }
