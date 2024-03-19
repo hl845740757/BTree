@@ -178,12 +178,12 @@ public class TaskEntry<T> extends Task<T> {
         if (isRunning()) {
             return true;
         }
-        return rootTask != null && blackboard != null; // 只测isInited的关键属性即可
+        return blackboard != null; // 只测isInited的关键属性即可
     }
 
     @Override
     protected void onEventImpl(@Nonnull Object event) {
-        rootTask.onEvent(event);
+        if (rootTask != null) rootTask.onEvent(event);
     }
 
     @Override

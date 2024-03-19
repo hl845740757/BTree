@@ -31,9 +31,10 @@ internal class TaskOverrides
     private const int MASK_ALL = 15;
 
     private static readonly Type TypeTask = typeof(Task<>);
+    private static readonly Type TypeInt32 = typeof(int);
     private static readonly ConcurrentDictionary<Type, int> MaskCacheMap = new ConcurrentDictionary<Type, int>();
 
-    public static int maskOfTask(Type clazz) {
+    public static int MaskOfTask(Type clazz) {
         if (clazz.IsGenericType) {
             clazz = clazz.GetGenericTypeDefinition();
         }
@@ -45,7 +46,7 @@ internal class TaskOverrides
             if (IsSkippable(clazz, "beforeEnter")) {
                 mask &= ~MASK_BEFORE_ENTER;
             }
-            if (IsSkippable(clazz, "enter", typeof(int))) {
+            if (IsSkippable(clazz, "enter", TypeInt32)) {
                 mask &= ~MASK_ENTER;
             }
             if (IsSkippable(clazz, "exit")) {
@@ -53,6 +54,7 @@ internal class TaskOverrides
             }
         }
         catch (Exception) {
+            // ignored
         }
         MaskCacheMap.TryAdd(clazz, mask);
         return mask;

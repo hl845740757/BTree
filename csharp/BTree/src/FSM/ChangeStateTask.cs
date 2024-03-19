@@ -45,13 +45,13 @@ public class ChangeStateTask<T> : LeafTask<T>
 
     protected override void Execute() {
         if (nextState == null) {
-            nextState = GetTaskEntry().TreeLoader.loadRootTask<T>(nextStateGuid);
+            nextState = GetTaskEntry().TreeLoader.LoadRootTask<T>(nextStateGuid);
         }
         if (stateProps != null) {
             nextState.SharedProps = stateProps;
         }
-        StateMachineTask<T> stateMachine = StateMachineTask<T>.findStateMachine(this, machineName);
-        Task<T> curState = stateMachine.getCurState();
+        StateMachineTask<T> stateMachine = StateMachineTask<T>.FindStateMachine(this, machineName);
+        Task<T> curState = stateMachine.GetCurState();
         // 在切换状态前将当前状态标记为成功或失败；只有延迟通知的情况下才可以设置状态的结果，否则状态机会切换到其它状态
         if (Status.IsCompleted(curStateResult) && curState != null && !curState.IsDisableDelayNotify()) {
             curState.SetCompleted(curStateResult, false);
@@ -61,11 +61,11 @@ public class ChangeStateTask<T> : LeafTask<T>
             // 先设置成功，然后再切换状态，当前Task可保持为成功状态；
             // 记得先把nextState保存下来，因为会先执行exit；最好只在未禁用延迟通知的情况下采用
             SetSuccess();
-            stateMachine.changeState(nextState, ChangeStateArgs.PLAIN.WithDelayMode(delayMode));
+            stateMachine.ChangeState(nextState, ChangeStateArgs.PLAIN.WithDelayMode(delayMode));
         } else {
             // 该路径基本不会走到，这里只是给个示例
             int reentryId = GetReentryId();
-            stateMachine.changeState(nextState, ChangeStateArgs.PLAIN.WithDelayMode(delayMode));
+            stateMachine.ChangeState(nextState, ChangeStateArgs.PLAIN.WithDelayMode(delayMode));
             if (!IsExited(reentryId)) {
                 SetSuccess();
             }

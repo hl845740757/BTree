@@ -28,12 +28,12 @@ public interface ITreeLoader
 {
     /// <summary>
     /// 从资产文件中加载对象
-    /// 1.加载时，通常应按照名字加载，再尝试按照guid加载。
+    /// 1.加载时，通常应按照名字加载，再尝试按照guid加载 -- 名字是有规律的。
     /// 2.如果对象是一棵树，行为树的结构必须是稳定的。
     /// </summary>
     /// <param name="nameOrGuid">行为树的名字或guid</param>
     /// <returns>编辑器导出的对象</returns>
-    object? tryLoadObject(string nameOrGuid);
+    object? TryLoadObject(string nameOrGuid);
 
     /// <summary>
     /// 从资产文件中加载对象，如果目标对象不存在则抛出异常
@@ -41,8 +41,8 @@ public interface ITreeLoader
     /// <param name="nameOrGuid">行为树的名字或guid</param>
     /// <returns></returns>
     /// <exception cref="ArgumentException">目标对象不存在时</exception>
-    object loadObject(string nameOrGuid) {
-        object result = tryLoadObject(nameOrGuid);
+    object LoadObject(string nameOrGuid) {
+        object result = TryLoadObject(nameOrGuid);
         if (result == null) {
             throw new ArgumentException("target object is absent, name: " + nameOrGuid);
         }
@@ -56,7 +56,7 @@ public interface ITreeLoader
     /// <param name="sharable">是否共享；如果为true，则返回前不进行拷贝</param>
     /// <param name="filter">过滤器，为null则加载给定文件全部的入口对象；不要修改Entry对象的数据</param>
     /// <returns></returns>
-    List<object> loadManyFromFile(string fileName, bool sharable, Predicate<IEntry>? filter);
+    List<object> LoadManyFromFile(string fileName, bool sharable, Predicate<IEntry>? filter);
 
     /// <summary>
     /// 尝试加载行为树的根节点
@@ -65,8 +65,8 @@ public interface ITreeLoader
     /// <typeparam name="T">用于类型解析</typeparam>
     /// <returns></returns>
     /// <exception cref="ArgumentException">目标对象不是Task类型时</exception>
-    Task<T>? tryLoadRootTask<T>(string treeName) {
-        object result = tryLoadObject(treeName);
+    Task<T>? TryLoadRootTask<T>(string treeName) {
+        object result = TryLoadObject(treeName);
         if (result == null) return null;
         if (!(result is Task<T>)) {
             throw new ArgumentException("target object is not a task, name: " + treeName);
@@ -74,8 +74,15 @@ public interface ITreeLoader
         return (Task<T>)result;
     }
 
-    Task<T> loadRootTask<T>(string treeName) {
-        object result = tryLoadObject(treeName);
+    /// <summary>
+    /// 加载根节点为<see cref="Task{T}"/>的实例
+    /// </summary>
+    /// <param name="treeName">行为树的名字或guid</param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    Task<T> LoadRootTask<T>(string treeName) {
+        object result = TryLoadObject(treeName);
         if (result == null) {
             throw new ArgumentException("target tree is absent, name: " + treeName);
         }
@@ -85,10 +92,16 @@ public interface ITreeLoader
         return (Task<T>)result;
     }
 
-    TaskEntry<T> loadTree<T>(string treeName) {
-        // Task<T> rootTask = loadRootTask(treeName);
-        // return new TaskEntry<T>(treeName, rootTask, null, this);
-        throw new NotImplementedException();
+    /// <summary>
+    /// 加载根节点为<see cref="Task{T}"/>的行为树实例
+    /// </summary>
+    /// <param name="treeName">行为树的名字或guid</param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    TaskEntry<T> LoadTree<T>(string treeName) {
+        Task<T> rootTask = LoadRootTask<T>(treeName);
+        return new TaskEntry<T>(treeName, rootTask, null, this);
     }
 
     # region entry
@@ -130,11 +143,11 @@ public interface ITreeLoader
     {
         internal static readonly CNullLoader Instance = new CNullLoader();
 
-        public object? tryLoadObject(string nameOrGuid) {
+        public object? TryLoadObject(string nameOrGuid) {
             return null;
         }
 
-        public List<object> loadManyFromFile(string fileName, bool sharable, Predicate<IEntry>? filter) {
+        public List<object> LoadManyFromFile(string fileName, bool sharable, Predicate<IEntry>? filter) {
             return new List<object>();
         }
     }

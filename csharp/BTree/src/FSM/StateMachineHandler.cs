@@ -18,6 +18,10 @@
 
 namespace Wjybxx.BTree.FSM;
 
+/// <summary>
+/// 状态机扩展理解处理器
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public interface StateMachineHandler<T>
 {
     //

@@ -38,7 +38,7 @@ public class SubtreeRef<T> : Decorator<T>
 
     protected override void Enter(int reentryId) {
         if (child == null) {
-            Task<T> rootTask = GetTaskEntry().TreeLoader.loadRootTask<T>(subtreeName);
+            Task<T> rootTask = GetTaskEntry().TreeLoader.LoadRootTask<T>(subtreeName);
             AddChild(rootTask);
         }
     }

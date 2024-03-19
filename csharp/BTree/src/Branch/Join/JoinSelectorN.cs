@@ -55,15 +55,15 @@ public class JoinSelectorN<T> : JoinPolicy<T>
     }
 
     public void OnChildCompleted(Join<T> join, Task<T> child) {
-        if (join.getSucceededCount() >= required) {
+        if (join.GetSucceededCount() >= required) {
             join.SetSuccess();
-        } else if (join.isAllChildCompleted() || CheckFailFast(join)) {
+        } else if (join.IsAllChildCompleted() || CheckFailFast(join)) {
             join.SetFailed(Status.ERROR);
         }
     }
 
     private bool CheckFailFast(Join<T> join) {
-        return failFast && (join.GetChildCount() - join.getCompletedCount()) < required - join.getSucceededCount();
+        return failFast && (join.GetChildCount() - join.GetCompletedCount()) < required - join.GetSucceededCount();
     }
 
     public void OnEvent(Join<T> join, object eventObj) {

@@ -47,13 +47,13 @@ public class JoinMain<T> : JoinPolicy<T>
     }
 
     public void OnChildCompleted(Join<T> join, Task<T> child) {
-        if (join.isFirstChild(child)) {
+        if (join.IsFirstChild(child)) {
             join.SetCompleted(child.GetStatus(), true);
         }
     }
 
     public void OnEvent(Join<T> join, object eventObj) { // 就没见过这么扯淡的设计，event做为关键字
-        Task<T> firstChild = join.getFirstChild();
+        Task<T> firstChild = join.GetFirstChild();
         Debug.Assert(firstChild != null);
         firstChild.OnEvent(eventObj);
     }

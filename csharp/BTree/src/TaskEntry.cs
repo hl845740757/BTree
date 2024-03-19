@@ -122,7 +122,7 @@ public class TaskEntry<T> : Task<T>
     }
 
     protected override void Execute() {
-        template_runChild(rootTask);
+        template_runChild(rootTask!);
     }
 
     protected override void OnChildRunning(Task<T> child) {
@@ -140,11 +140,11 @@ public class TaskEntry<T> : Task<T>
         if (IsRunning()) {
             return true;
         }
-        return rootTask != null && blackboard != null; // 只测isInited的关键属性即可
+        return blackboard != null;
     }
 
     protected override void OnEventImpl(object eventObj) {
-        rootTask.OnEvent(eventObj);
+        rootTask?.OnEvent(eventObj);
     }
 
     public override void ResetForRestart() {

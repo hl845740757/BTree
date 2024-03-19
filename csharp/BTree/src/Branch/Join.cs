@@ -62,11 +62,11 @@ public class Join<T> : Parallel<T>
 
     protected override void Enter(int reentryId) {
         // 记录子类上下文 -- 由于beforeEnter可能改变子节点信息，因此在enter时处理
-        recordContext();
+        RecordContext();
         policy.Enter(this);
     }
 
-    private void recordContext() {
+    private void RecordContext() {
         List<Task<T>> children = this.children;
         if (childPrevReentryIds == null || childPrevReentryIds.Length != children.Count) {
             childPrevReentryIds = new int[children.Count];
@@ -118,28 +118,29 @@ public class Join<T> : Parallel<T>
     }
 
     // region
-    public override bool isAllChildCompleted() {
+    public override bool IsAllChildCompleted() {
         return completedCount >= children.Count;
     }
 
-    public bool isAllChildSucceeded() {
+    public bool IsAllChildSucceeded() {
         return succeededCount >= children.Count;
     }
 
-    public int getCompletedCount() {
+    public int GetCompletedCount() {
         return completedCount;
     }
 
-    public int getSucceededCount() {
+    public int GetSucceededCount() {
         return succeededCount;
     }
     // endregion
 
-    public JoinPolicy<T> getPolicy() {
-        return policy;
-    }
-
-    public void setPolicy(JoinPolicy<T> policy) {
-        this.policy = policy;
+    /// <summary>
+    /// join扩展策略
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
+    public JoinPolicy<T> Policy {
+        get => policy;
+        set => policy = value ?? throw new ArgumentNullException();
     }
 }

@@ -34,7 +34,7 @@ namespace Wjybxx.BTree.Branch;
 public abstract class SingleRunningChildBranch<T> : BranchTask<T>
 {
     /** 运行中的子节点 */
-    [NonSerialized] protected Task<T>? runningChild = null;
+    [NonSerialized] protected Task<T>? runningChild;
     /** 运行中的子节点索引 */
     [NonSerialized] protected int runningIndex = -1;
 
@@ -48,16 +48,16 @@ public abstract class SingleRunningChildBranch<T> : BranchTask<T>
     }
 
     /** 允许外部在结束后查询 */
-    public int getRunningIndex() {
+    public int GetRunningIndex() {
         return runningIndex;
     }
 
     /** 已完成的子节点数量 */
-    public int getCompletedCount() {
+    public int GetCompletedCount() {
         return runningIndex + 1;
     }
 
-    public override bool isAllChildCompleted() {
+    public override bool IsAllChildCompleted() {
         return runningIndex + 1 >= children.Count;
     }
     //

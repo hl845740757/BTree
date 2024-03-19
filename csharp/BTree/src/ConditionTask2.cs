@@ -16,6 +16,7 @@
 
 #endregion
 
+#pragma warning disable CS1591
 namespace Wjybxx.BTree;
 
 /// <summary>
@@ -35,6 +36,10 @@ public abstract class ConditionTask2<T> : LeafTask<T>
         }
     }
 
+    /// <summary>
+    /// 检查条件 -- 同步返回
+    /// </summary>
+    /// <returns></returns>
     protected abstract int Test();
 
     /** 条件节点正常情况下不会触发事件 */

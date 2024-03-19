@@ -32,6 +32,8 @@ namespace Wjybxx.BTree.FSM;
 /// <typeparam name="T"></typeparam>
 public class StateMachineTask<T> : Decorator<T>
 {
+    private static readonly IDeque<Task<T>> EmptyQueue = EmptyDequeue<Task<T>>.Instance;
+
     /** 状态机名字 */
     private string? name;
     /** 无可用状态时状态码 -- 默认成功退出更安全 */
@@ -42,8 +44,8 @@ public class StateMachineTask<T> : Decorator<T>
     private object? initStateProps;
 
     [NonSerialized] private Task<T>? tempNextState;
-    [NonSerialized] private IDeque<Task<T>> undoQueue = EmptyDequeue<T>.Instance;
-    [NonSerialized] private IDeque<Task<T>> redoQueue = EmptyDequeue<T>.Instance;
+    [NonSerialized] private IDeque<Task<T>> undoQueue = EmptyQueue;
+    [NonSerialized] private IDeque<Task<T>> redoQueue = EmptyQueue;
 
     [NonSerialized] private StateMachineListener<T>? listener;
     [NonSerialized] private StateMachineHandler<T>? stateMachineHandler;
@@ -51,46 +53,46 @@ public class StateMachineTask<T> : Decorator<T>
     #region MyRegion
 
     /** 获取当前状态 */
-    public Task<T>? getCurState() {
+    public Task<T>? GetCurState() {
         return child;
     }
 
     /** 获取临时的下一个状态 */
-    public Task<T>? getTempNextState() {
+    public Task<T>? GetTempNextState() {
         return tempNextState;
     }
 
     /** 丢弃未切换的临时状态 */
-    public Task<T> discardTempNextState() {
+    public Task<T>? DiscardTempNextState() {
         Task<T> r = tempNextState;
         if (r != null) tempNextState = null;
         return r;
     }
 
     /** 对当前当前状态发出取消命令 */
-    public void cancelCurState(int cancelCode) {
+    public void CancelCurState(int cancelCode) {
         if (child != null && child.IsRunning()) {
             child.CancelToken.cancel(cancelCode);
         }
     }
 
     /** 查看undo对应的state */
-    public Task<T>? peekUndoState() {
+    public Task<T>? PeekUndoState() {
         return undoQueue.TryPeekLast(out Task<T> r) ? r : null;
     }
 
     /** 查看redo对应的state */
-    public Task<T>? peekRedoState() {
+    public Task<T>? PeekRedoState() {
         return redoQueue.TryPeekFirst(out Task<T> r) ? r : null;
     }
 
     /** 开放以允许填充 */
-    public IDeque<Task<T>> getUndoQueue() {
+    public IDeque<Task<T>> GetUndoQueue() {
         return undoQueue;
     }
 
     /** 开放以允许填充 */
-    public IDeque<Task<T>> getRedoQueue() {
+    public IDeque<Task<T>> GetRedoQueue() {
         return redoQueue;
     }
 
@@ -99,9 +101,9 @@ public class StateMachineTask<T> : Decorator<T>
     /// </summary>
     /// <param name="maxSize">最大大小；0表示禁用；大于0启用</param>
     /// <returns>最新的queue</returns>
-    public IDeque<Task<T>> setUndoQueueSize(int maxSize) {
+    public IDeque<Task<T>> SetUndoQueueSize(int maxSize) {
         if (maxSize < 0) throw new ArgumentException("maxSize: " + maxSize);
-        return undoQueue = setQueueMaxSize(undoQueue, maxSize, DequeOverflowBehavior.DiscardHead);
+        return undoQueue = SetQueueMaxSize(undoQueue, maxSize, DequeOverflowBehavior.DiscardHead);
     }
 
     /// <summary>
@@ -109,17 +111,17 @@ public class StateMachineTask<T> : Decorator<T>
     /// </summary>
     /// <param name="maxSize">最大大小；0表示禁用；大于0启用</param>
     /// <returns>最新的queue</returns>
-    public IDeque<Task<T>> setRedoQueueSize(int maxSize) {
+    public IDeque<Task<T>> SetRedoQueueSize(int maxSize) {
         if (maxSize < 0) throw new ArgumentException("maxSize: " + maxSize);
-        return redoQueue = setQueueMaxSize(redoQueue, maxSize, DequeOverflowBehavior.DiscardTail);
+        return redoQueue = SetQueueMaxSize(redoQueue, maxSize, DequeOverflowBehavior.DiscardTail);
     }
 
-    private static IDeque<Task<T>> setQueueMaxSize(IDeque<Task<T>> queue, int maxSize, DequeOverflowBehavior overflowBehavior) {
+    private static IDeque<Task<T>> SetQueueMaxSize(IDeque<Task<T>> queue, int maxSize, DequeOverflowBehavior overflowBehavior) {
         if (maxSize == 0) {
             queue.Clear();
-            return EmptyDequeue.Instance;
+            return EmptyQueue;
         }
-        if (queue == EmptyDequeue.Instance) {
+        if (queue == EmptyQueue) {
             return new BoundedArrayDeque<Task<T>>(maxSize, overflowBehavior);
         } else {
             BoundedArrayDeque<T> boundedArrayDeque = (BoundedArrayDeque<T>)queue;
@@ -132,8 +134,8 @@ public class StateMachineTask<T> : Decorator<T>
     /// 撤销到前一个状态
     /// </summary>
     /// <returns>如果有前一个状态则返回true</returns>
-    public bool undoChangeState() {
-        return undoChangeState(ChangeStateArgs.UNDO);
+    public bool UndoChangeState() {
+        return UndoChangeState(ChangeStateArgs.UNDO);
     }
 
     /// <summary>
@@ -141,7 +143,7 @@ public class StateMachineTask<T> : Decorator<T>
     /// </summary>
     /// <param name="changeStateArgs">状态切换参数</param>
     /// <returns>如果有前一个状态则返回true</returns>
-    public virtual bool undoChangeState(ChangeStateArgs changeStateArgs) {
+    public virtual bool UndoChangeState(ChangeStateArgs changeStateArgs) {
         if (!changeStateArgs.IsUndo()) {
             throw new ArgumentException();
         }
@@ -149,7 +151,7 @@ public class StateMachineTask<T> : Decorator<T>
         if (!undoQueue.TryPeekLast(out Task<T> prevState)) {
             return false;
         }
-        changeState(prevState, changeStateArgs);
+        ChangeState(prevState, changeStateArgs);
         return true;
     }
 
@@ -157,8 +159,8 @@ public class StateMachineTask<T> : Decorator<T>
     /// 重新进入到下一个状态
     /// </summary>
     /// <returns>如果有下一个状态则返回true</returns>
-    public bool redoChangeState() {
-        return redoChangeState(ChangeStateArgs.REDO);
+    public bool RedoChangeState() {
+        return RedoChangeState(ChangeStateArgs.REDO);
     }
 
     /// <summary>
@@ -166,7 +168,7 @@ public class StateMachineTask<T> : Decorator<T>
     /// </summary>
     /// <param name="changeStateArgs">状态切换参数</param>
     /// <returns>如果有下一个状态则返回true</returns>
-    public virtual bool redoChangeState(ChangeStateArgs changeStateArgs) {
+    public virtual bool RedoChangeState(ChangeStateArgs changeStateArgs) {
         if (!changeStateArgs.IsRedo()) {
             throw new ArgumentException();
         }
@@ -174,13 +176,13 @@ public class StateMachineTask<T> : Decorator<T>
         if (!redoQueue.TryPeekFirst(out Task<T> nextState)) {
             return false;
         }
-        changeState(nextState, changeStateArgs);
+        ChangeState(nextState, changeStateArgs);
         return true;
     }
 
     /** 切换状态 -- 如果状态机处于运行中，则立即切换 */
-    public void changeState(Task<T> nextState) {
-        changeState(nextState, ChangeStateArgs.PLAIN);
+    public void ChangeState(Task<T> nextState) {
+        ChangeState(nextState, ChangeStateArgs.PLAIN);
     }
 
     /// <summary>
@@ -199,11 +201,11 @@ public class StateMachineTask<T> : Decorator<T>
     /// <param name="nextState">要进入的下一个状态</param>
     /// <param name="changeStateArgs">状态切换参数</param>
     /// <exception cref="ArgumentNullException"></exception>
-    public virtual void changeState(Task<T> nextState, ChangeStateArgs changeStateArgs) {
+    public virtual void ChangeState(Task<T> nextState, ChangeStateArgs changeStateArgs) {
         if (nextState == null) throw new ArgumentNullException(nameof(nextState));
         if (changeStateArgs == null) throw new ArgumentNullException(nameof(changeStateArgs));
 
-        changeStateArgs = checkArgs(changeStateArgs);
+        changeStateArgs = CheckArgs(changeStateArgs);
         nextState.ControlData = changeStateArgs;
         tempNextState = nextState;
         if (!IsRunning()) {
@@ -219,7 +221,7 @@ public class StateMachineTask<T> : Decorator<T>
     }
 
     /** 检测正确性和自动初始化；不可修改掉cmd */
-    protected ChangeStateArgs checkArgs(ChangeStateArgs changeStateArgs) {
+    protected ChangeStateArgs CheckArgs(ChangeStateArgs changeStateArgs) {
         // 当前未运行，不能指定延迟帧号
         if (!IsRunning()) {
             if (changeStateArgs.delayMode == ChangeStateArgs.DELAY_NEXT_FRAME) {
@@ -286,7 +288,7 @@ public class StateMachineTask<T> : Decorator<T>
     protected override void Execute() {
         Task<T> curState = this.child;
         Task<T> nextState = this.tempNextState;
-        if (nextState != null && isReady(curState, nextState)) {
+        if (nextState != null && IsReady(curState, nextState)) {
             this.tempNextState = null;
             if (!template_checkGuard(nextState.GetGuard())) { // 下个状态无效
                 nextState.SetGuardFailed(null);
@@ -322,7 +324,7 @@ public class StateMachineTask<T> : Decorator<T>
                         break;
                     }
                 }
-                notifyChangeState(curState, nextState);
+                NotifyChangeState(curState, nextState);
 
                 curState = nextState;
                 curState.CancelToken = cancelToken.newChild(); // state可独立取消
@@ -335,7 +337,7 @@ public class StateMachineTask<T> : Decorator<T>
             }
         }
         if (curState == null) { // 当前无可用状态
-            onNoChildRunning();
+            OnNoChildRunning();
             return;
         }
         template_runChildDirectly(curState); // 继续运行或新状态enter；在尾部才能保证安全
@@ -353,8 +355,8 @@ public class StateMachineTask<T> : Decorator<T>
             }
             undoQueue.AddLast(child);
             RemoveChild(0);
-            notifyChangeState(child, null);
-            onNoChildRunning();
+            NotifyChangeState(child, null);
+            OnNoChildRunning();
         } else {
             ChangeStateArgs changeStateArgs = (ChangeStateArgs)tempNextState.ControlData;
             if (changeStateArgs != null) { // 需要保留命令
@@ -368,13 +370,13 @@ public class StateMachineTask<T> : Decorator<T>
         }
     }
 
-    protected void onNoChildRunning() {
+    protected void OnNoChildRunning() {
         if (noneChildStatus != Status.RUNNING) {
             SetCompleted(noneChildStatus, false);
         }
     }
 
-    protected bool isReady(Task<T>? curState, Task<T>? nextState) {
+    protected bool IsReady(Task<T>? curState, Task<T> nextState) {
         if (curState == null) {
             return true;
         }
@@ -388,7 +390,7 @@ public class StateMachineTask<T> : Decorator<T>
         return true;
     }
 
-    protected void notifyChangeState(Task<T>? curState, Task<T>? nextState) {
+    protected void NotifyChangeState(Task<T>? curState, Task<T>? nextState) {
         Debug.Assert(curState != null || nextState != null);
         if (listener != null) listener(this, curState, nextState);
     }
@@ -400,7 +402,7 @@ public class StateMachineTask<T> : Decorator<T>
      * 1.仅递归查询父节点和长兄节点
      * 2.优先查找附近的，然后测试长兄节点 - 状态机作为第一个节点的情况比较常见
      */
-    public static StateMachineTask<T> findStateMachine(Task<T> task) {
+    public static StateMachineTask<T> FindStateMachine(Task<T> task) {
         Task<T> control;
         while ((control = task.Control) != null) {
             // 父节点
@@ -422,21 +424,21 @@ public class StateMachineTask<T> : Decorator<T>
      * 1.名字不为空的情况下，支持从兄弟节点中查询
      * 2.优先测试父节点，然后测试兄弟节点
      */
-    public static StateMachineTask<T> findStateMachine(Task<T> task, String name) {
+    public static StateMachineTask<T> FindStateMachine(Task<T> task, string? name) {
         if (string.IsNullOrWhiteSpace(name)) {
-            return findStateMachine(task);
+            return FindStateMachine(task);
         }
         Task<T> control;
         StateMachineTask<T> stateMachine;
         while ((control = task.Control) != null) {
             // 父节点
-            if ((stateMachine = castAsStateMachine(control, name)) != null) {
+            if ((stateMachine = CastAsStateMachine(control, name)) != null) {
                 return stateMachine;
             }
             // 兄弟节点
             for (int i = 0, n = control.GetChildCount(); i < n; i++) {
                 Task<T> brother = control.GetChild(i);
-                if ((stateMachine = castAsStateMachine(brother, name)) != null) {
+                if ((stateMachine = CastAsStateMachine(brother, name)) != null) {
                     return stateMachine;
                 }
             }
@@ -445,7 +447,7 @@ public class StateMachineTask<T> : Decorator<T>
         throw new IllegalStateException("cant find stateMachine from controls and brothers");
     }
 
-    private static StateMachineTask<T>? castAsStateMachine(Task<T> task, string name) {
+    private static StateMachineTask<T>? CastAsStateMachine(Task<T> task, string name) {
         if (task is StateMachineTask<T> stateMachineTask
             && (name == stateMachineTask.name)) {
             return stateMachineTask;

@@ -145,7 +145,7 @@ public abstract class Task<T>
     protected int flags;
 
     protected Task() {
-        ctl = TaskOverrides.maskOfTask(GetType());
+        ctl = TaskOverrides.MaskOfTask(GetType());
     }
 
     #region props

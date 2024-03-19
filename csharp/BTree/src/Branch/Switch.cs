@@ -38,7 +38,7 @@ public class Switch<T> : SingleRunningChildBranch<T>
             SetFailed(Status.ERROR);
             return;
         }
-        template_runChildDirectly(runningChild);
+        template_runChildDirectly(runningChild!);
     }
 
     private bool selectChild() {

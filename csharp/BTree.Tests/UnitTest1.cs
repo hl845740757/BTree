@@ -11,7 +11,7 @@ public class Tests
 
     [Test]
     public void Test1() {
-        int maskOfTask = TaskOverrides.maskOfTask(typeof(SingleRunningChildBranch<string>));
+        int maskOfTask = TaskOverrides.MaskOfTask(typeof(SingleRunningChildBranch<string>));
         Console.WriteLine(maskOfTask);
     }
 }

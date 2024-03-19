@@ -57,7 +57,7 @@
 
         <slf4j.version>2.0.9</slf4j.version>
         <jsr305.version>3.0.2</jsr305.version>
-        <commons.version>1.0.6</commons.version>
+        <commons.version>1.0.7</commons.version>
         <dson.version>1.4.1</dson.version>
 
         <!--测试依赖 -->

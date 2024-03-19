@@ -39,7 +39,7 @@ public class SelectorN<T> : SingleRunningChildBranch<T>
     /** 当前计数 */
     [NonSerialized] private int count;
 
-    public void resetForRestart() {
+    public override void ResetForRestart() {
         base.ResetForRestart();
         count = 0;
     }
@@ -68,7 +68,7 @@ public class SelectorN<T> : SingleRunningChildBranch<T>
         }
         if (child.IsSucceeded() && ++count >= required) {
             SetSuccess();
-        } else if (isAllChildCompleted() || CheckFailFast()) {
+        } else if (IsAllChildCompleted() || CheckFailFast()) {
             SetFailed(Status.ERROR);
         } else if (!IsExecuting()) {
             template_execute();
@@ -76,7 +76,7 @@ public class SelectorN<T> : SingleRunningChildBranch<T>
     }
 
     private bool CheckFailFast() {
-        return failFast && (children.Count - getCompletedCount() < required - count);
+        return failFast && (children.Count - GetCompletedCount() < required - count);
     }
 
     /** 需要达成的次数 */

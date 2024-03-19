@@ -55,7 +55,7 @@ public abstract class BranchTask<T> : Task<T>
     #region
 
     /** 是否是第一个子节点 */
-    public bool isFirstChild(Task<T> child) {
+    public bool IsFirstChild(Task<T> child) {
         int count = this.children.Count;
         if (count == 0) {
             return false;
@@ -64,7 +64,7 @@ public abstract class BranchTask<T> : Task<T>
     }
 
     /** 是否是第最后一个子节点 */
-    public bool isLastChild(Task<T> child) {
+    public bool IsLastChild(Task<T> child) {
         int count = this.children.Count;
         if (count == 0) {
             return false;
@@ -73,19 +73,19 @@ public abstract class BranchTask<T> : Task<T>
     }
 
     /** 获取第一个子节点 -- 主要为MainPolicy提供帮助 */
-    public Task<T>? getFirstChild() {
+    public Task<T>? GetFirstChild() {
         int size = children.Count;
         return size > 0 ? children[0] : null;
     }
 
     /** 获取最后一个子节点 */
-    public Task<T>? getLastChild() {
+    public Task<T>? GetLastChild() {
         int size = children.Count;
         return size > 0 ? children[size - 1] : null;
     }
 
     /** 是否所有的子节点已进入完成状态 */
-    public virtual bool isAllChildCompleted() {
+    public virtual bool IsAllChildCompleted() {
         // 在判断是否全部完成这件事上，逆序遍历有优势
         for (int idx = children.Count - 1; idx >= 0; idx--) {
             Task<T> child = children[idx];
@@ -110,7 +110,7 @@ public abstract class BranchTask<T> : Task<T>
         children.Clear();
     }
 
-    public sealed override int IndexChild(Task<T> task) {
+    public sealed override int IndexChild(Task<T>? task) {
         return CollectionUtil.IndexOfRef(children, task);
     }
 
