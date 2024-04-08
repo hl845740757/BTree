@@ -35,7 +35,7 @@ public class SimpleParallel<T> : Parallel<T> where T : class
         List<Task<T>> children = this.children;
         Task<T> mainTask = children[0];
 
-        int reentryId = GetReentryId();
+        int reentryId = ReentryId;
         template_runChild(mainTask);
         if (CheckCancel(reentryId)) { // 得出结果或取消
             return;
@@ -52,7 +52,7 @@ public class SimpleParallel<T> : Parallel<T> where T : class
 
     protected override void OnChildCompleted(Task<T> child) {
         Debug.Assert(child == children[0]);
-        SetCompleted(child.GetStatus(), true);
+        SetCompleted(child.Status, true);
     }
 
     protected override void OnEventImpl(object eventObj) {

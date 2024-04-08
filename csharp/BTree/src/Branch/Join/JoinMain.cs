@@ -42,13 +42,13 @@ public class JoinMain<T> : JoinPolicy<T> where T : class
 
     public void Enter(Join<T> join) {
         if (join.GetChildCount() == 0) {
-            join.SetFailed(Status.CHILDLESS);
+            join.SetFailed(TaskStatus.CHILDLESS);
         }
     }
 
     public void OnChildCompleted(Join<T> join, Task<T> child) {
         if (join.IsFirstChild(child)) {
-            join.SetCompleted(child.GetStatus(), true);
+            join.SetCompleted(child.Status, true);
         }
     }
 

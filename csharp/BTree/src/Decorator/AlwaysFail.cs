@@ -35,14 +35,14 @@ public class AlwaysFail<T> : Decorator<T> where T : class
 
     protected override void Execute() {
         if (child == null) {
-            SetFailed(Status.ToFailure(failureStatus));
+            SetFailed(TaskStatus.ToFailure(failureStatus));
         } else {
             template_runChild(child);
         }
     }
 
     protected override void OnChildCompleted(Task<T> child) {
-        SetCompleted(Status.ToFailure(child.GetStatus()), true); // 错误码有传播的价值
+        SetCompleted(TaskStatus.ToFailure(child.Status), true); // 错误码有传播的价值
     }
 
     /// <summary>

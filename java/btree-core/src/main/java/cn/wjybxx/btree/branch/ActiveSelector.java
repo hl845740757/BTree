@@ -15,8 +15,8 @@
  */
 package cn.wjybxx.btree.branch;
 
-import cn.wjybxx.btree.Status;
 import cn.wjybxx.btree.Task;
+import cn.wjybxx.btree.TaskStatus;
 
 import java.util.List;
 
@@ -60,7 +60,7 @@ public class ActiveSelector<T> extends SingleRunningChildBranch<T> {
         }
 
         if (childToRun == null) {
-            setFailed(Status.ERROR);
+            setFailed(TaskStatus.ERROR);
             return;
         }
 

@@ -16,7 +16,7 @@
 package cn.wjybxx.btree.leaf;
 
 import cn.wjybxx.btree.LeafTask;
-import cn.wjybxx.btree.Status;
+import cn.wjybxx.btree.TaskStatus;
 
 import javax.annotation.Nonnull;
 
@@ -30,7 +30,7 @@ public class Failure<T> extends LeafTask<T> {
 
     @Override
     protected void execute() {
-        setFailed(Status.toFailure(failureStatus));
+        setFailed(TaskStatus.toFailure(failureStatus));
     }
 
     @Override

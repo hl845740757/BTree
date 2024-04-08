@@ -16,8 +16,8 @@
 
 package cn.wjybxx.btree.branch;
 
-import cn.wjybxx.btree.Status;
 import cn.wjybxx.btree.Task;
+import cn.wjybxx.btree.TaskStatus;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -49,7 +49,7 @@ public class Selector<T> extends SingleRunningChildBranch<T> {
         if (child.isSucceeded()) {
             setSuccess();
         } else if (isAllChildCompleted()) {
-            setFailed(Status.ERROR);
+            setFailed(TaskStatus.ERROR);
         } else if (!isExecuting()) {
             template_execute();
         }

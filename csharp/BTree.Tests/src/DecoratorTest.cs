@@ -50,7 +50,7 @@ public class DecoratorTest
         }
 
         protected override void Execute() {
-            if (!isGuard && GetRunFrames() < 3 && random.Next(2) == 1) { // 随机等待
+            if (!isGuard && RunFrames < 3 && random.Next(2) == 1) { // 随机等待
                 return;
             }
             if (random.Next(2) == 1) {
@@ -58,7 +58,7 @@ public class DecoratorTest
                 SetSuccess();
             } else {
                 failedCount++;
-                SetFailed(Status.ERROR);
+                SetFailed(TaskStatus.ERROR);
             }
         }
 
@@ -147,10 +147,10 @@ public class DecoratorTest
         TaskEntry<Blackboard> taskEntry = BtreeTestUtil.newTaskEntry(decorator);
         BtreeTestUtil.untilCompleted(taskEntry);
 
-        int status = taskEntry.GetStatus();
+        int status = taskEntry.Status;
         for (int i = 0; i < 10; i++) {
             BtreeTestUtil.untilCompleted(taskEntry);
-            Assert.AreEqual(status, taskEntry.GetStatus());
+            Assert.AreEqual(status, taskEntry.Status);
         }
         Assert.AreEqual(1, successCount + failedCount);
     }

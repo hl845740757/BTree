@@ -15,8 +15,8 @@
  */
 package cn.wjybxx.btree.branch.join;
 
-import cn.wjybxx.btree.Status;
 import cn.wjybxx.btree.Task;
+import cn.wjybxx.btree.TaskStatus;
 import cn.wjybxx.btree.branch.Join;
 import cn.wjybxx.btree.branch.JoinPolicy;
 import cn.wjybxx.btree.branch.SelectorN;
@@ -56,9 +56,9 @@ public class JoinSelectorN<T> implements JoinPolicy<T> {
         if (required <= 0) {
             join.setSuccess();
         } else if (join.getChildCount() == 0) {
-            join.setFailed(Status.CHILDLESS);
+            join.setFailed(TaskStatus.CHILDLESS);
         } else if (checkFailFast(join)) {
-            join.setFailed(Status.INSUFFICIENT_CHILD);
+            join.setFailed(TaskStatus.INSUFFICIENT_CHILD);
         }
     }
 
@@ -67,7 +67,7 @@ public class JoinSelectorN<T> implements JoinPolicy<T> {
         if (join.getSucceededCount() >= required) {
             join.setSuccess();
         } else if (join.isAllChildCompleted() || checkFailFast(join)) {
-            join.setFailed(Status.ERROR);
+            join.setFailed(TaskStatus.ERROR);
         }
     }
 

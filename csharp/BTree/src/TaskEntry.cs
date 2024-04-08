@@ -118,7 +118,7 @@ public class TaskEntry<T> : Task<T> where T : class
     /// <param name="curFrame">当前帧号</param>
     public void Update(int curFrame) {
         this.curFrame = curFrame;
-        if (GetStatus() == Status.RUNNING) {
+        if (Status == TaskStatus.RUNNING) {
             template_execute();
         } else {
             Debug.Assert(IsInited());
@@ -134,7 +134,7 @@ public class TaskEntry<T> : Task<T> where T : class
     }
 
     protected override void OnChildCompleted(Task<T> child) {
-        SetCompleted(child.GetStatus(), true);
+        SetCompleted(child.Status, true);
         cancelToken.Reset(); // 避免内存泄漏
         if (handler != null) {
             handler.OnCompleted(this);

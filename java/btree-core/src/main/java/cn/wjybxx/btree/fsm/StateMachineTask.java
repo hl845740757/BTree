@@ -20,8 +20,8 @@ import cn.wjybxx.base.collection.BoundedArrayDeque;
 import cn.wjybxx.base.collection.DequeOverflowBehavior;
 import cn.wjybxx.base.collection.EmptyDequeue;
 import cn.wjybxx.btree.Decorator;
-import cn.wjybxx.btree.Status;
 import cn.wjybxx.btree.Task;
+import cn.wjybxx.btree.TaskStatus;
 import cn.wjybxx.btree.branch.Join;
 
 import javax.annotation.Nonnull;
@@ -42,7 +42,7 @@ public class StateMachineTask<T> extends Decorator<T> {
     /** 状态机名字 */
     private String name;
     /** 无可用状态时状态码 -- 默认成功退出更安全 */
-    private int noneChildStatus = Status.SUCCESS;
+    private int noneChildStatus = TaskStatus.SUCCESS;
     /** 初始状态 */
     private Task<T> initState;
     /** 初始状态的属性 */
@@ -264,7 +264,7 @@ public class StateMachineTask<T> extends Decorator<T> {
     protected void beforeEnter() {
         super.beforeEnter();
         if (noneChildStatus == 0) {  // 兼容编辑器忘记赋值，默认成功退出更安全
-            noneChildStatus = Status.SUCCESS;
+            noneChildStatus = TaskStatus.SUCCESS;
         }
         if (initState != null && initStateProps != null) {
             initState.setSharedProps(initStateProps);
@@ -377,7 +377,7 @@ public class StateMachineTask<T> extends Decorator<T> {
     }
 
     protected final void onNoChildRunning() {
-        if (noneChildStatus != Status.RUNNING) {
+        if (noneChildStatus != TaskStatus.RUNNING) {
             setCompleted(noneChildStatus, false);
         }
     }

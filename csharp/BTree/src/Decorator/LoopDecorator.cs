@@ -36,14 +36,14 @@ public abstract class LoopDecorator<T> : Decorator<T> where T : class
 
     protected override void Execute() {
         if (maxLoopPerFrame < 1) {
-            SetFailed(Status.ERROR);
+            SetFailed(TaskStatus.ERROR);
             return;
         }
         if (maxLoopPerFrame == 1) {
             template_runChild(child);
             return;
         }
-        int reentryId = GetReentryId();
+        int reentryId = ReentryId;
         for (int _i = maxLoopPerFrame - 1; _i >= 0; _i--) {
             template_runChild(child);
             if (CheckCancel(reentryId)) {

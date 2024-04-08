@@ -146,7 +146,7 @@ public class TaskEntry<T> extends Task<T> {
      */
     public void update(int curFrame) {
         this.curFrame = curFrame;
-        if (getStatus() == Status.RUNNING) {
+        if (getStatus() == TaskStatus.RUNNING) {
             template_execute();
         } else {
             assert isInited();

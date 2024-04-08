@@ -16,8 +16,8 @@
 package cn.wjybxx.btree.fsm;
 
 import cn.wjybxx.btree.LeafTask;
-import cn.wjybxx.btree.Status;
 import cn.wjybxx.btree.Task;
+import cn.wjybxx.btree.TaskStatus;
 
 import javax.annotation.Nonnull;
 
@@ -59,7 +59,7 @@ public class ChangeStateTask<T> extends LeafTask<T> {
         final StateMachineTask<T> stateMachine = StateMachineTask.findStateMachine(this, machineName);
         final Task<T> curState = stateMachine.getCurState();
         // 在切换状态前将当前状态标记为成功或失败；只有延迟通知的情况下才可以设置状态的结果，否则状态机会切换到其它状态
-        if (Status.isCompleted(curStateResult) && curState != null && !curState.isDisableDelayNotify()) {
+        if (TaskStatus.isCompleted(curStateResult) && curState != null && !curState.isDisableDelayNotify()) {
             curState.setCompleted(curStateResult, false);
         }
 

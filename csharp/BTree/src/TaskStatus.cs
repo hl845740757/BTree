@@ -23,7 +23,7 @@ namespace Wjybxx.BTree;
 /// <summary>
 /// Task的基础状态码
 /// </summary>
-public static class Status
+public static class TaskStatus
 {
     /** 初始状态 */
     public const int NEW = 0;
@@ -52,37 +52,37 @@ public static class Status
     /** 任务是否正在运行 */
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsRunning(int status) {
-        return status == Status.RUNNING;
+        return status == TaskStatus.RUNNING;
     }
 
     /** 任务是否已完成(成功、失败、取消) */
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsCompleted(int status) {
-        return status >= Status.SUCCESS;
+        return status >= TaskStatus.SUCCESS;
     }
 
     /** 任务是否已成功 */
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsSucceeded(int status) {
-        return status == Status.SUCCESS;
+        return status == TaskStatus.SUCCESS;
     }
 
     /** 任务是否已被取消 */
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsCancelled(int status) {
-        return status == Status.CANCELLED;
+        return status == TaskStatus.CANCELLED;
     }
 
     /** 任务是否已失败 */
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsFailed(int status) {
-        return status > Status.CANCELLED;
+        return status > TaskStatus.CANCELLED;
     }
 
     /** 任务是否已失败或被取消 */
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsFailedOrCancelled(int status) {
-        return status >= Status.CANCELLED;
+        return status >= TaskStatus.CANCELLED;
     }
 
     //

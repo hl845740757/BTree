@@ -51,7 +51,7 @@ public class StateMachineTest {
         stateMachineTask.setName("RootStateMachine");
         stateMachineTask.setUndoQueueSize(queue_size);
         stateMachineTask.setRedoQueueSize(queue_size);
-        stateMachineTask.setNoneChildStatus(Status.SUCCESS);
+        stateMachineTask.setNoneChildStatus(TaskStatus.SUCCESS);
         return taskEntry;
     }
 
@@ -109,7 +109,7 @@ public class StateMachineTest {
                 ChangeStateArgs args = delayChange ? ChangeStateArgs.PLAIN_WHEN_COMPLETED : ChangeStateArgs.PLAIN;
                 StateMachineTask.findStateMachine(this).changeState(nextState, args);
             }
-            return Status.SUCCESS;
+            return TaskStatus.SUCCESS;
         }
 
         @Override
@@ -131,7 +131,7 @@ public class StateMachineTest {
                 ChangeStateArgs args = delayChange ? ChangeStateArgs.PLAIN_WHEN_COMPLETED : ChangeStateArgs.PLAIN;
                 StateMachineTask.findStateMachine(this).changeState(nextState, args);
             }
-            return Status.SUCCESS;
+            return TaskStatus.SUCCESS;
         }
 
         @Override
@@ -225,13 +225,13 @@ public class StateMachineTest {
         @Override
         protected int executeImpl() {
             if (BtreeTestUtil.random.nextBoolean()) {
-                return Status.RUNNING; // 随机等待
+                return TaskStatus.RUNNING; // 随机等待
             }
             if (global_count == expected) {
                 global_count--;
-                return Status.SUCCESS;
+                return TaskStatus.SUCCESS;
             }
-            return Status.ERROR;
+            return TaskStatus.ERROR;
         }
 
         @Override
@@ -251,13 +251,13 @@ public class StateMachineTest {
         @Override
         protected int executeImpl() {
             if (BtreeTestUtil.random.nextBoolean()) {
-                return Status.RUNNING; // 随机等待
+                return TaskStatus.RUNNING; // 随机等待
             }
             if (global_count == expected) {
                 global_count++;
-                return Status.SUCCESS;
+                return TaskStatus.SUCCESS;
             }
-            return Status.ERROR;
+            return TaskStatus.ERROR;
         }
 
         @Override

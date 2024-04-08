@@ -54,9 +54,9 @@ public class SelectorN<T> : SingleRunningChildBranch<T> where T : class
         if (required < 1) {
             SetSuccess();
         } else if (GetChildCount() == 0) {
-            SetFailed(Status.CHILDLESS);
+            SetFailed(TaskStatus.CHILDLESS);
         } else if (CheckFailFast()) {
-            SetFailed(Status.INSUFFICIENT_CHILD);
+            SetFailed(TaskStatus.INSUFFICIENT_CHILD);
         }
     }
 
@@ -69,7 +69,7 @@ public class SelectorN<T> : SingleRunningChildBranch<T> where T : class
         if (child.IsSucceeded && ++count >= required) {
             SetSuccess();
         } else if (IsAllChildCompleted() || CheckFailFast()) {
-            SetFailed(Status.ERROR);
+            SetFailed(TaskStatus.ERROR);
         } else if (!IsExecuting()) {
             template_execute();
         }

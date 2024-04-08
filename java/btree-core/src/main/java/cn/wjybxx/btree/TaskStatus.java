@@ -23,7 +23,7 @@ package cn.wjybxx.btree;
  * @author wjybxx
  * date - 2023/11/25
  */
-public final class Status {
+public final class TaskStatus {
 
     /** 初始状态 */
     public static final int NEW = 0;
@@ -50,27 +50,27 @@ public final class Status {
 
     //
     public static boolean isRunning(int status) {
-        return status == Status.RUNNING;
+        return status == TaskStatus.RUNNING;
     }
 
     public static boolean isCompleted(int status) {
-        return status >= Status.SUCCESS;
+        return status >= TaskStatus.SUCCESS;
     }
 
     public static boolean isSucceeded(int status) {
-        return status == Status.SUCCESS;
+        return status == TaskStatus.SUCCESS;
     }
 
     public static boolean isCancelled(int status) {
-        return status == Status.CANCELLED;
+        return status == TaskStatus.CANCELLED;
     }
 
     public static boolean isFailed(int status) {
-        return status > Status.CANCELLED;
+        return status > TaskStatus.CANCELLED;
     }
 
     public static boolean isFailedOrCancelled(int status) {
-        return status >= Status.CANCELLED;
+        return status >= TaskStatus.CANCELLED;
     }
 
     //

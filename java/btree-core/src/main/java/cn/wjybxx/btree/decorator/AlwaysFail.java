@@ -16,8 +16,8 @@
 package cn.wjybxx.btree.decorator;
 
 import cn.wjybxx.btree.Decorator;
-import cn.wjybxx.btree.Status;
 import cn.wjybxx.btree.Task;
+import cn.wjybxx.btree.TaskStatus;
 
 /**
  * 在子节点完成之后固定返回失败
@@ -39,7 +39,7 @@ public class AlwaysFail<T> extends Decorator<T> {
     @Override
     protected void execute() {
         if (child == null) {
-            setFailed(Status.toFailure(failureStatus));
+            setFailed(TaskStatus.toFailure(failureStatus));
         } else {
             template_runChild(child);
         }
@@ -47,7 +47,7 @@ public class AlwaysFail<T> extends Decorator<T> {
 
     @Override
     protected void onChildCompleted(Task<T> child) {
-        setCompleted(Status.toFailure(child.getStatus()), true); // 错误码有传播的价值
+        setCompleted(TaskStatus.toFailure(child.getStatus()), true); // 错误码有传播的价值
     }
 
     public int getFailureStatus() {

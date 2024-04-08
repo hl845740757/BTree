@@ -16,8 +16,8 @@
 package cn.wjybxx.btree.decorator;
 
 import cn.wjybxx.btree.Decorator;
-import cn.wjybxx.btree.Status;
 import cn.wjybxx.btree.Task;
+import cn.wjybxx.btree.TaskStatus;
 
 /**
  * 反转装饰器，它用于反转子节点的执行结果。
@@ -45,9 +45,9 @@ public class Inverter<T> extends Decorator<T> {
     @Override
     protected void onChildCompleted(Task<T> child) {
         switch (child.getNormalizedStatus()) {
-            case Status.SUCCESS -> setFailed(Status.ERROR);
-            case Status.ERROR -> setSuccess();
-            case Status.CANCELLED -> setCancelled(); // 取消是个奇葩情况
+            case TaskStatus.SUCCESS -> setFailed(TaskStatus.ERROR);
+            case TaskStatus.ERROR -> setSuccess();
+            case TaskStatus.CANCELLED -> setCancelled(); // 取消是个奇葩情况
             default -> throw new AssertionError();
         }
     }

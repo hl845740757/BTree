@@ -15,10 +15,10 @@
  */
 package cn.wjybxx.btree;
 
+import cn.wjybxx.base.ex.InfiniteLoopException;
 import cn.wjybxx.btree.branch.Join;
 import cn.wjybxx.btree.branch.JoinPolicy;
 import cn.wjybxx.btree.branch.join.*;
-import cn.wjybxx.base.ex.InfiniteLoopException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -60,9 +60,9 @@ public class JoinTest {
             if (BtreeTestUtil.random.nextBoolean()) {
                 globalCount++;
                 setSuccess();
-                return Status.SUCCESS;
+                return TaskStatus.SUCCESS;
             }
-            return Status.RUNNING;
+            return TaskStatus.RUNNING;
         }
 
         @Override

@@ -45,7 +45,7 @@ public class JoinAnyOf<T> : JoinPolicy<T> where T : class
     }
 
     public void OnChildCompleted(Join<T> join, Task<T> child) {
-        join.SetCompleted(child.GetStatus(), true);
+        join.SetCompleted(child.Status, true);
     }
 
     public void OnEvent(Join<T> join, object eventObj) {

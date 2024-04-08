@@ -32,7 +32,7 @@ public abstract class ConditionTask<T> extends LeafTask<T> {
         if (test()) {
             setSuccess();
         } else {
-            setFailed(Status.ERROR);
+            setFailed(TaskStatus.ERROR);
         }
     }
 

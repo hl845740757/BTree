@@ -31,7 +31,7 @@ public abstract class ConditionTask<T> : LeafTask<T> where T : class
         if (Test()) {
             SetSuccess();
         } else {
-            SetFailed(Status.ERROR);
+            SetFailed(TaskStatus.ERROR);
         }
     }
 

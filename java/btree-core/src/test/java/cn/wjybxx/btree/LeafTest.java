@@ -44,13 +44,13 @@ public class LeafTest {
         PrevStatusTask<Blackboard> root = new PrevStatusTask<>();
         TaskEntry<Blackboard> taskEntry = BtreeTestUtil.newTaskEntry(root);
 
-        int bound = (Status.MAX_PREV_STATUS + 1) * 2;
+        int bound = (TaskStatus.MAX_PREV_STATUS + 1) * 2;
         for (int idx = 0; idx < bound; idx++) {
             int prevStatus = taskEntry.getStatus();
             BtreeTestUtil.untilCompleted(taskEntry);
 
-            if (prevStatus >= Status.MAX_PREV_STATUS) {
-                Assertions.assertEquals(Status.MAX_PREV_STATUS, taskEntry.getPrevStatus());
+            if (prevStatus >= TaskStatus.MAX_PREV_STATUS) {
+                Assertions.assertEquals(TaskStatus.MAX_PREV_STATUS, taskEntry.getPrevStatus());
             } else {
                 Assertions.assertEquals(prevStatus, taskEntry.getPrevStatus());
             }
@@ -71,11 +71,11 @@ public class LeafTest {
 
     private static class PrevStatusTask<T> extends ActionTask<T> {
 
-        private int next = Status.SUCCESS;
+        private int next = TaskStatus.SUCCESS;
 
         @Override
         protected int executeImpl() {
-            if (next == Status.GUARD_FAILED) {
+            if (next == TaskStatus.GUARD_FAILED) {
                 next++;
             }
             return next++;

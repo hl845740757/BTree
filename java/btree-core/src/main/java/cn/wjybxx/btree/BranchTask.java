@@ -70,7 +70,7 @@ public abstract class BranchTask<T> extends Task<T> {
         return children.getLast() == child;
     }
 
-    /**  获取第一个子节点 -- 主要为MainPolicy提供帮助 */
+    /** 获取第一个子节点 -- 主要为MainPolicy提供帮助 */
     @Nullable
     public final Task<T> getFirstChild() {
         final int size = children.size();

@@ -113,7 +113,7 @@ public abstract class Task<T> implements CancelTokenListener {
      */
     transient Object controlData;
 
-    /** 任务的状态 -- {@link Status}，使用int以支持用户返回更详细的错误码 */
+    /** 任务的状态 -- {@link TaskStatus}，使用int以支持用户返回更详细的错误码 */
     private transient int status;
     /** 任务运行时的控制信息(bits) -- 每次运行时会重置为0 */
     private transient int ctl;
@@ -213,37 +213,80 @@ public abstract class Task<T> implements CancelTokenListener {
 
     /** 任务是否正在运行 */
     public final boolean isRunning() {
-        return status == Status.RUNNING;
+        return status == TaskStatus.RUNNING;
     }
 
     /** 任务是否已完成(成功、失败、取消) */
     public final boolean isCompleted() {
-        return status >= Status.SUCCESS;
+        return status >= TaskStatus.SUCCESS;
     }
 
     /** 任务是否已成功 */
     public final boolean isSucceeded() {
-        return status == Status.SUCCESS;
+        return status == TaskStatus.SUCCESS;
     }
 
     /** 任务是否已被取消 */
     public final boolean isCancelled() {
-        return status == Status.CANCELLED;
+        return status == TaskStatus.CANCELLED;
     }
 
     /** 任务是否已失败 */
     public final boolean isFailed() {
-        return status > Status.CANCELLED;
+        return status > TaskStatus.CANCELLED;
     }
 
     /** 任务是否已失败或被取消 */
     public final boolean isFailedOrCancelled() {
-        return status >= Status.CANCELLED;
+        return status >= TaskStatus.CANCELLED;
     }
 
-    /** 获取归一化后的状态码，所有的失败码都转换为{@link Status#ERROR} */
+    /** 获取归一化后的状态码，所有的失败码都转换为{@link TaskStatus#ERROR} */
     public final int getNormalizedStatus() {
-        return Math.min(status, Status.ERROR);
+        return Math.min(status, TaskStatus.ERROR);
+    }
+
+    // endregion
+
+    // region context
+
+    /** 获取行为树绑定的实体 -- 最好让Entity也在黑板中 */
+    public Object getEntity() {
+        if (taskEntry == null) {
+            throw new IllegalStateException("This task has never run");
+        }
+        return taskEntry.getEntity();
+    }
+
+    /** 获取行为树入口绑定的黑板 */
+    public final T getEntryBlackboard() {
+        if (taskEntry == null) {
+            throw new IllegalStateException("This task has never run");
+        }
+        return taskEntry.getBlackboard();
+    }
+
+    /** 获取当前的帧号 */
+    public int getCurFrame() {
+        if (taskEntry == null) {
+            throw new IllegalStateException("This task has never run");
+        }
+        return taskEntry.getCurFrame();
+    }
+
+    /**
+     * 运行的帧数
+     * 1.任务如果在首次{@link #execute()}的时候就进入完成状态，那么运行帧数0
+     * 2.运行帧数是非常重要的统计属性，值得我们定义在顶层.
+     */
+    public final int getRunFrames() {
+        if (status == TaskStatus.RUNNING) {
+            return taskEntry.getCurFrame() - enterFrame;
+        }
+        if (taskEntry == null) {
+            return 0;
+        }
+        return exitFrame - enterFrame;
     }
 
     /**
@@ -256,33 +299,10 @@ public abstract class Task<T> implements CancelTokenListener {
     }
 
     public final void setPrevStatus(int prevStatus) {
-        prevStatus = MathCommon.clamp(prevStatus, 0, Status.MAX_PREV_STATUS);
+        prevStatus = MathCommon.clamp(prevStatus, 0, TaskStatus.MAX_PREV_STATUS);
         ctl |= (prevStatus << OFFSET_PREV_STATUS);
     }
 
-    /** 获取行为树绑定的实体 -- 最好让Entity也在黑板中 */
-    public Object getEntity() {
-        if (taskEntry == null) {
-            throw new IllegalStateException("This task has never run");
-        }
-        return taskEntry.getEntity();
-    }
-
-    /** 获取当前的帧号 */
-    public int getCurFrame() {
-        if (taskEntry == null) {
-            throw new IllegalStateException("This task has never run");
-        }
-        return taskEntry.getCurFrame();
-    }
-
-    /** 获取行为树入口绑定的黑板 */
-    public final T getEntryBlackboard() {
-        if (taskEntry == null) {
-            throw new IllegalStateException("This task has never run");
-        }
-        return taskEntry.getBlackboard();
-    }
 
     // endregion
 
@@ -329,8 +349,8 @@ public abstract class Task<T> implements CancelTokenListener {
 
     /** 设置为运行成功 */
     public final void setSuccess() {
-        assert this.status == Status.RUNNING;
-        this.status = Status.SUCCESS;
+        assert this.status == TaskStatus.RUNNING;
+        this.status = TaskStatus.SUCCESS;
         template_exit(0);
         if (checkImmediateNotifyMask(ctl) && control != null) {
             control.onChildCompleted(this);
@@ -339,12 +359,12 @@ public abstract class Task<T> implements CancelTokenListener {
 
     /** 设置为取消 */
     public final void setCancelled() {
-        setCompleted(Status.CANCELLED, false);
+        setCompleted(TaskStatus.CANCELLED, false);
     }
 
     /** 设置为执行失败 -- 兼容{@link #setGuardFailed(Task)} */
     public final void setFailed(int status) {
-        if (status < Status.ERROR) {
+        if (status < TaskStatus.ERROR) {
             throw new IllegalArgumentException("status " + status);
         }
         setCompleted(status, false);
@@ -358,22 +378,22 @@ public abstract class Task<T> implements CancelTokenListener {
      * @param control 由于task未运行，其control可能尚未赋值，因此要传入；传null可不接收通知
      */
     public final void setGuardFailed(Task<T> control) {
-        assert status != Status.RUNNING;
+        assert status != TaskStatus.RUNNING;
         if (control != null) { //测试null，适用entry的guard失败
             setControl(control);
         }
-        setCompleted(Status.GUARD_FAILED, false);
+        setCompleted(TaskStatus.GUARD_FAILED, false);
     }
 
     /** 设置为完成 -- 通常用于通过子节点的结果设置自己 */
     public final void setCompleted(int status, boolean fromChild) {
-        if (status < Status.SUCCESS) throw new IllegalArgumentException();
-        if (fromChild && status == Status.GUARD_FAILED) {
-            status = Status.ERROR; // GUARD_FAILED 不能向上传播
+        if (status < TaskStatus.SUCCESS) throw new IllegalArgumentException();
+        if (fromChild && status == TaskStatus.GUARD_FAILED) {
+            status = TaskStatus.ERROR; // GUARD_FAILED 不能向上传播
         }
         final int prevStatus = this.status;
-        if (prevStatus == Status.RUNNING) {
-            if (status == Status.GUARD_FAILED) {
+        if (prevStatus == TaskStatus.RUNNING) {
+            if (status == TaskStatus.GUARD_FAILED) {
                 throw new IllegalArgumentException("Running task cant fail with 'GUARD_FAILED'");
             }
             this.status = status;
@@ -436,7 +456,7 @@ public abstract class Task<T> implements CancelTokenListener {
      * ps: 如果想支持编辑器中测试事件属性，event通常需要实现为KV结构。
      */
     public boolean canHandleEvent(@Nonnull Object event) {
-        return status == Status.RUNNING;
+        return status == TaskStatus.RUNNING;
     }
 
     /**
@@ -466,10 +486,10 @@ public abstract class Task<T> implements CancelTokenListener {
      */
     public final void stop() {
         // 被显式调用stop的task一定不能通知父节点，只要任务执行过就需要标记
-        if (status == Status.RUNNING) {
-            status = Status.CANCELLED;
+        if (status == TaskStatus.RUNNING) {
+            status = TaskStatus.CANCELLED;
             template_exit(MASK_STOP_EXIT);
-        } else if (status != Status.NEW) {
+        } else if (status != TaskStatus.NEW) {
             ctl |= MASK_STOP_EXIT; // 可能是一个先将自己更新为完成状态，又执行了逻辑的子节点；
         }
     }
@@ -483,7 +503,7 @@ public abstract class Task<T> implements CancelTokenListener {
         // 停止child时默认逆序停止；一般而言都是后面的子节点依赖前面的子节点
         for (int idx = getChildCount() - 1; idx >= 0; idx--) {
             final Task<T> child = getChild(idx);
-            if (child.status == Status.RUNNING) {
+            if (child.status == TaskStatus.RUNNING) {
                 child.stop();
             }
         }
@@ -498,10 +518,10 @@ public abstract class Task<T> implements CancelTokenListener {
      * 4. 有临时数据的Task都应该重写该方法，行为树通常是需要反复执行的。
      */
     public void resetForRestart() {
-        if (status == Status.NEW) {
+        if (status == TaskStatus.NEW) {
             return;
         }
-        if (status == Status.RUNNING) {
+        if (status == TaskStatus.RUNNING) {
             stop();
         }
         resetChildrenForRestart();
@@ -526,7 +546,7 @@ public abstract class Task<T> implements CancelTokenListener {
         // 逆序重置，与stop一致
         for (int idx = getChildCount() - 1; idx >= 0; idx--) {
             Task<T> child = getChild(idx);
-            if (child.status != Status.NEW) {
+            if (child.status != TaskStatus.NEW) {
                 child.resetForRestart();
             }
         }
@@ -597,21 +617,6 @@ public abstract class Task<T> implements CancelTokenListener {
      */
     public final boolean isStillborn() {
         return (ctl & MASK_STILLBORN) != 0;
-    }
-
-    /**
-     * 运行的帧数
-     * 1.任务如果在首次{@link #execute()}的时候就进入完成状态，那么运行帧数0
-     * 2.运行帧数是非常重要的统计属性，值得我们定义在顶层.
-     */
-    public final int getRunFrames() {
-        if (status == Status.RUNNING) {
-            return taskEntry.getCurFrame() - enterFrame;
-        }
-        if (taskEntry == null) {
-            return 0;
-        }
-        return exitFrame - enterFrame;
     }
 
     /**
@@ -729,20 +734,20 @@ public abstract class Task<T> implements CancelTokenListener {
         final UniCancelTokenSource cancelToken = this.cancelToken;
         if (cancelToken.isCancelling() && isAutoCheckCancel()) { // 胎死腹中
             releaseContext();
-            setCompleted(Status.CANCELLED, false);
+            setCompleted(TaskStatus.CANCELLED, false);
             return;
         }
 
-        final int prevStatus = Math.min(Status.MAX_PREV_STATUS, this.status);
+        final int prevStatus = Math.min(TaskStatus.MAX_PREV_STATUS, this.status);
         initMask |= (MASK_ENTER_EXECUTE | MASK_EXECUTING);
         initMask |= (prevStatus << OFFSET_PREV_STATUS);
         ctl = initMask;
 
-        status = Status.RUNNING; // 先更新为running状态，以避免执行过程中外部查询task的状态时仍处于上一次的结束status
+        status = TaskStatus.RUNNING; // 先更新为running状态，以避免执行过程中外部查询task的状态时仍处于上一次的结束status
         enterFrame = exitFrame = taskEntry.getCurFrame();
         final int reentryId = ++this.reentryId;  // 和上次执行的exit分开
         try {
-            if (prevStatus != Status.NEW && isAutoResetChildren()) {
+            if (prevStatus != TaskStatus.NEW && isAutoResetChildren()) {
                 resetChildrenForRestart();
             }
             if ((initMask & TaskOverrides.MASK_BEFORE_ENTER) != 0) {
@@ -856,7 +861,7 @@ public abstract class Task<T> implements CancelTokenListener {
      */
     public final void template_runChild(Task<T> child) {
         assert isReady() : "Task is not ready";
-        if (child.status == Status.RUNNING) {
+        if (child.status == TaskStatus.RUNNING) {
             child.template_execute();
         } else if (child.guard == null || template_checkGuard(child.guard)) {
             child.template_enterExecute(this, 0);
@@ -868,7 +873,7 @@ public abstract class Task<T> implements CancelTokenListener {
     /** 运行子节点，不检查子节点的前置条件 */
     public final void template_runChildDirectly(Task<T> child) {
         assert isReady() : "Task is not ready";
-        if (child.status == Status.RUNNING) {
+        if (child.status == TaskStatus.RUNNING) {
             child.template_execute();
         } else {
             child.template_enterExecute(this, 0);
@@ -884,7 +889,7 @@ public abstract class Task<T> implements CancelTokenListener {
      */
     public final void template_runHook(Task<T> hook) {
         assert isReady() : "Task is not ready";
-        if (hook.status == Status.RUNNING) {
+        if (hook.status == TaskStatus.RUNNING) {
             hook.template_execute();
         } else if (hook.guard == null || template_checkGuard(hook.guard)) {
             hook.template_enterExecute(this, MASK_DISABLE_NOTIFY);
@@ -896,7 +901,7 @@ public abstract class Task<T> implements CancelTokenListener {
     /** 执行钩子任务，不检查前置条件 */
     public final void template_runHookDirectly(Task<T> hook) {
         assert isReady() : "Task is not ready";
-        if (hook.status == Status.RUNNING) {
+        if (hook.status == TaskStatus.RUNNING) {
             hook.template_execute();
         } else {
             hook.template_enterExecute(this, MASK_DISABLE_NOTIFY);
@@ -925,10 +930,10 @@ public abstract class Task<T> implements CancelTokenListener {
             }
             guard.template_enterExecute(this, MASK_DISABLE_NOTIFY);
             switch (guard.getNormalizedStatus()) {
-                case Status.SUCCESS -> {
+                case TaskStatus.SUCCESS -> {
                     return true;
                 }
-                case Status.ERROR -> {
+                case TaskStatus.ERROR -> {
                     return false;
                 }
                 default -> {
@@ -1156,13 +1161,13 @@ public abstract class Task<T> implements CancelTokenListener {
 
     public static void stop(@Nullable Task<?> task) {
         // java不支持 obj?.method 语法，我们只能封装额外的方法实现
-        if (task != null && task.status == Status.RUNNING) {
+        if (task != null && task.status == TaskStatus.RUNNING) {
             task.stop();
         }
     }
 
     public static void stopSafely(@Nullable Task<?> task) {
-        if (task != null && task.status == Status.RUNNING) {
+        if (task != null && task.status == TaskStatus.RUNNING) {
             try {
                 task.stop();
             } catch (Exception | AssertionError e) {
@@ -1172,7 +1177,7 @@ public abstract class Task<T> implements CancelTokenListener {
     }
 
     public static void resetForRestart(@Nullable Task<?> task) {
-        if (task != null && task.status != Status.NEW) {
+        if (task != null && task.status != TaskStatus.NEW) {
             task.resetForRestart();
         }
     }

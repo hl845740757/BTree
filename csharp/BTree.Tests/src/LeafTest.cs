@@ -40,13 +40,13 @@ public class LeafTest
         PrevStatusTask<Blackboard> root = new PrevStatusTask<Blackboard>();
         TaskEntry<Blackboard> taskEntry = BtreeTestUtil.newTaskEntry(root);
 
-        int bound = (Status.MAX_PREV_STATUS + 1) * 2;
+        int bound = (TaskStatus.MAX_PREV_STATUS + 1) * 2;
         for (int idx = 0; idx < bound; idx++) {
-            int prevStatus = taskEntry.GetStatus();
+            int prevStatus = taskEntry.Status;
             BtreeTestUtil.untilCompleted(taskEntry);
 
-            if (prevStatus >= Status.MAX_PREV_STATUS) {
-                Assert.AreEqual(Status.MAX_PREV_STATUS, taskEntry.PrevStatus);
+            if (prevStatus >= TaskStatus.MAX_PREV_STATUS) {
+                Assert.AreEqual(TaskStatus.MAX_PREV_STATUS, taskEntry.PrevStatus);
             } else {
                 Assert.AreEqual(prevStatus, taskEntry.PrevStatus);
             }
@@ -61,16 +61,16 @@ public class LeafTest
         TaskEntry<Blackboard> taskEntry = BtreeTestUtil.newTaskEntry(waitFrame);
         BtreeTestUtil.untilCompleted(taskEntry);
 
-        Assert.IsTrue(waitFrame.IsStillborn());
+        Assert.IsTrue(waitFrame.IsStillborn);
         Assert.AreEqual(0, waitFrame.PrevStatus);
     }
 
     private class PrevStatusTask<T> : ActionTask<T> where T : class
     {
-        private int next = Status.SUCCESS;
+        private int next = TaskStatus.SUCCESS;
 
         protected override int ExecuteImpl() {
-            if (next == Status.GUARD_FAILED) {
+            if (next == TaskStatus.GUARD_FAILED) {
                 next++;
             }
             return next++;

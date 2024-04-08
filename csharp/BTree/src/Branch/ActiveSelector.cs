@@ -57,7 +57,7 @@ public class ActiveSelector<T> : SingleRunningChildBranch<T> where T : class
         }
 
         if (childToRun == null) {
-            SetFailed(Status.ERROR);
+            SetFailed(TaskStatus.ERROR);
             return;
         }
 
@@ -68,6 +68,6 @@ public class ActiveSelector<T> : SingleRunningChildBranch<T> where T : class
 
     protected override void OnChildCompleted(Task<T> child) {
         runningChild = null;
-        SetCompleted(child.GetStatus(), true);
+        SetCompleted(child.Status, true);
     }
 }

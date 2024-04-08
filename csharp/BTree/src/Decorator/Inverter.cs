@@ -42,15 +42,15 @@ public class Inverter<T> : Decorator<T> where T : class
 
     protected override void OnChildCompleted(Task<T> child) {
         switch (child.NormalizedStatus) {
-            case Status.SUCCESS: {
-                SetFailed(Status.ERROR);
+            case TaskStatus.SUCCESS: {
+                SetFailed(TaskStatus.ERROR);
                 break;
             }
-            case Status.ERROR: {
+            case TaskStatus.ERROR: {
                 SetSuccess();
                 break;
             }
-            case Status.CANCELLED: {
+            case TaskStatus.CANCELLED: {
                 SetCancelled(); // 取消是个奇葩情况
                 break;
             }

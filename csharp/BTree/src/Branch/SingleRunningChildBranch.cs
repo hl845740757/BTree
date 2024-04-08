@@ -92,7 +92,7 @@ public abstract class SingleRunningChildBranch<T> : BranchTask<T> where T : clas
     }
 
     protected override void Execute() {
-        int reentryId = GetReentryId();
+        int reentryId = ReentryId;
         Task<T> runningChild = this.runningChild;
         for (int i = 0, retryCount = children.Count; i < retryCount; i++) { // 避免死循环
             if (runningChild == null) {

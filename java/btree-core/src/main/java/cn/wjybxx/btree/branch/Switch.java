@@ -15,8 +15,8 @@
  */
 package cn.wjybxx.btree.branch;
 
-import cn.wjybxx.btree.Status;
 import cn.wjybxx.btree.Task;
+import cn.wjybxx.btree.TaskStatus;
 
 /**
  * Switch-选择一个分支运行，直到其结束
@@ -29,7 +29,7 @@ public class Switch<T> extends SingleRunningChildBranch<T> {
     @Override
     protected void execute() {
         if (runningChild == null && !selectChild()) {
-            setFailed(Status.ERROR);
+            setFailed(TaskStatus.ERROR);
             return;
         }
         template_runChildDirectly(runningChild);

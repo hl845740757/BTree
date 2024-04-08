@@ -15,8 +15,8 @@
  */
 package cn.wjybxx.btree.branch.join;
 
-import cn.wjybxx.btree.Status;
 import cn.wjybxx.btree.Task;
+import cn.wjybxx.btree.TaskStatus;
 import cn.wjybxx.btree.branch.Join;
 import cn.wjybxx.btree.branch.JoinPolicy;
 import cn.wjybxx.btree.branch.SimpleParallel;
@@ -50,7 +50,7 @@ public class JoinMain<T> implements JoinPolicy<T> {
     @Override
     public void enter(Join<T> join) {
         if (join.getChildCount() == 0) {
-            join.setFailed(Status.CHILDLESS);
+            join.setFailed(TaskStatus.CHILDLESS);
         }
     }
 

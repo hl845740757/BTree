@@ -38,7 +38,7 @@ public class JoinSelector<T> : JoinPolicy<T> where T : class
 
     public void Enter(Join<T> join) {
         if (join.GetChildCount() == 0) {
-            join.SetFailed(Status.CHILDLESS);
+            join.SetFailed(TaskStatus.CHILDLESS);
         }
     }
 
@@ -46,7 +46,7 @@ public class JoinSelector<T> : JoinPolicy<T> where T : class
         if (child.IsSucceeded) {
             join.SetSuccess();
         } else if (join.IsAllChildCompleted()) {
-            join.SetFailed(Status.ERROR);
+            join.SetFailed(TaskStatus.ERROR);
         }
     }
 

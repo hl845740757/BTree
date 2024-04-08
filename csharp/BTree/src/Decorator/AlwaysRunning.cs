@@ -42,7 +42,7 @@ public class AlwaysRunning<T> : Decorator<T> where T : class
         if (child == null) {
             childPrevReentryId = 0;
         } else {
-            childPrevReentryId = child.GetReentryId();
+            childPrevReentryId = child.ReentryId;
         }
     }
 

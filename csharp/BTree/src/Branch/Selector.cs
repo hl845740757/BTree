@@ -45,7 +45,7 @@ public class Selector<T> : SingleRunningChildBranch<T> where T : class
         if (child.IsSucceeded) {
             SetSuccess();
         } else if (IsAllChildCompleted()) {
-            SetFailed(Status.ERROR);
+            SetFailed(TaskStatus.ERROR);
         } else if (!IsExecuting()) {
             template_execute();
         }

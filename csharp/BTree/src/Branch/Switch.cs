@@ -35,7 +35,7 @@ public class Switch<T> : SingleRunningChildBranch<T> where T : class
 
     protected override void Execute() {
         if (runningChild == null && !selectChild()) {
-            SetFailed(Status.ERROR);
+            SetFailed(TaskStatus.ERROR);
             return;
         }
         template_runChildDirectly(runningChild!);
@@ -57,6 +57,6 @@ public class Switch<T> : SingleRunningChildBranch<T> where T : class
 
     protected override void OnChildCompleted(Task<T> child) {
         runningChild = null;
-        SetCompleted(child.GetStatus(), true);
+        SetCompleted(child.Status, true);
     }
 }

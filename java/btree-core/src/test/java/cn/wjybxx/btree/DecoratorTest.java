@@ -15,9 +15,9 @@
  */
 package cn.wjybxx.btree;
 
+import cn.wjybxx.base.ex.InfiniteLoopException;
 import cn.wjybxx.btree.decorator.*;
 import cn.wjybxx.btree.leaf.Failure;
-import cn.wjybxx.base.ex.InfiniteLoopException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
@@ -68,7 +68,7 @@ public class DecoratorTest {
                 setSuccess();
             } else {
                 failedCount++;
-                setFailed(Status.ERROR);
+                setFailed(TaskStatus.ERROR);
             }
         }
 

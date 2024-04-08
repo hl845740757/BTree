@@ -16,7 +16,7 @@
 package cn.wjybxx.btree.leaf;
 
 import cn.wjybxx.btree.LeafTask;
-import cn.wjybxx.btree.Status;
+import cn.wjybxx.btree.TaskStatus;
 
 import javax.annotation.Nonnull;
 import java.util.Random;
@@ -49,7 +49,7 @@ public class SimpleRandom<T> extends LeafTask<T> {
         if (random.nextFloat() <= p) {
             setSuccess();
         } else {
-            setFailed(Status.ERROR);
+            setFailed(TaskStatus.ERROR);
         }
     }
 

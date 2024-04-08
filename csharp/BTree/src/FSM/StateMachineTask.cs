@@ -37,7 +37,7 @@ public class StateMachineTask<T> : Decorator<T> where T : class
     /** 状态机名字 */
     private string? name;
     /** 无可用状态时状态码 -- 默认成功退出更安全 */
-    private int noneChildStatus = Status.SUCCESS;
+    private int noneChildStatus = TaskStatus.SUCCESS;
     /** 初始状态 */
     private Task<T>? initState;
     /** 初始状态的属性 */
@@ -258,7 +258,7 @@ public class StateMachineTask<T> : Decorator<T> where T : class
     protected override void BeforeEnter() {
         base.BeforeEnter();
         if (noneChildStatus == 0) { // 兼容编辑器忘记赋值，默认成功退出更安全
-            noneChildStatus = Status.SUCCESS;
+            noneChildStatus = TaskStatus.SUCCESS;
         }
         if (initState != null && initStateProps != null) {
             initState.SharedProps = initStateProps;
@@ -371,7 +371,7 @@ public class StateMachineTask<T> : Decorator<T> where T : class
     }
 
     protected void OnNoChildRunning() {
-        if (noneChildStatus != Status.RUNNING) {
+        if (noneChildStatus != TaskStatus.RUNNING) {
             SetCompleted(noneChildStatus, false);
         }
     }

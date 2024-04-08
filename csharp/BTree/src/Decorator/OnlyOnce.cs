@@ -35,13 +35,13 @@ public class OnlyOnce<T> : Decorator<T> where T : class
 
     protected override void Execute() {
         if (child.IsCompleted) {
-            SetCompleted(child.GetStatus(), true);
+            SetCompleted(child.Status, true);
         } else {
             template_runChild(child);
         }
     }
 
     protected override void OnChildCompleted(Task<T> child) {
-        SetCompleted(child.GetStatus(), true);
+        SetCompleted(child.Status, true);
     }
 }

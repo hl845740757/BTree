@@ -47,7 +47,7 @@ public class ServiceParallel<T> : Parallel<T> where T : class
             template_runHook(child);
         }
         if (mainTask.IsCompleted) {
-            SetCompleted(mainTask.GetStatus(), true);
+            SetCompleted(mainTask.Status, true);
         }
     }
 

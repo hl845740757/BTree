@@ -32,10 +32,10 @@ public abstract class ActionTask<T> extends LeafTask<T> {
             return;
         }
         switch (status) {
-            case Status.NEW -> throw new IllegalStateException("Illegal action status: " + status);
-            case Status.RUNNING -> {}
-            case Status.SUCCESS -> setSuccess();
-            case Status.CANCELLED -> setCancelled();
+            case TaskStatus.NEW -> throw new IllegalStateException("Illegal action status: " + status);
+            case TaskStatus.RUNNING -> {}
+            case TaskStatus.SUCCESS -> setSuccess();
+            case TaskStatus.CANCELLED -> setCancelled();
             default -> setFailed(status);
         }
     }

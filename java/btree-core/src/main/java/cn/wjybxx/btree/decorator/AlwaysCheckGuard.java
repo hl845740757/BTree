@@ -16,8 +16,8 @@
 package cn.wjybxx.btree.decorator;
 
 import cn.wjybxx.btree.Decorator;
-import cn.wjybxx.btree.Status;
 import cn.wjybxx.btree.Task;
+import cn.wjybxx.btree.TaskStatus;
 
 /**
  * 每一帧都检查子节点的前置条件，如果前置条件失败，则取消child执行并返回失败
@@ -40,7 +40,7 @@ public class AlwaysCheckGuard<T> extends Decorator<T> {
             template_runChildDirectly(child);
         } else {
             child.stop();
-            setFailed(Status.ERROR);
+            setFailed(TaskStatus.ERROR);
         }
     }
 

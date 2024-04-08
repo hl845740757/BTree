@@ -29,7 +29,7 @@ public abstract class ConditionTask2<T> : LeafTask<T> where T : class
 {
     protected sealed override void Execute() {
         int status = Test();
-        if (status == Status.SUCCESS) {
+        if (status == TaskStatus.SUCCESS) {
             SetSuccess();
         } else {
             SetFailed(status);

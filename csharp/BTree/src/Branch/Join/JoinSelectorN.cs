@@ -48,9 +48,9 @@ public class JoinSelectorN<T> : JoinPolicy<T> where T : class
         if (required <= 0) {
             join.SetSuccess();
         } else if (join.GetChildCount() == 0) {
-            join.SetFailed(Status.CHILDLESS);
+            join.SetFailed(TaskStatus.CHILDLESS);
         } else if (CheckFailFast(join)) {
-            join.SetFailed(Status.INSUFFICIENT_CHILD);
+            join.SetFailed(TaskStatus.INSUFFICIENT_CHILD);
         }
     }
 
@@ -58,7 +58,7 @@ public class JoinSelectorN<T> : JoinPolicy<T> where T : class
         if (join.GetSucceededCount() >= required) {
             join.SetSuccess();
         } else if (join.IsAllChildCompleted() || CheckFailFast(join)) {
-            join.SetFailed(Status.ERROR);
+            join.SetFailed(TaskStatus.ERROR);
         }
     }
 

@@ -38,9 +38,9 @@ public class SingleRunningTest1
             BtreeTestUtil.untilCompleted(taskEntry);
 
             if (expcted > 0) {
-                Assert.IsTrue(taskEntry.IsSucceeded, "Task is unsuccessful, status " + taskEntry.GetStatus());
+                Assert.IsTrue(taskEntry.IsSucceeded, "Task is unsuccessful, status " + taskEntry.Status);
             } else {
-                Assert.IsTrue(taskEntry.IsFailed, "Task is unfailed, status " + taskEntry.GetStatus());
+                Assert.IsTrue(taskEntry.IsFailed, "Task is unfailed, status " + taskEntry.Status);
             }
         }
     }
@@ -54,9 +54,9 @@ public class SingleRunningTest1
             BtreeTestUtil.untilCompleted(taskEntry);
 
             if (expcted < childCount) {
-                Assert.IsTrue(taskEntry.IsFailed, "Task is unfailed, status " + taskEntry.GetStatus());
+                Assert.IsTrue(taskEntry.IsFailed, "Task is unfailed, status " + taskEntry.Status);
             } else {
-                Assert.IsTrue(taskEntry.IsSucceeded, "Task is unsuccessful, status " + taskEntry.GetStatus());
+                Assert.IsTrue(taskEntry.IsSucceeded, "Task is unsuccessful, status " + taskEntry.Status);
             }
         }
     }
@@ -72,9 +72,9 @@ public class SingleRunningTest1
                 BtreeTestUtil.untilCompleted(taskEntry);
 
                 if (real >= expcted) {
-                    Assert.IsTrue(taskEntry.IsSucceeded, "Task is unsuccessful, status " + taskEntry.GetStatus());
+                    Assert.IsTrue(taskEntry.IsSucceeded, "Task is unsuccessful, status " + taskEntry.Status);
                 } else {
-                    Assert.IsTrue(taskEntry.IsFailed, "Task is unfailed, status " + taskEntry.GetStatus());
+                    Assert.IsTrue(taskEntry.IsFailed, "Task is unfailed, status " + taskEntry.Status);
                 }
 
                 if (expcted >= childCount) { // 所有子节点完成
@@ -110,7 +110,7 @@ public class SingleRunningTest1
         if (runChild == null) {
             Assert.IsTrue(taskEntry.IsFailed);
         } else {
-            Assert.AreEqual(taskEntry.GetStatus(), runChild.GetStatus());
+            Assert.AreEqual(taskEntry.Status, runChild.Status);
         }
     }
 

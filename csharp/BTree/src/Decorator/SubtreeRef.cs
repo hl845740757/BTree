@@ -48,7 +48,7 @@ public class SubtreeRef<T> : Decorator<T> where T : class
     }
 
     protected override void OnChildCompleted(Task<T> child) {
-        SetCompleted(child.GetStatus(), true);
+        SetCompleted(child.Status, true);
     }
 
     /// <summary>

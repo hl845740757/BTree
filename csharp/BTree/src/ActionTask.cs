@@ -30,23 +30,23 @@ namespace Wjybxx.BTree;
 public abstract class ActionTask<T> : LeafTask<T> where T : class
 {
     protected sealed override void Execute() {
-        int reentryId = GetReentryId();
+        int reentryId = ReentryId;
         int status = ExecuteImpl();
         if (IsExited(reentryId)) {
             return;
         }
         switch (status) {
-            case Status.NEW: {
+            case TaskStatus.NEW: {
                 throw new IllegalStateException("Illegal action status: " + status);
             }
-            case Status.RUNNING: {
+            case TaskStatus.RUNNING: {
                 break;
             }
-            case Status.SUCCESS: {
+            case TaskStatus.SUCCESS: {
                 SetSuccess();
                 break;
             }
-            case Status.CANCELLED: {
+            case TaskStatus.CANCELLED: {
                 SetCancelled();
                 break;
             }

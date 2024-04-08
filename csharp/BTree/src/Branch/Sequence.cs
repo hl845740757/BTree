@@ -43,7 +43,7 @@ public class Sequence<T> : SingleRunningChildBranch<T> where T : class
             return;
         }
         if (child.IsFailed) { // 失败码有传递的价值
-            SetCompleted(child.GetStatus(), true);
+            SetCompleted(child.Status, true);
         } else if (IsAllChildCompleted()) {
             SetSuccess();
         } else if (!IsExecuting()) {

@@ -36,11 +36,11 @@ public class AlwaysCheckGuard<T> : Decorator<T> where T : class
             template_runChildDirectly(child);
         } else {
             child.Stop();
-            SetFailed(Status.ERROR);
+            SetFailed(TaskStatus.ERROR);
         }
     }
 
     protected override void OnChildCompleted(Task<T> child) {
-        SetCompleted(child.GetStatus(), true);
+        SetCompleted(child.Status, true);
     }
 }

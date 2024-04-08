@@ -74,7 +74,7 @@ public class Join<T> : Parallel<T> where T : class
         for (int i = 0; i < children.Count; i++) {
             Task<T> child = children[i];
             child.CancelToken = cancelToken.NewChild(); // child默认可读取取消
-            childPrevReentryIds[i] = child.GetReentryId();
+            childPrevReentryIds[i] = child.ReentryId;
         }
     }
 
@@ -84,7 +84,7 @@ public class Join<T> : Parallel<T> where T : class
             return;
         }
         int[] childPrevReentryIds = this.childPrevReentryIds;
-        int reentryId = GetReentryId();
+        int reentryId = ReentryId;
         for (int i = 0; i < children.Count; i++) {
             Task<T> child = children[i];
             bool started = child.IsExited(childPrevReentryIds[i]);

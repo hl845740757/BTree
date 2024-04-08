@@ -35,7 +35,7 @@ public class WaitFrame<T> : LeafTask<T> where T : class
     }
 
     protected override void Execute() {
-        if (GetRunFrames() >= required) {
+        if (RunFrames >= required) {
             SetSuccess();
         }
     }

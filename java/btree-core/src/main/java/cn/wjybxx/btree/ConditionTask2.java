@@ -28,7 +28,7 @@ public abstract class ConditionTask2<T> extends LeafTask<T> {
     @Override
     protected final void execute() {
         int status = test();
-        if (status == Status.SUCCESS) {
+        if (status == TaskStatus.SUCCESS) {
             setSuccess();
         } else {
             setFailed(status);

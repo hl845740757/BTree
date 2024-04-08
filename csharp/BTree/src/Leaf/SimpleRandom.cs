@@ -38,7 +38,7 @@ public class SimpleRandom<T> : LeafTask<T> where T : class
         if (Random.Shared.NextSingle() <= p) {
             SetSuccess();
         } else {
-            SetFailed(Status.ERROR);
+            SetFailed(TaskStatus.ERROR);
         }
     }
 
