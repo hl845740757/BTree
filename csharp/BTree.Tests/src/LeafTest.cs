@@ -61,7 +61,7 @@ public class LeafTest
         TaskEntry<Blackboard> taskEntry = BtreeTestUtil.newTaskEntry(waitFrame);
         BtreeTestUtil.untilCompleted(taskEntry);
 
-        Assert.IsTrue(waitFrame.IsStillborn);
+        Assert.IsTrue(waitFrame.IsStillborn());
         Assert.AreEqual(0, waitFrame.PrevStatus);
     }
 

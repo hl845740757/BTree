@@ -40,11 +40,11 @@ public class ServiceParallel<T> : Parallel<T> where T : class
     protected override void Execute() {
         List<Task<T>> children = this.children;
         Task<T> mainTask = children[0];
-        template_runChild(mainTask);
+        Template_RunChild(mainTask);
 
         for (int idx = 1; idx < children.Count; idx++) {
             Task<T> child = children[idx];
-            template_runHook(child);
+            Template_RunHook(child);
         }
         if (mainTask.IsCompleted) {
             SetCompleted(mainTask.Status, true);

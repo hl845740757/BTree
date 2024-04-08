@@ -31,7 +31,7 @@ public class UntilCond<T> : LoopDecorator<T> where T : class
     private Task<T>? cond;
 
     protected override void OnChildCompleted(Task<T> child) {
-        if (template_checkGuard(cond)) {
+        if (Template_CheckGuard(cond)) {
             SetSuccess();
         }
     }

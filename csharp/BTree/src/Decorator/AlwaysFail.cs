@@ -37,7 +37,7 @@ public class AlwaysFail<T> : Decorator<T> where T : class
         if (child == null) {
             SetFailed(TaskStatus.ToFailure(failureStatus));
         } else {
-            template_runChild(child);
+            Template_RunChild(child);
         }
     }
 

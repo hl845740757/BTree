@@ -35,7 +35,7 @@ public class AlwaysSuccess<T> : Decorator<T> where T : class
         if (child == null) {
             SetSuccess();
         } else {
-            template_runChild(child);
+            Template_RunChild(child);
         }
     }
 

@@ -36,14 +36,14 @@ public class SimpleParallel<T> : Parallel<T> where T : class
         Task<T> mainTask = children[0];
 
         int reentryId = ReentryId;
-        template_runChild(mainTask);
+        Template_RunChild(mainTask);
         if (CheckCancel(reentryId)) { // 得出结果或取消
             return;
         }
 
         for (int idx = 1; idx < children.Count; idx++) {
             Task<T> child = children[idx];
-            template_runHook(child);
+            Template_RunHook(child);
             if (CheckCancel(reentryId)) { // 得出结果或取消
                 return;
             }

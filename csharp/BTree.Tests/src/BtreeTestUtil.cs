@@ -27,7 +27,7 @@ namespace BTree.Tests;
 
 internal class BtreeTestUtil
 {
-    static readonly Random random = new Random();
+    internal static readonly Random random = new Random();
 
     public static TaskEntry<Blackboard> newTaskEntry() {
         return new TaskEntry<Blackboard>("Main", null, new Blackboard());

@@ -40,12 +40,12 @@ public abstract class LoopDecorator<T> : Decorator<T> where T : class
             return;
         }
         if (maxLoopPerFrame == 1) {
-            template_runChild(child);
+            Template_RunChild(child);
             return;
         }
         int reentryId = ReentryId;
         for (int _i = maxLoopPerFrame - 1; _i >= 0; _i--) {
-            template_runChild(child);
+            Template_RunChild(child);
             if (CheckCancel(reentryId)) {
                 return;
             }

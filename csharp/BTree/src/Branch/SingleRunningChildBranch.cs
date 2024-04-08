@@ -98,7 +98,7 @@ public abstract class SingleRunningChildBranch<T> : BranchTask<T> where T : clas
             if (runningChild == null) {
                 this.runningChild = runningChild = nextChild();
             }
-            template_runChild(runningChild);
+            Template_RunChild(runningChild);
             if (CheckCancel(reentryId)) { // 得出结果或被取消
                 return;
             }

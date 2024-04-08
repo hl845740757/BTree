@@ -47,7 +47,7 @@ public class Sequence<T> : SingleRunningChildBranch<T> where T : class
         } else if (IsAllChildCompleted()) {
             SetSuccess();
         } else if (!IsExecuting()) {
-            template_execute();
+            Template_Execute();
         }
     }
 }

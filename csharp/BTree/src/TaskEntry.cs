@@ -119,15 +119,15 @@ public class TaskEntry<T> : Task<T> where T : class
     public void Update(int curFrame) {
         this.curFrame = curFrame;
         if (Status == TaskStatus.RUNNING) {
-            template_execute();
+            Template_Execute();
         } else {
             Debug.Assert(IsInited());
-            template_enterExecute(null, 0);
+            Template_EnterExecute(null, 0);
         }
     }
 
     protected override void Execute() {
-        template_runChild(rootTask!);
+        Template_RunChild(rootTask!);
     }
 
     protected override void OnChildRunning(Task<T> child) {

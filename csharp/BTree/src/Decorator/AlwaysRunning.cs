@@ -54,7 +54,7 @@ public class AlwaysRunning<T> : Decorator<T> where T : class
         if (started && child.IsCompleted) { // 勿轻易调整
             return;
         }
-        template_runChild(child);
+        Template_RunChild(child);
     }
 
     protected override void OnChildCompleted(Task<T> child) {

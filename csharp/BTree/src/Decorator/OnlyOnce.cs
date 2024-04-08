@@ -37,7 +37,7 @@ public class OnlyOnce<T> : Decorator<T> where T : class
         if (child.IsCompleted) {
             SetCompleted(child.Status, true);
         } else {
-            template_runChild(child);
+            Template_RunChild(child);
         }
     }
 

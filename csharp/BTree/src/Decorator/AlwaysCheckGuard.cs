@@ -32,8 +32,8 @@ public class AlwaysCheckGuard<T> : Decorator<T> where T : class
     }
 
     protected override void Execute() {
-        if (template_checkGuard(child!.Guard)) {
-            template_runChildDirectly(child);
+        if (Template_CheckGuard(child!.Guard)) {
+            Template_RunChildDirectly(child);
         } else {
             child.Stop();
             SetFailed(TaskStatus.ERROR);

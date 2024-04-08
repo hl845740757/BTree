@@ -215,7 +215,7 @@ public class StateMachineTask<T> : Decorator<T> where T : class
             if (IsExecuting()) {
                 Execute();
             } else {
-                template_execute();
+                Template_Execute();
             }
         }
     }
@@ -290,7 +290,7 @@ public class StateMachineTask<T> : Decorator<T> where T : class
         Task<T> nextState = this.tempNextState;
         if (nextState != null && IsReady(curState, nextState)) {
             this.tempNextState = null;
-            if (!template_checkGuard(nextState.Guard)) { // 下个状态无效
+            if (!Template_CheckGuard(nextState.Guard)) { // 下个状态无效
                 nextState.SetGuardFailed(null);
                 if (stateMachineHandler != null) { // 通知特殊情况
                     stateMachineHandler.OnNextStateGuardFailed(this, nextState);
@@ -340,7 +340,7 @@ public class StateMachineTask<T> : Decorator<T> where T : class
             OnNoChildRunning();
             return;
         }
-        template_runChildDirectly(curState); // 继续运行或新状态enter；在尾部才能保证安全
+        Template_RunChildDirectly(curState); // 继续运行或新状态enter；在尾部才能保证安全
     }
 
     protected override void OnChildCompleted(Task<T> child) {
@@ -365,7 +365,7 @@ public class StateMachineTask<T> : Decorator<T> where T : class
             if (IsExecuting()) {
                 Execute();
             } else {
-                template_execute();
+                Template_Execute();
             }
         }
     }

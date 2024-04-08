@@ -91,7 +91,7 @@ public class Join<T> : Parallel<T> where T : class
             if (started && child.IsCompleted) { // 勿轻易调整
                 continue;
             }
-            template_runChild(child);
+            Template_RunChild(child);
             if (CheckCancel(reentryId)) {
                 return;
             }

@@ -38,13 +38,13 @@ public class Switch<T> : SingleRunningChildBranch<T> where T : class
             SetFailed(TaskStatus.ERROR);
             return;
         }
-        template_runChildDirectly(runningChild!);
+        Template_RunChildDirectly(runningChild!);
     }
 
     private bool selectChild() {
         for (int idx = 0; idx < children.Count; idx++) {
             Task<T> child = children[idx];
-            if (!template_checkGuard(child.Guard)) {
+            if (!Template_CheckGuard(child.Guard)) {
                 child.SetGuardFailed(null); // 不接收通知
                 continue;
             }

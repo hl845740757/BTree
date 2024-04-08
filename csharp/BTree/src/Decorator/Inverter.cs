@@ -37,7 +37,7 @@ public class Inverter<T> : Decorator<T> where T : class
     }
 
     protected override void Execute() {
-        template_runChild(child!);
+        Template_RunChild(child!);
     }
 
     protected override void OnChildCompleted(Task<T> child) {

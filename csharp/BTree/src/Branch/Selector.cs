@@ -47,7 +47,7 @@ public class Selector<T> : SingleRunningChildBranch<T> where T : class
         } else if (IsAllChildCompleted()) {
             SetFailed(TaskStatus.ERROR);
         } else if (!IsExecuting()) {
-            template_execute();
+            Template_Execute();
         }
     }
 }

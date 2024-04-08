@@ -42,7 +42,7 @@ public class Foreach<T> : SingleRunningChildBranch<T> where T : class
         if (IsAllChildCompleted()) {
             SetSuccess();
         } else if (!IsExecuting()) {
-            template_execute();
+            Template_Execute();
         }
     }
 }

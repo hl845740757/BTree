@@ -211,6 +211,11 @@ public abstract class Task<T> implements CancelTokenListener {
         return status;
     }
 
+    /** 获取归一化后的状态码，所有的失败码都转换为{@link TaskStatus#ERROR} */
+    public final int getNormalizedStatus() {
+        return Math.min(status, TaskStatus.ERROR);
+    }
+
     /** 任务是否正在运行 */
     public final boolean isRunning() {
         return status == TaskStatus.RUNNING;
@@ -239,11 +244,6 @@ public abstract class Task<T> implements CancelTokenListener {
     /** 任务是否已失败或被取消 */
     public final boolean isFailedOrCancelled() {
         return status >= TaskStatus.CANCELLED;
-    }
-
-    /** 获取归一化后的状态码，所有的失败码都转换为{@link TaskStatus#ERROR} */
-    public final int getNormalizedStatus() {
-        return Math.min(status, TaskStatus.ERROR);
     }
 
     // endregion
@@ -302,7 +302,6 @@ public abstract class Task<T> implements CancelTokenListener {
         prevStatus = MathCommon.clamp(prevStatus, 0, TaskStatus.MAX_PREV_STATUS);
         ctl |= (prevStatus << OFFSET_PREV_STATUS);
     }
-
 
     // endregion
 
@@ -553,15 +552,6 @@ public abstract class Task<T> implements CancelTokenListener {
     }
 
     /**
-     * 是否正在执行{@link #execute()}方法
-     * 该方法非常重要，主要处理心跳和事件方法之间的冲突。
-     * 利用得当可大幅降低代码复杂度，减少调用栈深度，提高性能。
-     */
-    protected final boolean isExecuting() {
-        return (ctl & MASK_EXECUTING) != 0;
-    }
-
-    /**
      * 检查取消
      *
      * @param rid 重入id；方法保存的局部变量
@@ -580,6 +570,15 @@ public abstract class Task<T> implements CancelTokenListener {
     }
 
     /**
+     * 是否正在执行{@link #execute()}方法
+     * 该方法非常重要，主要处理心跳和事件方法之间的冲突。
+     * 利用得当可大幅降低代码复杂度，减少调用栈深度，提高性能。
+     */
+    protected final boolean isExecuting() {
+        return (ctl & MASK_EXECUTING) != 0;
+    }
+
+    /**
      * 重入id对应的任务是否已退出，即：是否已执行{@link #exit()}方法。
      * 1.如果已退出，当前逻辑应该立即退出。
      * 2.通常在执行外部代码后都应该检测，eg：运行子节点，派发事件，执行用户钩子...
@@ -593,12 +592,12 @@ public abstract class Task<T> implements CancelTokenListener {
     }
 
     /**
-     * 查询任务是否已被重入
-     * 1.若任务已经重入，则表示产生了递归执行
-     * 2.若任务未被重入，则可能正在运行或已结束
+     * 任务是否未启动就失败了。常见原因：
+     * 1. 前置条件失败
+     * 2. 任务开始前检测到取消
      */
-    public final boolean isReentered(int rid) {
-        return (rid != this.reentryId) && (rid + 1 != this.reentryId);
+    public final boolean isStillborn() {
+        return (ctl & MASK_STILLBORN) != 0;
     }
 
     /**
@@ -611,12 +610,12 @@ public abstract class Task<T> implements CancelTokenListener {
     }
 
     /**
-     * 任务是否未启动就失败了。常见原因：
-     * 1. 前置条件失败
-     * 2. 任务开始前检测到取消
+     * 查询任务是否已被重入
+     * 1.若任务已经重入，则表示产生了递归执行
+     * 2.若任务未被重入，则可能正在运行或已结束
      */
-    public final boolean isStillborn() {
-        return (ctl & MASK_STILLBORN) != 0;
+    public final boolean isReentered(int rid) {
+        return (rid != this.reentryId) && (rid + 1 != this.reentryId);
     }
 
     /**
@@ -633,6 +632,22 @@ public abstract class Task<T> implements CancelTokenListener {
     public final boolean isExitTriggeredByStop() {
         return (ctl & MASK_STOP_EXIT) != 0;
     }
+
+    private static boolean checkNotifyMask(int ctl) {
+        return (ctl & (MASK_DISABLE_NOTIFY | MASK_STOP_EXIT)) == 0;
+    }
+
+    private static boolean checkDelayNotifyMask(int ctl) {
+        return (ctl & (MASK_DISABLE_NOTIFY | MASK_STOP_EXIT | MASK_DISABLE_DELAY_NOTIFY)) == 0;
+    }
+
+    private static boolean checkImmediateNotifyMask(int ctl) {
+        return (ctl & (MASK_DISABLE_NOTIFY | MASK_STOP_EXIT)) == 0 // 被stop取消的任务不能通知
+                && ((ctl & MASK_DISABLE_DELAY_NOTIFY) != 0 || (ctl & MASK_EXECUTING) == 0); // 前者多为true，否则多为false
+    }
+    // endregion
+
+    // region options
 
     /**
      * 告知模板方法是否自动检测取消
@@ -706,18 +721,6 @@ public abstract class Task<T> implements CancelTokenListener {
         return (ctl & MASK_DISABLE_DELAY_NOTIFY) != 0;
     }
 
-    private static boolean checkNotifyMask(int ctl) {
-        return (ctl & (MASK_DISABLE_NOTIFY | MASK_STOP_EXIT)) == 0;
-    }
-
-    private static boolean checkDelayNotifyMask(int ctl) {
-        return (ctl & (MASK_DISABLE_NOTIFY | MASK_STOP_EXIT | MASK_DISABLE_DELAY_NOTIFY)) == 0;
-    }
-
-    private static boolean checkImmediateNotifyMask(int ctl) {
-        return (ctl & (MASK_DISABLE_NOTIFY | MASK_STOP_EXIT)) == 0 // 被stop取消的任务不能通知
-                && ((ctl & MASK_DISABLE_DELAY_NOTIFY) != 0 || (ctl & MASK_EXECUTING) == 0); // 前者多为true，否则多为false
-    }
     // endregion
 
     // region 模板方法
