@@ -38,11 +38,11 @@ public class Sequence<T> : SingleRunningChildBranch<T> where T : class
 
     protected override void OnChildCompleted(Task<T> child) {
         runningChild = null;
-        if (child.IsCancelled()) {
+        if (child.IsCancelled) {
             SetCancelled();
             return;
         }
-        if (child.IsFailed()) { // 失败码有传递的价值
+        if (child.IsFailed) { // 失败码有传递的价值
             SetCompleted(child.GetStatus(), true);
         } else if (IsAllChildCompleted()) {
             SetSuccess();

@@ -51,14 +51,14 @@ public class AlwaysRunning<T> : Decorator<T> where T : class
             return;
         }
         bool started = child.IsExited(childPrevReentryId);
-        if (started && child.IsCompleted()) { // 勿轻易调整
+        if (started && child.IsCompleted) { // 勿轻易调整
             return;
         }
         template_runChild(child);
     }
 
     protected override void OnChildCompleted(Task<T> child) {
-        if (child.IsCancelled()) { // 不响应其它状态，但还是需要响应取消...
+        if (child.IsCancelled) { // 不响应其它状态，但还是需要响应取消...
             SetCancelled();
         }
     }

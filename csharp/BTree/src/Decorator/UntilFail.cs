@@ -33,11 +33,11 @@ public class UntilFail<T> : LoopDecorator<T> where T : class
     }
 
     protected override void OnChildCompleted(Task<T> child) {
-        if (child.IsCancelled()) {
+        if (child.IsCancelled) {
             SetCancelled();
             return;
         }
-        if (child.IsFailed()) {
+        if (child.IsFailed) {
             SetSuccess();
         }
     }

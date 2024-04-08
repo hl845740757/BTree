@@ -94,9 +94,9 @@ public class SingleRunningTest1 {
         Switch<Blackboard> branch = new Switch<>();
         TaskEntry<Blackboard> taskEntry = BtreeTestUtil.newTaskEntry(branch);
 
-        branch.addChild(new WaitFrame<Blackboard>().setGuard(new SimpleRandom<>(0.3f)))
-                .addChild(new Success<Blackboard>().setGuard(new SimpleRandom<>(0.4f)))
-                .addChild(new Failure<Blackboard>().setGuard(new SimpleRandom<>(0.5f)));
+        branch.addChild(new WaitFrame<Blackboard>().setGuard(new SimpleRandom<>(0.3f)));
+        branch.addChild(new Success<Blackboard>().setGuard(new SimpleRandom<>(0.4f)));
+        branch.addChild(new Failure<Blackboard>().setGuard(new SimpleRandom<>(0.5f)));
         BtreeTestUtil.untilCompleted(taskEntry);
 
         Task<Blackboard> runChild = taskEntry.getRootTask().childStream()
@@ -115,9 +115,9 @@ public class SingleRunningTest1 {
         Foreach<Blackboard> branch = new Foreach<>();
         TaskEntry<Blackboard> taskEntry = BtreeTestUtil.newTaskEntry(branch);
 
-        branch.addChild(new WaitFrame<Blackboard>().setGuard(new SimpleRandom<>(0.3f)))
-                .addChild(new Success<Blackboard>().setGuard(new SimpleRandom<>(0.4f)))
-                .addChild(new Failure<Blackboard>().setGuard(new SimpleRandom<>(0.5f)));
+        branch.addChild(new WaitFrame<Blackboard>().setGuard(new SimpleRandom<>(0.3f)));
+        branch.addChild(new Success<Blackboard>().setGuard(new SimpleRandom<>(0.4f)));
+        branch.addChild(new Failure<Blackboard>().setGuard(new SimpleRandom<>(0.5f)));
         BtreeTestUtil.untilCompleted(taskEntry);
 
         Assertions.assertTrue(taskEntry.isSucceeded());

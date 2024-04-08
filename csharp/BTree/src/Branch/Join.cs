@@ -88,7 +88,7 @@ public class Join<T> : Parallel<T> where T : class
         for (int i = 0; i < children.Count; i++) {
             Task<T> child = children[i];
             bool started = child.IsExited(childPrevReentryIds[i]);
-            if (started && child.IsCompleted()) { // 勿轻易调整
+            if (started && child.IsCompleted) { // 勿轻易调整
                 continue;
             }
             template_runChild(child);
@@ -103,7 +103,7 @@ public class Join<T> : Parallel<T> where T : class
 
     protected override void OnChildCompleted(Task<T> child) {
         completedCount++;
-        if (child.IsSucceeded()) {
+        if (child.IsSucceeded) {
             succeededCount++;
         }
         cancelToken.Unregister(child.CancelToken); // 删除分配的token

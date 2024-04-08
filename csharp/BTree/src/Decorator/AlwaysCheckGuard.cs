@@ -32,7 +32,7 @@ public class AlwaysCheckGuard<T> : Decorator<T> where T : class
     }
 
     protected override void Execute() {
-        if (template_checkGuard(child!.GetGuard())) {
+        if (template_checkGuard(child!.Guard)) {
             template_runChildDirectly(child);
         } else {
             child.Stop();

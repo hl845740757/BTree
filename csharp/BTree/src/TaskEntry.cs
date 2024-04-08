@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Wjybxx.Commons;
+using Wjybxx.Commons.Sequential;
 
 #pragma warning disable CS1591
 namespace Wjybxx.BTree;
@@ -65,6 +66,9 @@ public class TaskEntry<T> : Task<T> where T : class
         this.blackboard = blackboard;
         this.entity = entity;
         this.treeLoader = treeLoader ?? ITreeLoader.NullLoader();
+
+        this.taskEntry = this;
+        this.cancelToken = new UniCancelTokenSource();
     }
 
     #region getter/setter
@@ -138,7 +142,7 @@ public class TaskEntry<T> : Task<T> where T : class
     }
 
     public override bool CanHandleEvent(object eventObj) {
-        if (IsRunning()) {
+        if (IsRunning) {
             return true;
         }
         return blackboard != null;

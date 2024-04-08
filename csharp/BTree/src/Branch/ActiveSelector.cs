@@ -40,7 +40,7 @@ public class ActiveSelector<T> : SingleRunningChildBranch<T> where T : class
         int childIndex = -1;
         for (int idx = 0; idx < children.Count; idx++) {
             Task<T> child = children[idx];
-            if (!template_checkGuard(child.GetGuard())) {
+            if (!template_checkGuard(child.Guard)) {
                 child.SetGuardFailed(null); // 不接收通知
                 continue;
             }

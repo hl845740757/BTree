@@ -22,10 +22,9 @@ using System;
 namespace Wjybxx.BTree.Decorator;
 
 /// <summary>
-/// 重复N次
+/// 常量工具类
 /// </summary>
-/// <typeparam name="T"></typeparam>
-public class Repeat<T> : LoopDecorator<T> where T : class
+public static class RepeatMode
 {
     /** 总是计数 */
     public const int ModeAlways = 0;
@@ -35,9 +34,16 @@ public class Repeat<T> : LoopDecorator<T> where T : class
     public const int ModeOnlyFailed = 2;
     /** 不计数 - 可能无限执行 */
     public const int ModeNever = 3;
+}
 
+/// <summary>
+/// 重复N次
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public class Repeat<T> : LoopDecorator<T> where T : class
+{
     /** 考虑到Java枚举与其它语言的兼容性问题，我们在编辑器中使用数字 */
-    private int countMode = ModeAlways;
+    private int countMode = RepeatMode.ModeAlways;
     /** 需要重复的次数 */
     private int required = 1;
     /** 当前计数 */
@@ -61,15 +67,15 @@ public class Repeat<T> : LoopDecorator<T> where T : class
     }
 
     protected override void OnChildCompleted(Task<T> child) {
-        if (child.IsCancelled()) {
+        if (child.IsCancelled) {
             SetCancelled();
             return;
         }
         bool match = countMode switch // 还是更喜欢Java的switch...
         {
-            ModeAlways => true,
-            ModeOnlySuccess => child.IsSucceeded(),
-            ModeOnlyFailed => child.IsFailed(),
+            RepeatMode.ModeAlways => true,
+            RepeatMode.ModeOnlySuccess => child.IsSucceeded,
+            RepeatMode.ModeOnlyFailed => child.IsFailed,
             _ => false
         };
         if (match && ++count >= required) {

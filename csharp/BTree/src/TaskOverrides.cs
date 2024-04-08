@@ -46,13 +46,13 @@ internal class TaskOverrides
         }
         int mask = MASK_ALL; // 默认为全部重写
         try {
-            if (IsSkippable(clazz, "beforeEnter")) {
+            if (IsSkippable(clazz, "BeforeEnter")) {
                 mask &= ~MASK_BEFORE_ENTER;
             }
-            if (IsSkippable(clazz, "enter", TypeInt32)) {
+            if (IsSkippable(clazz, "Enter", TypeInt32)) {
                 mask &= ~MASK_ENTER;
             }
-            if (IsSkippable(clazz, "exit")) {
+            if (IsSkippable(clazz, "Exit")) {
                 mask &= ~MASK_EXIT;
             }
         }

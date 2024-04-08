@@ -49,7 +49,7 @@ public abstract class LoopDecorator<T> : Decorator<T> where T : class
             if (CheckCancel(reentryId)) {
                 return;
             }
-            if (child.IsRunning()) { // 子节点未完成
+            if (child.IsRunning) { // 子节点未完成
                 return;
             }
         }

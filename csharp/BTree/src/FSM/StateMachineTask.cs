@@ -71,7 +71,7 @@ public class StateMachineTask<T> : Decorator<T> where T : class
 
     /** 对当前当前状态发出取消命令 */
     public void CancelCurState(int cancelCode) {
-        if (child != null && child.IsRunning()) {
+        if (child != null && child.IsRunning) {
             child.CancelToken.Cancel(cancelCode);
         }
     }
@@ -208,7 +208,7 @@ public class StateMachineTask<T> : Decorator<T> where T : class
         changeStateArgs = CheckArgs(changeStateArgs);
         nextState.ControlData = changeStateArgs;
         tempNextState = nextState;
-        if (!IsRunning()) {
+        if (!IsRunning) {
             return;
         }
         if (changeStateArgs.delayMode == ChangeStateArgs.DELAY_NONE) {
@@ -223,7 +223,7 @@ public class StateMachineTask<T> : Decorator<T> where T : class
     /** 检测正确性和自动初始化；不可修改掉cmd */
     protected ChangeStateArgs CheckArgs(ChangeStateArgs changeStateArgs) {
         // 当前未运行，不能指定延迟帧号
-        if (!IsRunning()) {
+        if (!IsRunning) {
             if (changeStateArgs.delayMode == ChangeStateArgs.DELAY_NEXT_FRAME) {
                 throw new ArgumentException("invalid args");
             }
@@ -290,7 +290,7 @@ public class StateMachineTask<T> : Decorator<T> where T : class
         Task<T> nextState = this.tempNextState;
         if (nextState != null && IsReady(curState, nextState)) {
             this.tempNextState = null;
-            if (!template_checkGuard(nextState.GetGuard())) { // 下个状态无效
+            if (!template_checkGuard(nextState.Guard)) { // 下个状态无效
                 nextState.SetGuardFailed(null);
                 if (stateMachineHandler != null) { // 通知特殊情况
                     stateMachineHandler.OnNextStateGuardFailed(this, nextState);

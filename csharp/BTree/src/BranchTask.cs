@@ -89,7 +89,7 @@ public abstract class BranchTask<T> : Task<T> where T : class
         // 在判断是否全部完成这件事上，逆序遍历有优势
         for (int idx = children.Count - 1; idx >= 0; idx--) {
             Task<T> child = children[idx];
-            if (child.IsRunning()) {
+            if (child.IsRunning) {
                 return false;
             }
         }

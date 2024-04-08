@@ -34,7 +34,7 @@ public class OnlyOnce<T> : Decorator<T> where T : class
     }
 
     protected override void Execute() {
-        if (child.IsCompleted()) {
+        if (child.IsCompleted) {
             SetCompleted(child.GetStatus(), true);
         } else {
             template_runChild(child);

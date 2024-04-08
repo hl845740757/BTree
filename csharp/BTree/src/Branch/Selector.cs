@@ -38,11 +38,11 @@ public class Selector<T> : SingleRunningChildBranch<T> where T : class
 
     protected override void OnChildCompleted(Task<T> child) {
         runningChild = null;
-        if (child.IsCancelled()) {
+        if (child.IsCancelled) {
             SetCancelled();
             return;
         }
-        if (child.IsSucceeded()) {
+        if (child.IsSucceeded) {
             SetSuccess();
         } else if (IsAllChildCompleted()) {
             SetFailed(Status.ERROR);

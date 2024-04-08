@@ -51,7 +51,7 @@ public class ChangeStateTask<T> : LeafTask<T> where T : class
 
     protected override void Execute() {
         if (nextState == null) {
-            nextState = GetTaskEntry().TreeLoader.LoadRootTask<T>(nextStateGuid);
+            nextState = TaskEntry.TreeLoader.LoadRootTask<T>(nextStateGuid);
         }
         if (stateProps != null) {
             nextState.SharedProps = stateProps;

@@ -1014,12 +1014,11 @@ public abstract class Task<T> implements CancelTokenListener {
      * 3.如果需要知道task的索引，可提前调用{@link #getChildCount()}
      *
      * @param task 要添加的子节点
-     * @return this
+     * @return child index
      */
-    public final Task<T> addChild(final Task<T> task) {
+    public final int addChild(final Task<T> task) {
         checkAddChild(task);
-        addChildImpl(task);
-        return this;
+        return addChildImpl(task);
     }
 
     /**

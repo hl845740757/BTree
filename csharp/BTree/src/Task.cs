@@ -120,7 +120,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
     /// </summary>
     [NonSerialized] object controlData;
 
-    /** 任务的状态 -- {@link Status}，使用int以支持用户返回更详细的错误码 */
+    /** 任务的状态 -- <see cref="Status"/>，使用int以支持用户返回更详细的错误码 */
     private int status;
     /** 任务运行时的控制信息(bits) -- 每次运行时会重置为0 */
     private int ctl;
@@ -152,13 +152,11 @@ public abstract class Task<T> : ICancelTokenListener where T : class
 
     #region props
 
-    public TaskEntry<T> GetTaskEntry() => taskEntry;
+    public TaskEntry<T> TaskEntry => taskEntry;
 
     public Task<T> Control => control;
 
     public int GetStatus() => status;
-
-    public Task<T> GetGuard() => guard;
 
     public T Blackboard {
         get => blackboard;
@@ -202,37 +200,40 @@ public abstract class Task<T> : ICancelTokenListener where T : class
 
     #region 状态查询
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsRunning() {
-        return status == Status.RUNNING;
+    /** 任务是否正在运行 */
+    public bool IsRunning {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => status == Status.RUNNING;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsCompleted() {
-        return status >= Status.SUCCESS;
+    /** 任务是否已完成 */
+    public bool IsCompleted {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => status >= Status.SUCCESS;
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsSucceeded() {
-        return status == Status.SUCCESS;
+    /** 任务是否已成功 */
+    public bool IsSucceeded {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => status == Status.SUCCESS;
     }
 
-    /** 状态码是否表示取消 */
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsCancelled() {
-        return status == Status.CANCELLED;
+    /** 任务是否被取消 */
+    public bool IsCancelled {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => status == Status.CANCELLED;
     }
 
-    /** 状态码是否表示失败 */
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsFailed() {
-        return status > Status.CANCELLED;
+    /** 任务是否已失败 */
+    public bool IsFailed {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => status > Status.CANCELLED;
     }
 
-    /** 状态码是否表示取消或失败 */
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool IsFailedOrCancelled() {
-        return status >= Status.CANCELLED;
+    /** 任务是否已失败或被取消 */
+    public bool IsFailedOrCancelled {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get => status >= Status.CANCELLED;
     }
 
     /** 获取归一化后的状态码，所有的失败码都转换为{@link Status#ERROR} */
@@ -464,7 +465,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
     /// </summary>
     /// <param name="cancelToken">进入取消状态的取消令牌</param>
     public virtual void OnCancelRequested(ICancelToken cancelToken) {
-        if (IsRunning()) SetCancelled();
+        if (IsRunning) SetCancelled();
     }
 
     /// <summary>
@@ -579,7 +580,6 @@ public abstract class Task<T> : ICancelTokenListener where T : class
     public bool IsExited(int rid) {
         return rid != this.reentryId;
     }
-
 
     /// <summary>
     /// 查询任务是否已被重入
@@ -747,14 +747,10 @@ public abstract class Task<T> : ICancelTokenListener where T : class
      * 1.尽量不要在运行时增删子节点（危险操作）
      * 2.不建议将Task从一棵树转移到另一棵树，可能产生内存泄漏（引用未删除干净）
      * 3.如果需要知道task的索引，可提前调用{@link #GetChildCount()}
-     *
-     * @param task 要添加的子节点
-     * @return this
      */
-    public Task<T> AddChild(Task<T> task) {
+    public int AddChild(Task<T> task) {
         CheckAddChild(task);
-        AddChildImpl(task);
-        return this;
+        return AddChildImpl(task);
     }
 
     /**
@@ -779,7 +775,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
         if (this == child) {
             throw new ArgumentException("add self to children");
         }
-        Debug.Assert(!child.IsRunning());
+        Debug.Assert(!child.IsRunning);
     }
 
     public bool RemoveChild(Task<T> task) {
@@ -1223,7 +1219,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
 
     /** 测试Task是否处于可执行状态 -- 该测试并不完全，仅用于简单的断言 */
     private bool IsReady() {
-        if (IsRunning()) {
+        if (IsRunning) {
             return true;
         }
         if (this == taskEntry) {

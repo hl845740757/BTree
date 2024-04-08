@@ -102,7 +102,7 @@ public abstract class SingleRunningChildBranch<T> : BranchTask<T> where T : clas
             if (CheckCancel(reentryId)) { // 得出结果或被取消
                 return;
             }
-            if (runningChild.IsRunning()) { // 子节点未结束
+            if (runningChild.IsRunning) { // 子节点未结束
                 return;
             }
             runningChild = null;
