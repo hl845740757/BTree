@@ -25,7 +25,7 @@ namespace Wjybxx.BTree.Decorator;
 /// 循环子节点直到给定的条件达成
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class UntilCond<T> : LoopDecorator<T>
+public class UntilCond<T> : LoopDecorator<T> where T : class
 {
     /** 循环条件 -- 不能直接使用child的guard，意义不同 */
     private Task<T>? cond;

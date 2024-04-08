@@ -25,7 +25,7 @@ namespace Wjybxx.BTree.Branch;
 /// 迭代所有的子节点最后返回成功
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class Foreach<T> : SingleRunningChildBranch<T>
+public class Foreach<T> : SingleRunningChildBranch<T> where T : class
 {
     public Foreach() {
     }

@@ -28,7 +28,7 @@ namespace Wjybxx.BTree;
 /// 装饰节点基类
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class Decorator<T> : Task<T>
+public abstract class Decorator<T> : Task<T> where T : class
 {
 #nullable disable
     protected Task<T> child;

@@ -25,7 +25,7 @@ namespace Wjybxx.BTree;
 /// 2. 并非所有条件节点都需要继承该类。
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class ConditionTask2<T> : LeafTask<T>
+public abstract class ConditionTask2<T> : LeafTask<T> where T : class
 {
     protected sealed override void Execute() {
         int status = Test();

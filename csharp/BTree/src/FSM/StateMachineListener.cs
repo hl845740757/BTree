@@ -30,4 +30,4 @@ namespace Wjybxx.BTree.FSM;
 /// <typeparam name="T"></typeparam>
 public delegate void StateMachineListener<T>(StateMachineTask<T> stateMachineTask,
                                              Task<T>? curState,
-                                             Task<T>? nextState);
+                                             Task<T>? nextState) where T : class;

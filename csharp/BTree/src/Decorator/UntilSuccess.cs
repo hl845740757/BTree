@@ -23,7 +23,7 @@ namespace Wjybxx.BTree.Decorator;
 ///  重复运行子节点，直到该任务成功
 /// （超类做了死循环避免）
 /// </summary>
-public class UntilSuccess<T> : LoopDecorator<T>
+public class UntilSuccess<T> : LoopDecorator<T> where T : class
 {
     public UntilSuccess() {
     }

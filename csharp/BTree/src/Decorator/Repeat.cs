@@ -25,7 +25,7 @@ namespace Wjybxx.BTree.Decorator;
 /// 重复N次
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class Repeat<T> : LoopDecorator<T>
+public class Repeat<T> : LoopDecorator<T> where T : class
 {
     /** 总是计数 */
     public const int ModeAlways = 0;

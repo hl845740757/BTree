@@ -25,7 +25,7 @@ namespace Wjybxx.BTree.Branch;
 /// 
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class Sequence<T> : SingleRunningChildBranch<T>
+public class Sequence<T> : SingleRunningChildBranch<T> where T : class
 {
     public Sequence() {
     }

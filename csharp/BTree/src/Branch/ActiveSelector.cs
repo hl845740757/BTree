@@ -27,7 +27,7 @@ namespace Wjybxx.BTree.Branch;
 /// 如果新选择的运行节点与之前的运行节点不同，则取消之前的任务。
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class ActiveSelector<T> : SingleRunningChildBranch<T>
+public class ActiveSelector<T> : SingleRunningChildBranch<T> where T : class
 {
     public ActiveSelector() {
     }

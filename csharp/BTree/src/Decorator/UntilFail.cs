@@ -24,7 +24,7 @@ namespace Wjybxx.BTree.Decorator;
 /// （超类做了死循环避免）
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class UntilFail<T> : LoopDecorator<T>
+public class UntilFail<T> : LoopDecorator<T> where T : class
 {
     public UntilFail() {
     }

@@ -18,9 +18,15 @@
 
 using System;
 
+#pragma warning disable CS1591
+
 namespace Wjybxx.BTree.FSM;
 
-public class ChangeStateTask<T> : LeafTask<T>
+/// <summary>
+/// 切换状态任务
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public class ChangeStateTask<T> : LeafTask<T> where T : class
 {
     /** 下一个状态的guid -- 延迟加载 */
     private string? nextStateGuid;

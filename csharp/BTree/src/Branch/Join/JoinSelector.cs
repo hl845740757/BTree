@@ -23,7 +23,7 @@ namespace Wjybxx.BTree.Branch.Join;
 /// Join版本的Selector
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class JoinSelector<T> : JoinPolicy<T>
+public class JoinSelector<T> : JoinPolicy<T> where T : class
 {
     /** 单例 */
     private static readonly JoinSelector<T> Inst = new JoinSelector<T>();

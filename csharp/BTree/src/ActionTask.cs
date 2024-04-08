@@ -27,7 +27,7 @@ namespace Wjybxx.BTree;
 /// (并非所有行为节点都需要继承该类)
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class ActionTask<T> : LeafTask<T>
+public abstract class ActionTask<T> : LeafTask<T> where T : class
 {
     protected sealed override void Execute() {
         int reentryId = GetReentryId();

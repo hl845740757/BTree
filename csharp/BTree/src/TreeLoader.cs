@@ -65,7 +65,7 @@ public interface ITreeLoader
     /// <typeparam name="T">用于类型解析</typeparam>
     /// <returns></returns>
     /// <exception cref="ArgumentException">目标对象不是Task类型时</exception>
-    Task<T>? TryLoadRootTask<T>(string treeName) {
+    Task<T>? TryLoadRootTask<T>(string treeName) where T : class {
         object result = TryLoadObject(treeName);
         if (result == null) return null;
         if (!(result is Task<T>)) {
@@ -81,7 +81,7 @@ public interface ITreeLoader
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
     /// <exception cref="ArgumentException"></exception>
-    Task<T> LoadRootTask<T>(string treeName) {
+    Task<T> LoadRootTask<T>(string treeName) where T : class {
         object result = TryLoadObject(treeName);
         if (result == null) {
             throw new ArgumentException("target tree is absent, name: " + treeName);
@@ -99,7 +99,7 @@ public interface ITreeLoader
     /// <typeparam name="T"></typeparam>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    TaskEntry<T> LoadTree<T>(string treeName) {
+    TaskEntry<T> LoadTree<T>(string treeName) where T : class {
         Task<T> rootTask = LoadRootTask<T>(treeName);
         return new TaskEntry<T>(treeName, rootTask, null, this);
     }

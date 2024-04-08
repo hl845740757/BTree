@@ -25,7 +25,7 @@ namespace Wjybxx.BTree.Branch;
 /// Switch-选择一个分支运行，直到其结束
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class Switch<T> : SingleRunningChildBranch<T>
+public class Switch<T> : SingleRunningChildBranch<T> where T : class
 {
     public Switch() {
     }

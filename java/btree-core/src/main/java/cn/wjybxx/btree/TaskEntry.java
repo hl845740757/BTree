@@ -18,7 +18,7 @@ package cn.wjybxx.btree;
 import cn.wjybxx.btree.fsm.StateMachineTask;
 import cn.wjybxx.concurrent.ICancelToken;
 import cn.wjybxx.concurrent.ICancelTokenSource;
-import cn.wjybxx.unitask.UniCancelTokenSource;
+import cn.wjybxx.sequential.UniCancelTokenSource;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;

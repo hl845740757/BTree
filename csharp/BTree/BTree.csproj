@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <ImplicitUsings>false</ImplicitUsings>
+        <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>annotations</Nullable>
         <LangVersion>10</LangVersion>
         <RootNamespace>Wjybxx.BTree</RootNamespace>
@@ -35,9 +35,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <!-- 发现每个语言都没统一好日志库 -->
-        <PackageReference Include="log4net" Version="2.0.15" />
-        <PackageReference Include="Wjybxx.Commons.Core" Version="1.0.8" />
-        <PackageReference Include="Wjybxx.Commons.Concurrent" Version="1.0.8" />
+        <PackageReference Include="Wjybxx.Commons.Core" Version="1.0.10" />
+        <PackageReference Include="Wjybxx.Commons.Concurrent" Version="1.0.10" />
     </ItemGroup>
 </Project>

@@ -22,7 +22,7 @@ namespace Wjybxx.BTree;
 /// <see cref="TaskEntry{T}"/>的事件处理
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public interface ITaskEntryHandler<T>
+public interface ITaskEntryHandler<T> where T : class
 {
     /// <summary>
     /// 任务进入完成状态

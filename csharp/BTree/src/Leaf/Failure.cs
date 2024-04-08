@@ -23,7 +23,7 @@ namespace Wjybxx.BTree.Leaf;
 /// 固定返回失败的子节点
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class Failure<T> : LeafTask<T>
+public class Failure<T> : LeafTask<T> where T : class
 {
     private int failureStatus;
 

@@ -25,7 +25,7 @@ namespace Wjybxx.BTree.Branch;
 /// （这个类不是必须的，因为我们可以仅提供编辑器数据结构，在导出时转为Switch）
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class FixedSwitch<T> : Switch<T>
+public class FixedSwitch<T> : Switch<T> where T : class
 {
     private Task<T>? branch1;
     private Task<T>? branch2;

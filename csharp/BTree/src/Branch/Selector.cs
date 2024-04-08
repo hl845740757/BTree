@@ -25,7 +25,7 @@ namespace Wjybxx.BTree.Branch;
 /// 
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class Selector<T> : SingleRunningChildBranch<T>
+public class Selector<T> : SingleRunningChildBranch<T> where T : class
 {
     public Selector() {
     }

@@ -26,7 +26,7 @@ namespace Wjybxx.BTree.Leaf;
 /// 在正式的项目中，Random应当从实体上获取。
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class SimpleRandom<T> : LeafTask<T>
+public class SimpleRandom<T> : LeafTask<T> where T : class
 {
     private float p;
 

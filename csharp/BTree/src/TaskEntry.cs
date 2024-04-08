@@ -36,7 +36,7 @@ namespace Wjybxx.BTree;
 ///7. 避免直接使用外部的{@link CancelToken}，可将Entry的Token注册为外部的Child -- {@link CancelToken#addChild(CancelToken)}。
 /// 
 /// </summary>
-public class TaskEntry<T> : Task<T>
+public class TaskEntry<T> : Task<T> where T : class
 {
     /** 行为树的名字 */
     private string? name;
@@ -55,13 +55,14 @@ public class TaskEntry<T> : Task<T>
     [NonSerialized] private ITaskEntryHandler<T>? handler;
 
     public TaskEntry()
-        : this(null, null) {
+        : this(null, null, default) {
     }
 
-    public TaskEntry(string? name, Task<T>? rootTask, object? entity = null, ITreeLoader? treeLoader = null) {
+    public TaskEntry(string? name, Task<T>? rootTask, T? blackboard,
+                     object? entity = null, ITreeLoader? treeLoader = null) {
         this.name = name;
         this.rootTask = rootTask;
-        this.type = type;
+        this.blackboard = blackboard;
         this.entity = entity;
         this.treeLoader = treeLoader ?? ITreeLoader.NullLoader();
     }
@@ -130,7 +131,7 @@ public class TaskEntry<T> : Task<T>
 
     protected override void OnChildCompleted(Task<T> child) {
         SetCompleted(child.GetStatus(), true);
-        cancelToken.reset(); // 避免内存泄漏
+        cancelToken.Reset(); // 避免内存泄漏
         if (handler != null) {
             handler.OnCompleted(this);
         }
@@ -149,7 +150,7 @@ public class TaskEntry<T> : Task<T>
 
     public override void ResetForRestart() {
         base.ResetForRestart();
-        cancelToken.reset();
+        cancelToken.Reset();
         curFrame = 0;
     }
 

@@ -25,7 +25,7 @@ namespace Wjybxx.BTree.Decorator;
 /// 2.在调用<see cref="Task{T}.ResetForRestart()"/>后可再次运行。
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class OnlyOnce<T> : Decorator<T>
+public class OnlyOnce<T> : Decorator<T> where T : class
 {
     public OnlyOnce() {
     }

@@ -29,7 +29,7 @@ namespace Wjybxx.BTree;
 /// 叶子节点的超类
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class LeafTask<T> : Task<T>
+public abstract class LeafTask<T> : Task<T> where T : class
 {
     protected sealed override void OnChildRunning(Task<T> child) {
         throw new AssertionError();

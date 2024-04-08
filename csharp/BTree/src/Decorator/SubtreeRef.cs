@@ -23,7 +23,7 @@ namespace Wjybxx.BTree.Decorator;
 /// 子树引用
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class SubtreeRef<T> : Decorator<T>
+public class SubtreeRef<T> : Decorator<T> where T : class
 {
 #nullable disable
     private string subtreeName;

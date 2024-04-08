@@ -30,7 +30,7 @@ namespace Wjybxx.BTree.FSM;
 /// 状态机节点
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class StateMachineTask<T> : Decorator<T>
+public class StateMachineTask<T> : Decorator<T> where T : class
 {
     private static readonly IDeque<Task<T>> EmptyQueue = EmptyDequeue<Task<T>>.Instance;
 
@@ -72,7 +72,7 @@ public class StateMachineTask<T> : Decorator<T>
     /** 对当前当前状态发出取消命令 */
     public void CancelCurState(int cancelCode) {
         if (child != null && child.IsRunning()) {
-            child.CancelToken.cancel(cancelCode);
+            child.CancelToken.Cancel(cancelCode);
         }
     }
 
@@ -270,7 +270,7 @@ public class StateMachineTask<T> : Decorator<T>
             tempNextState.ControlData = ChangeStateArgs.PLAIN;
         }
         if (child != null) {
-            TaskLogger.warning("The child of StateMachine is not null");
+            TaskLogger.Warning("The child of StateMachine is not null");
             RemoveChild(0);
         }
     }
@@ -327,7 +327,7 @@ public class StateMachineTask<T> : Decorator<T>
                 NotifyChangeState(curState, nextState);
 
                 curState = nextState;
-                curState.CancelToken = cancelToken.newChild(); // state可独立取消
+                curState.CancelToken = cancelToken.NewChild(); // state可独立取消
                 curState.ControlData = null;
                 if (child != null) {
                     SetChild(0, curState);
@@ -345,8 +345,8 @@ public class StateMachineTask<T> : Decorator<T>
 
     protected override void OnChildCompleted(Task<T> child) {
         Debug.Assert(this.child == child);
-        cancelToken.unregister(child.CancelToken); // 删除分配的子token
-        child.CancelToken.reset();
+        cancelToken.Unregister(child.CancelToken); // 删除分配的子token
+        child.CancelToken.Reset();
         child.CancelToken = null;
 
         if (tempNextState == null) {

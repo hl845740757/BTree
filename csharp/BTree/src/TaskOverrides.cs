@@ -23,6 +23,9 @@ using System.Reflection;
 
 namespace Wjybxx.BTree;
 
+/// <summary>
+/// 记录Task重写的方法，以减少不必要的虚方法调用
+/// </summary>
 internal class TaskOverrides
 {
     public const int MASK_BEFORE_ENTER = 1;

@@ -23,9 +23,16 @@ namespace Wjybxx.BTree.Leaf;
 /// 等待一定帧数
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class WaitFrame<T> : LeafTask<T>
+public class WaitFrame<T> : LeafTask<T> where T : class
 {
     private int required;
+
+    public WaitFrame() {
+    }
+
+    public WaitFrame(int required) {
+        this.required = required;
+    }
 
     protected override void Execute() {
         if (GetRunFrames() >= required) {

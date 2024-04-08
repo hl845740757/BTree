@@ -30,7 +30,7 @@ namespace Wjybxx.BTree.Branch;
 /// 如果{required}大于<code>children.size</code>，则在所有child运行完成之后失败 -- 默认不会提前失败。
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class SelectorN<T> : SingleRunningChildBranch<T>
+public class SelectorN<T> : SingleRunningChildBranch<T> where T : class
 {
     /** 需要达成的次数 */
     private int required = 1;

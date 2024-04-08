@@ -23,7 +23,7 @@ namespace Wjybxx.BTree.Decorator;
 /// 在子节点完成之后固定返回成功
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class AlwaysSuccess<T> : Decorator<T>
+public class AlwaysSuccess<T> : Decorator<T> where T : class
 {
     public AlwaysSuccess() {
     }

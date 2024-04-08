@@ -23,7 +23,7 @@ namespace Wjybxx.BTree.Decorator;
 /// 循环节点抽象
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class LoopDecorator<T> : Decorator<T>
+public abstract class LoopDecorator<T> : Decorator<T> where T : class
 {
     /** 每帧最大循环次数 - 避免死循环和占用较多CPU；默认1 */
     protected int maxLoopPerFrame = 1;

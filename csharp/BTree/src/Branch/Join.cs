@@ -24,7 +24,7 @@ using Wjybxx.Commons;
 #pragma warning disable CS1591
 namespace Wjybxx.BTree.Branch;
 
-public class Join<T> : Parallel<T>
+public class Join<T> : Parallel<T> where T : class
 {
 #nullable disable
     protected JoinPolicy<T> policy;
@@ -73,7 +73,7 @@ public class Join<T> : Parallel<T>
         }
         for (int i = 0; i < children.Count; i++) {
             Task<T> child = children[i];
-            child.CancelToken = cancelToken.newChild(); // child默认可读取取消
+            child.CancelToken = cancelToken.NewChild(); // child默认可读取取消
             childPrevReentryIds[i] = child.GetReentryId();
         }
     }
@@ -106,8 +106,8 @@ public class Join<T> : Parallel<T>
         if (child.IsSucceeded()) {
             succeededCount++;
         }
-        cancelToken.unregister(child.CancelToken); // 删除分配的token
-        child.CancelToken.reset();
+        cancelToken.Unregister(child.CancelToken); // 删除分配的token
+        child.CancelToken.Reset();
         child.CancelToken = null;
 
         policy.OnChildCompleted(this, child);

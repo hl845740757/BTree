@@ -23,7 +23,7 @@ namespace Wjybxx.BTree.Decorator;
 /// 每一帧都检查子节点的前置条件，如果前置条件失败，则取消child执行并返回失败
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class AlwaysCheckGuard<T> : Decorator<T>
+public class AlwaysCheckGuard<T> : Decorator<T> where T : class
 {
     public AlwaysCheckGuard() {
     }

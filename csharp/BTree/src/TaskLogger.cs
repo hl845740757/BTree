@@ -17,23 +17,31 @@
 #endregion
 
 using System;
+using Serilog;
 
+#pragma warning disable CS1591
 namespace Wjybxx.BTree;
 
 /// <summary>
 /// 用于行为树记录日志
 /// </summary>
-public class TaskLogger
+public static class TaskLogger
 {
-    public static void info(string format, params object[] args) {
+    private static readonly ILogger Logger = Log.Logger;
+
+    public static void Info(string format, params object[] args) {
+        Logger.Information(format, args);
     }
 
-    public static void info(Exception? ex, string format, params object[] args) {
+    public static void Info(Exception? ex, string format, params object[] args) {
+        Logger.Information(ex, format, args);
     }
 
-    public static void warning(string format, params object[] args) {
+    public static void Warning(string format, params object[] args) {
+        Logger.Warning(format, args);
     }
 
-    public static void warning(Exception? ex, string format, params object[] args) {
+    public static void Warning(Exception? ex, string format, params object[] args) {
+        Logger.Warning(ex, format, args);
     }
 }

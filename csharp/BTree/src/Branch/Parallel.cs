@@ -24,11 +24,11 @@ namespace Wjybxx.BTree.Branch;
 /// <summary>
 /// 并行节点基类
 /// 定义该类主要说明一些注意事项，包括：
-/// 1.在处理子节点完成事件的时候，避免运行execute方法，否则可能导致其它task单帧内运行多次。
+/// 1.在处理子节点完成事件的时候，避免运行<see cref="Task{T}.Execute"/>方法，否则可能导致其它task单帧内运行多次。
 /// 2.如果有缓存数据，务必小心维护。
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class Parallel<T> : BranchTask<T>
+public abstract class Parallel<T> : BranchTask<T> where T : class
 {
     protected Parallel() {
     }

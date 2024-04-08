@@ -2,8 +2,9 @@
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
+        <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>annotations</Nullable>
+        <LangVersion>10</LangVersion>
 
         <AssemblyName>BTree.Tests</AssemblyName>
         <PackageId>BTree.Tests</PackageId>

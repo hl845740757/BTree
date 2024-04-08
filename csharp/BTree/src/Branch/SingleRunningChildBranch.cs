@@ -31,7 +31,7 @@ namespace Wjybxx.BTree.Branch;
 /// 只有循环的尾部运行child才是安全的，如果在运行child后还读写其它数据，可能导致bug(小心递归)。
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class SingleRunningChildBranch<T> : BranchTask<T>
+public abstract class SingleRunningChildBranch<T> : BranchTask<T> where T : class
 {
     /** 运行中的子节点 */
     [NonSerialized] protected Task<T>? runningChild;

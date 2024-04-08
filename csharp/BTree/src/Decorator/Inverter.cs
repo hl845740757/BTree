@@ -28,7 +28,7 @@ namespace Wjybxx.BTree.Decorator;
 /// 如果被装饰的任务取消，它将返回取消。
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class Inverter<T> : Decorator<T>
+public class Inverter<T> : Decorator<T> where T : class
 {
     public Inverter() {
     }

@@ -23,7 +23,7 @@ namespace Wjybxx.BTree.Leaf;
 /// 固定返回成功的子节点
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class Success<T> : LeafTask<T>
+public class Success<T> : LeafTask<T> where T : class
 {
     protected override void Execute() {
         SetSuccess();

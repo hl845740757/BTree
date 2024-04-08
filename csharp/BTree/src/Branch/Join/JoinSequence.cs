@@ -23,7 +23,7 @@ namespace Wjybxx.BTree.Branch.Join;
 /// Join版本的Sequence
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class JoinSequence<T> : JoinPolicy<T>
+public class JoinSequence<T> : JoinPolicy<T> where T : class
 {
     /** 单例 */
     private static readonly JoinSequence<T> Inst = new JoinSequence<T>();

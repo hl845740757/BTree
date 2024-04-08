@@ -29,7 +29,7 @@ namespace Wjybxx.BTree;
 /// 分支节点抽象
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public abstract class BranchTask<T> : Task<T>
+public abstract class BranchTask<T> : Task<T> where T : class
 {
 #nullable disable
     protected List<Task<T>> children;

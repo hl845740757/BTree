@@ -23,7 +23,7 @@ namespace Wjybxx.BTree.Decorator;
 /// 在子节点完成之后固定返回失败
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class AlwaysFail<T> : Decorator<T>
+public class AlwaysFail<T> : Decorator<T> where T : class
 {
     private int failureStatus;
 

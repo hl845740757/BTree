@@ -29,7 +29,7 @@ namespace Wjybxx.BTree.Branch;
 /// 3.外部事件将派发给主要任务。
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class ServiceParallel<T> : Parallel<T>
+public class ServiceParallel<T> : Parallel<T> where T : class
 {
     public ServiceParallel() {
     }

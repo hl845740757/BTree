@@ -26,7 +26,7 @@ namespace Wjybxx.BTree.Decorator;
 /// 注意：在运行期间只运行一次子节点
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class AlwaysRunning<T> : Decorator<T>
+public class AlwaysRunning<T> : Decorator<T> where T : class
 {
     /** 记录子节点上次的重入id，这样不论enter和execute是否分开执行都不影响 */
     [NonSerialized] private int childPrevReentryId;

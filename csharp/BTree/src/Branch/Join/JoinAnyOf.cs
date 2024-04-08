@@ -24,7 +24,7 @@ namespace Wjybxx.BTree.Branch.Join;
 /// 相当于并发编程中的anyOf
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class JoinAnyOf<T> : JoinPolicy<T>
+public class JoinAnyOf<T> : JoinPolicy<T> where T : class
 {
     /** 单例 */
     private static readonly JoinAnyOf<T> Inst = new JoinAnyOf<T>();
@@ -40,7 +40,7 @@ public class JoinAnyOf<T> : JoinPolicy<T>
     public void Enter(Join<T> join) {
         // 不能成功，失败也不能
         if (join.GetChildCount() == 0) {
-            TaskLogger.info("JonAnyOf: children is empty");
+            TaskLogger.Info("JonAnyOf: children is empty");
         }
     }
 

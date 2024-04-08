@@ -20,8 +20,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using log4net.Core;
 using Wjybxx.Commons;
+using Wjybxx.Commons.Concurrent;
+using Wjybxx.Commons.Sequential;
 
 #pragma warning disable CS1591
 namespace Wjybxx.BTree;
@@ -40,12 +41,12 @@ namespace Wjybxx.BTree;
 /// 1.心跳为主，事件为辅。
 /// 2.心跳不是事件！心跳自顶向下驱动，事件则无规律。
 ///
-/// <h3>非泛型</h3>
-/// C#的Task实现是非泛型的，因为行为树需要从资产文件中加载，泛型会增加对象映射障碍。
+/// <h3>关于泛型</h3>
+/// C#的Task最终应该会删除泛型，行为树的重要作用是脚本，泛型会带来脚本加载和保存的复杂度，因此是不推荐泛型的。
 ///
 /// <typeparam name="T">黑板的类型</typeparam>
 /// </summary>
-public abstract class Task<T>
+public abstract class Task<T> : ICancelTokenListener where T : class
 {
     /** 低4位记录Task重写了哪些方法 */
     private const int MASK_OVERRIDES = 15;
@@ -77,7 +78,6 @@ public abstract class Task<T>
     public const int MASK_CONTROL_FLOW_FLAGS = unchecked((int)0xFF00_0000);
 
 #nullable disable
-
     /** 任务树的入口(缓存以避免递归查找) */
     [NonSerialized] internal TaskEntry<T> taskEntry;
     /** 任务的控制节点，通常是Task的Parent节点 */
@@ -95,8 +95,10 @@ public abstract class Task<T>
     /// 1.每个任务可有独立的取消信号；
     /// 2.运行时不能为null；
     /// 3.如果是自动继承的，exit后自动删除；如果是Control赋值的，则由control删除。
+    ///
+    /// TODO C#的行为树最好提供更轻量级的取消令牌
     /// </summary>
-    [NonSerialized] protected CancelToken cancelToken;
+    [NonSerialized] protected UniCancelTokenSource cancelToken;
     /// <summary>
     /// 共享属性（配置上下文）
     /// 1.用于解决【数据和行为分离】架构下的配置需求，主要解决策划的配置问题，减少维护工作量。
@@ -163,7 +165,7 @@ public abstract class Task<T>
         set => blackboard = value;
     }
 
-    public CancelToken CancelToken {
+    public UniCancelTokenSource CancelToken {
         get => cancelToken;
         set => cancelToken = value;
     }
@@ -461,7 +463,7 @@ public abstract class Task<T>
     /// 注意：如果未启动自动监听，手动监听时也建议绑定到该方法
     /// </summary>
     /// <param name="cancelToken">进入取消状态的取消令牌</param>
-    protected void OnCancelRequested(CancelToken cancelToken) {
+    public virtual void OnCancelRequested(ICancelToken cancelToken) {
         if (IsRunning()) SetCancelled();
     }
 
@@ -559,7 +561,7 @@ public abstract class Task<T>
         if (rid != this.reentryId) { // exit
             return true;
         }
-        if (cancelToken.isCancelling()) {
+        if (cancelToken.IsCancelling()) {
             SetCancelled();
             return true;
         }
@@ -847,8 +849,8 @@ public abstract class Task<T>
         }
         ctl = initMask; // 初始化基础上下文后才可以检测取消，包括控制流标记
 
-        CancelToken cancelToken = this.cancelToken;
-        if (cancelToken.isCancelling() && IsAutoCheckCancel()) { // 胎死腹中
+        UniCancelTokenSource cancelToken = this.cancelToken;
+        if (cancelToken.IsCancelling() && IsAutoCheckCancel()) { // 胎死腹中
             ReleaseContext();
             SetCompleted(Status.CANCELLED, false);
             return;
@@ -877,7 +879,7 @@ public abstract class Task<T>
                     }
                     return;
                 }
-                if (cancelToken.isCancelling() && IsAutoCheckCancel()) { // token基本为false，autoCheck基本为true
+                if (cancelToken.IsCancelling() && IsAutoCheckCancel()) { // token基本为false，autoCheck基本为true
                     SetDisableDelayNotify(true);
                     SetCancelled();
                     return;
@@ -889,7 +891,7 @@ public abstract class Task<T>
                 return;
             }
             if (IsAutoListenCancel()) {
-                cancelToken.register(this);
+                cancelToken.ThenNotify(this);
             }
             Execute();
             if (IsExited(reentryId)) {
@@ -907,8 +909,8 @@ public abstract class Task<T>
         }
     }
 
-    private void checkFireRunningAndCancel(Task<T> control, CancelToken cancelToken) {
-        if (cancelToken.isCancelling() && IsAutoCheckCancel()) {
+    private void checkFireRunningAndCancel(Task<T>? control, UniCancelTokenSource cancelToken) {
+        if (cancelToken.IsCancelling() && IsAutoCheckCancel()) {
             SetDisableDelayNotify(true);
             SetCancelled();
             return;
@@ -925,9 +927,9 @@ public abstract class Task<T>
     /// 2.该方法不可以递归执行，如果在正在执行的情况下想执行{@link #execute()}方法，就直接调用 -- {@link #isExecuting()}
     /// </summary>
     public void template_execute() {
-        CancelToken cancelToken = this.cancelToken;
+        UniCancelTokenSource cancelToken = this.cancelToken;
         int reentryId = this.reentryId;
-        if (cancelToken.isCancelling() && IsAutoCheckCancel()) {
+        if (cancelToken.IsCancelling() && IsAutoCheckCancel()) {
             SetDisableDelayNotify(true);
             SetCancelled();
             return;
@@ -946,7 +948,7 @@ public abstract class Task<T>
                 control.OnChildCompleted(this);
             }
         } else {
-            if (cancelToken.isCancelling() && IsAutoCheckCancel()) {
+            if (cancelToken.IsCancelling() && IsAutoCheckCancel()) {
                 SetDisableDelayNotify(true);
                 SetCancelled();
             }
@@ -959,7 +961,7 @@ public abstract class Task<T>
         }
         exitFrame = taskEntry.CurFrame;
         if (IsAutoListenCancel()) {
-            cancelToken.unregister(this);
+            cancelToken.Unregister(this);
         }
         try {
             StopRunningChildren();
@@ -1208,7 +1210,7 @@ public abstract class Task<T>
                 task.Stop();
             }
             catch (Exception e) {
-                TaskLogger.warning(e, "task stop caught exception");
+                TaskLogger.Warning(e, "task stop caught exception");
             }
         }
     }

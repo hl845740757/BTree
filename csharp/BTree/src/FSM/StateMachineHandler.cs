@@ -22,7 +22,7 @@ namespace Wjybxx.BTree.FSM;
 /// 状态机扩展理解处理器
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public interface StateMachineHandler<T>
+public interface StateMachineHandler<T> where T : class
 {
     //
     /// <summary>
