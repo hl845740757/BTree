@@ -24,6 +24,24 @@ import cn.wjybxx.btree.Task;
 public interface StateMachineHandler<T> {
 
     /**
+     * handler可能也有需要重置的数据。
+     *
+     * @param stateMachineTask 状态机
+     */
+    default void resetForRestart(StateMachineTask<T> stateMachineTask) {
+
+    }
+
+    /**
+     * handler可能也有需要初始化的数据。
+     *
+     * @param stateMachineTask 状态机
+     */
+    default void beforeEnter(StateMachineTask<T> stateMachineTask) {
+
+    }
+
+    /**
      * 下个状态的前置条件检查失败
      *
      * @param stateMachineTask 状态机
@@ -46,12 +64,4 @@ public interface StateMachineHandler<T> {
      */
     boolean onNextStateAbsent(StateMachineTask<T> stateMachineTask, Task<T> preState);
 
-    /**
-     * handler可能也有需要初始化的数据。
-     *
-     * @param stateMachineTask 状态机
-     */
-    default void beforeEnter(StateMachineTask<T> stateMachineTask) {
-
-    }
 }

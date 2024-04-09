@@ -32,7 +32,7 @@ internal class Blackboard
     public void Clear() {
         map.Clear();
     }
-    
+
     public void Add(string key, object value) {
         map.Add(key, value);
     }

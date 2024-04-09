@@ -244,6 +244,9 @@ public class StateMachineTask<T> : Decorator<T> where T : class
 
     public override void ResetForRestart() {
         base.ResetForRestart();
+        if (stateMachineHandler != null) {
+            stateMachineHandler.ResetForRestart(this);
+        }
         if (initState != null) {
             initState.ResetForRestart();
         }

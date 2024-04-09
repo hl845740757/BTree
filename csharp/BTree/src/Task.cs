@@ -122,7 +122,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
 
     /** 任务的状态 -- <see cref="TaskStatus"/>，使用int以支持用户返回更详细的错误码 */
     private int status;
-    /** 任务运行时的控制信息(bits) -- 每次运行时会重置为0 */
+    /** 任务运行时的控制信息(bits) -- 每次运行时会重置，仅保留override信息 */
     private int ctl;
     /** 启动时的帧号 -- 每次运行时重置为0 */
     private int enterFrame;
@@ -1098,7 +1098,6 @@ public abstract class Task<T> : ICancelTokenListener where T : class
             sharedProps = null;
         }
     }
-
 
     /// <summary>
     /// 设置任务的控制节点

@@ -16,9 +16,7 @@
 
 #endregion
 
-using BTree.Tests;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 using Wjybxx.BTree;
 using Wjybxx.BTree.FSM;
 using Wjybxx.BTree.Leaf;

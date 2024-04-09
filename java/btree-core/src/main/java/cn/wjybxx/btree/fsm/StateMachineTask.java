@@ -249,6 +249,9 @@ public class StateMachineTask<T> extends Decorator<T> {
     @Override
     public void resetForRestart() {
         super.resetForRestart();
+        if (stateMachineHandler != null) {
+            stateMachineHandler.resetForRestart(this);
+        }
         if (initState != null) {
             initState.resetForRestart();
         }

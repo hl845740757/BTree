@@ -51,6 +51,7 @@ public abstract class Task<T> implements CancelTokenListener {
     private static final int MASK_OVERRIDES = 15;
     /** 低 5~10 位记录前一次的运行结果，范围 [0, 63] */
     private static final int MASK_PREV_STATUS = (63) << 4;
+    /** 前一次运行结果的存储偏移量 */
     private static final int OFFSET_PREV_STATUS = 4;
 
     private static final int MASK_ENTER_EXECUTE = 1 << 12;
@@ -117,7 +118,7 @@ public abstract class Task<T> implements CancelTokenListener {
     private transient int status;
     /** 任务运行时的控制信息(bits) -- 每次运行时会重置为0 */
     private transient int ctl;
-    /** 启动时的帧号 -- 每次运行时重置为0 */
+    /** 启动时的帧号 -- 每次运行时会重置，仅保留override信息 */
     private transient int enterFrame;
     /** 结束时的帧号 -- 每次运行时重置为0 */
     private transient int exitFrame;
