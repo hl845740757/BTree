@@ -257,6 +257,9 @@ public class StateMachineTask<T> : Decorator<T> where T : class
 
     protected override void BeforeEnter() {
         base.BeforeEnter();
+        if (stateMachineHandler != null) {
+            stateMachineHandler.BeforeEnter(this);
+        }
         if (noneChildStatus == 0) { // 兼容编辑器忘记赋值，默认成功退出更安全
             noneChildStatus = TaskStatus.SUCCESS;
         }

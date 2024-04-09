@@ -46,4 +46,12 @@ public interface StateMachineHandler<T> {
      */
     boolean onNextStateAbsent(StateMachineTask<T> stateMachineTask, Task<T> preState);
 
+    /**
+     * handler可能也有需要初始化的数据。
+     *
+     * @param stateMachineTask 状态机
+     */
+    default void beforeEnter(StateMachineTask<T> stateMachineTask) {
+
+    }
 }

@@ -68,7 +68,7 @@ public class SelectorN<T> : SingleRunningChildBranch<T> where T : class
         }
         if (child.IsSucceeded && ++count >= required) {
             SetSuccess();
-        } else if (IsAllChildCompleted() || CheckFailFast()) {
+        } else if (IsAllChildCompleted || CheckFailFast()) {
             SetFailed(TaskStatus.ERROR);
         } else if (!IsExecuting()) {
             Template_Execute();

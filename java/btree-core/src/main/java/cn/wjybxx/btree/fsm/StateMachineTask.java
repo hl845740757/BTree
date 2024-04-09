@@ -263,6 +263,9 @@ public class StateMachineTask<T> extends Decorator<T> {
     @Override
     protected void beforeEnter() {
         super.beforeEnter();
+        if (stateMachineHandler != null) {
+            stateMachineHandler.beforeEnter(this);
+        }
         if (noneChildStatus == 0) {  // 兼容编辑器忘记赋值，默认成功退出更安全
             noneChildStatus = TaskStatus.SUCCESS;
         }

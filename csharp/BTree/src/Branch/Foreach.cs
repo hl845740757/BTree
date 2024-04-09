@@ -39,7 +39,7 @@ public class Foreach<T> : SingleRunningChildBranch<T> where T : class
             SetCancelled();
             return;
         }
-        if (IsAllChildCompleted()) {
+        if (IsAllChildCompleted) {
             SetSuccess();
         } else if (!IsExecuting()) {
             Template_Execute();

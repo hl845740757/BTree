@@ -45,4 +45,12 @@ public interface StateMachineHandler<T> where T : class
     /// <param name="preState">前一个状态，用于计算下一个状态</param>
     /// <returns>用户是否执行了状态切换操作</returns>
     bool OnNextStateAbsent(StateMachineTask<T> stateMachineTask, Task<T> preState);
+
+    /// <summary>
+    /// handler可能也有需要初始化的数据
+    /// </summary>
+    /// <param name="stateMachineTask"></param>
+    void BeforeEnter(StateMachineTask<T> stateMachineTask) {
+        
+    }
 }

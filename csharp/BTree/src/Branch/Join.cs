@@ -118,21 +118,14 @@ public class Join<T> : Parallel<T> where T : class
     }
 
     // region
-    public override bool IsAllChildCompleted() {
-        return completedCount >= children.Count;
-    }
 
-    public bool IsAllChildSucceeded() {
-        return succeededCount >= children.Count;
-    }
+    public override bool IsAllChildCompleted => completedCount >= children.Count;
 
-    public int GetCompletedCount() {
-        return completedCount;
-    }
+    public bool IsAllChildSucceeded => succeededCount >= children.Count;
 
-    public int GetSucceededCount() {
-        return succeededCount;
-    }
+    public int CompletedCount => completedCount;
+
+    public int SucceededCount => succeededCount;
     // endregion
 
     /// <summary>

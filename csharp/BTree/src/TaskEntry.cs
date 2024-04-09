@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Wjybxx.BTree.FSM;
 using Wjybxx.Commons;
 using Wjybxx.Commons.Sequential;
 
@@ -111,6 +112,17 @@ public class TaskEntry<T> : Task<T> where T : class
     #endregion
 
     #region logic
+
+    /**
+     * 获取根状态机
+     * 状态机太重要了，值得我们为其提供各种快捷方法
+     */
+    public StateMachineTask<T> GetRootStateMachine() {
+        if (rootTask is StateMachineTask<T> stateMachine) {
+            return stateMachine;
+        }
+        throw new IllegalStateException("rootTask is not state machine task");
+    }
 
     /// <summary>
     /// 用户需要在每一帧调用该方法以驱动心跳逻辑

@@ -49,9 +49,9 @@ public class StateMachineTest {
 
         StateMachineTask<Blackboard> stateMachineTask = taskEntry.getRootStateMachine();
         stateMachineTask.setName("RootStateMachine");
+        stateMachineTask.setNoneChildStatus(TaskStatus.SUCCESS);
         stateMachineTask.setUndoQueueSize(queue_size);
         stateMachineTask.setRedoQueueSize(queue_size);
-        stateMachineTask.setNoneChildStatus(TaskStatus.SUCCESS);
         return taskEntry;
     }
 
@@ -158,13 +158,6 @@ public class StateMachineTest {
         Assertions.assertEquals(queue_size, global_count);
     }
 
-    private static void fillRedoQueue(StateMachineTask<Blackboard> stateMachine) {
-        stateMachine.getRedoQueue().addLast(new RedoState<>(0));
-        stateMachine.getRedoQueue().addLast(new RedoState<>(1));
-        stateMachine.getRedoQueue().addLast(new RedoState<>(2));
-        stateMachine.getRedoQueue().addLast(new RedoState<>(3));
-        stateMachine.getRedoQueue().addLast(new RedoState<>(4));
-    }
 
     /** undo，计数从 5 减到 0 */
     @Test
@@ -179,14 +172,6 @@ public class StateMachineTest {
 
         BtreeTestUtil.untilCompleted(taskEntry);
         Assertions.assertEquals(0, global_count);
-    }
-
-    private static void fillUndoQueue(StateMachineTask<Blackboard> stateMachine) {
-        stateMachine.getUndoQueue().addLast(new UndoState<>(1)); // addLast容易写
-        stateMachine.getUndoQueue().addLast(new UndoState<>(2));
-        stateMachine.getUndoQueue().addLast(new UndoState<>(3));
-        stateMachine.getUndoQueue().addLast(new UndoState<>(4));
-        stateMachine.getUndoQueue().addLast(new UndoState<>(5));
     }
 
     /** redo再undo，计数从0加到5，再减回0 */
@@ -208,10 +193,26 @@ public class StateMachineTest {
             }
             return stateMachineTask.undoChangeState();
         });
-
         stateMachine.redoChangeState(); // 初始化
+
         BtreeTestUtil.untilCompleted(taskEntry);
         Assertions.assertEquals(0, global_count);
+    }
+
+    private static void fillRedoQueue(StateMachineTask<Blackboard> stateMachine) {
+        stateMachine.getRedoQueue().addLast(new RedoState<>(0));
+        stateMachine.getRedoQueue().addLast(new RedoState<>(1));
+        stateMachine.getRedoQueue().addLast(new RedoState<>(2));
+        stateMachine.getRedoQueue().addLast(new RedoState<>(3));
+        stateMachine.getRedoQueue().addLast(new RedoState<>(4));
+    }
+
+    private static void fillUndoQueue(StateMachineTask<Blackboard> stateMachine) {
+        stateMachine.getUndoQueue().addLast(new UndoState<>(1)); // addLast容易写
+        stateMachine.getUndoQueue().addLast(new UndoState<>(2));
+        stateMachine.getUndoQueue().addLast(new UndoState<>(3));
+        stateMachine.getUndoQueue().addLast(new UndoState<>(4));
+        stateMachine.getUndoQueue().addLast(new UndoState<>(5));
     }
 
     private static class UndoState<T> extends ActionTask<T> {

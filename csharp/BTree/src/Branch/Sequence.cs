@@ -44,7 +44,7 @@ public class Sequence<T> : SingleRunningChildBranch<T> where T : class
         }
         if (child.IsFailed) { // 失败码有传递的价值
             SetCompleted(child.Status, true);
-        } else if (IsAllChildCompleted()) {
+        } else if (IsAllChildCompleted) {
             SetSuccess();
         } else if (!IsExecuting()) {
             Template_Execute();

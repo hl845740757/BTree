@@ -44,7 +44,7 @@ public class JoinWaitAll<T> : JoinPolicy<T> where T : class
     }
 
     public void OnChildCompleted(Join<T> join, Task<T> child) {
-        if (join.IsAllChildCompleted()) {
+        if (join.IsAllChildCompleted) {
             join.SetSuccess();
         }
     }

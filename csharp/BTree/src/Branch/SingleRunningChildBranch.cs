@@ -57,9 +57,7 @@ public abstract class SingleRunningChildBranch<T> : BranchTask<T> where T : clas
         return runningIndex + 1;
     }
 
-    public override bool IsAllChildCompleted() {
-        return runningIndex + 1 >= children.Count;
-    }
+    public override bool IsAllChildCompleted => runningIndex + 1 >= children.Count;
     //
 
     #region logic

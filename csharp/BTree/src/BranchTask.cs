@@ -85,15 +85,17 @@ public abstract class BranchTask<T> : Task<T> where T : class
     }
 
     /** 是否所有的子节点已进入完成状态 */
-    public virtual bool IsAllChildCompleted() {
-        // 在判断是否全部完成这件事上，逆序遍历有优势
-        for (int idx = children.Count - 1; idx >= 0; idx--) {
-            Task<T> child = children[idx];
-            if (child.IsRunning) {
-                return false;
+    public virtual bool IsAllChildCompleted {
+        get {
+            // 在判断是否全部完成这件事上，逆序遍历有优势
+            for (int idx = children.Count - 1; idx >= 0; idx--) {
+                Task<T> child = children[idx];
+                if (child.IsRunning) {
+                    return false;
+                }
             }
+            return true;
         }
-        return true;
     }
 
     /** 用于避免测试的子节点过于规律 */

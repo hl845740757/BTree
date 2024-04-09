@@ -45,7 +45,7 @@ public class JoinSequence<T> : JoinPolicy<T> where T : class
     public void OnChildCompleted(Join<T> join, Task<T> child) {
         if (!child.IsSucceeded) {
             join.SetCompleted(child.Status, true);
-        } else if (join.IsAllChildSucceeded()) {
+        } else if (join.IsAllChildSucceeded) {
             join.SetSuccess();
         }
     }
