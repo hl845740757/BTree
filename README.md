@@ -5,18 +5,19 @@
 
 仓库说明：该仓库和Dson仓库一样，都是从Bigcat仓库分离出来的，因为行为树的核心逻辑是与业务无关的，可以很通用。
 
-
 ## Task(任务)
 
 Task代表一个异步任务，不过与一般异步任务不同的是：Task不会自动运行，需要用户每帧调用`TaskEntry`的`update`方法来驱动任务的执行。
 
 可简单表示为：
 
-```
-   int frame = 0;
-   while (true) { // 这个死循环指线程的死循环，在游戏开发中称为主循环
-      frame++;
-      taskEntry.update(frame);
+``` java 
+   public void mainLoop() {
+      int frame = 0;
+      while (true) { // 这个死循环指线程的死循环，在游戏开发中称为主循环
+         frame++;
+         taskEntry.update(frame);
+      }
    }
 ```
 
@@ -25,12 +26,12 @@ Task代表一个异步任务，不过与一般异步任务不同的是：Task不
 Task的上下文由三部分组成：黑板、取消令牌、共享属性。  
 每个Task都可以有独立的上下文，当未指定Task的上下文时，会默认从父节点中捕获缺失的上下文。
 
-```
+```java
    class Task {
-      Object blackboard;
-      CancelToken cancelToken;
-      Object sharedProps;
-   }
+    Object blackboard;
+    CancelToken cancelToken;
+    Object sharedProps;
+}
 ```
 
 ### Blackboard(黑板)
@@ -98,20 +99,21 @@ child状态更新事件，主要是子节点进入完成状态的事件，父节
 
 ps：想到一个经常遇见的问题，List在迭代的时候删除元素。
 
-```
+```java
    public void enter() {
-      // 初始化一些数据
-   }
+    // 初始化一些数据
+}
 
-   public void execute() {
-      if (cond()) {
-         stateMachine.changeState(this); // 自己切换自己的情况不常见（但存在），更多的情况是不知不觉中绕一圈。
-         return; // 这里如果没有return是有风险的
-      }
-   }
-   public void exit() {
-      // 清理一些数据
-   }
+public void execute() {
+    if (cond()) {
+        stateMachine.changeState(this); // 自己切换自己的情况不常见（但存在），更多的情况是不知不觉中绕一圈。
+        return; // 这里如果没有return是有风险的
+    }
+}
+
+public void exit() {
+    // 清理一些数据
+}
 ```
 
 在之前的项目中，我在这个问题上犯了大错误。由于我没想到好的方案来解决这个问题，于是我便*阻止用户编写这样的代码*，
@@ -134,15 +136,15 @@ ps：想到一个经常遇见的问题，List在迭代的时候删除元素。
 
 ActionTask的模板方法如下：
 
-```
+```java
    public void execute() {
-        int reentryId = getReentryId();
-        int status = executeImpl();
-        if (isExited(reentryId)) { // 当前任务已退出
-            return;
-        }
-        // ... 更新状态
-   }
+    int reentryId = getReentryId();
+    int status = executeImpl();
+    if (isExited(reentryId)) { // 当前任务已退出
+        return;
+    }
+    // ... 更新状态
+}
 ```
 
 ## 状态机
@@ -163,46 +165,15 @@ ps：状态机有独立的测试用例(`StateMachineTest`)，大家可以跑一�
 在传统的状态机下，在切换状态时只会调用新状态的`enter`方法，下一帧才会调用`execute`方法；但在这里，`execute`方法和`enter`
 通常是连续执行的，这在多数情况下是没有影响的；如果确实需要分开执行，我们提供了控制位标记，以允许你将自己的状态标记为需要分开执行。
 
-```
+```java
    // 传统状态机的状态切换代码
-   public void changeState(State nextState) {
-      if(curState != null) {
-         curState.exit();
-      }
-      curState = nextState;
-      if (curState != null) {
-         curState.enter();
-      }
-   }
+public void changeState(State nextState) {
+    if (curState != null) {
+        curState.exit();
+    }
+    curState = nextState;
+    if (curState != null) {
+        curState.enter();
+    }
+}
 ```
-
-## 题外话
-
-我首次了解到行为树，大概是工作的第二年，当时项目的游戏对象AI是通过状态机实现的，我个人对游戏的AI和技能实现是非常感兴趣的，
-所以在熟悉一般业务后，一直在研究（折腾）项目的AI和战斗系统，当时有同事给我说也有AI是行为树实现的，于是我就去查了一下资料，没有搞太懂，就先放一边了。
-在回到成都后，关卡策划想使用使用行为树配置对象AI，我心里其实很虚，因为我压根儿没写过；但我也想尝试一下，毕竟我也想做好玩的游戏。
-
-这一研究就不得了，在项目开发期间几乎没停止，这期间我实现了好几个版本，大概在1年左右的时候才得到一个还算满意的版本。花了这么多精力，有两个重要的原因：
-
-1. 在我理解行为树的概念后，我发现**行为树其实不是仅限于AI的，而是一套很好的控制流结构**，是可以通用的。我想让其用于
-   **技能、副本玩法、任务**的配置。而要达到这一点，必须要支持事件驱动。
-2. 行为树的事件驱动和事件处理非常不好写，我被两个问题卡住了：
-    1. 事件驱动的方法栈非常深
-    2. 事件驱动可能导致Task递归（重入），如何保证上下文的正确性
-
-我能力上有一个缺陷：缺乏想象力，没见过的东西，我就造不出来，或很难造出来！  
-写行为树的时候也是如此，所以我在网上大量查找他人的行为树的实现，对我有较大影响的是[GDX_AI](https://github.com/libgdx/gdx-ai)；
-相比于其它行为树的实现，GDX_AI的行为树实现还算能看，但研究之后觉得它的行为树不能用，有以下几点：
-
-1. 有奇怪的看不懂的代码，例如：先调用`child.start`，然后再`child.checkGuard(this)`，这不符合我期望。
-2. 方法栈深度爆炸，没有任何优化
-3. 没有解决Task重入的安全性问题
-4. 没有像状态机那样的事件支持
-
-我在上个项目中实现的行为树，没有彻底解决的就是重入安全性问题，因此只能说能用，但有限制。最近我在考虑这个开源项目下一步写什么的时候，想到了行为树，
-因为行为树的应用可以很广，可以作为一个非常基础的组件。在大半年没碰行为树的情况下，这次实现行为树，居然出乎意料的顺利（1周就搞定），而且曾经想到的问题几乎都解决了。  
-这里有几点心得分享：
-
-1. 首次使用一门技术的人容易发现新事物，**要注意新人对框架的意见**。
-2. 苦思冥想通常没有结果，放一放，有时候就会有了新思路。
-3. 如果只有用户才能保证正确性，那就不要在框架层做操作限制，而是配合用户检测冲突，**半成品的东西通常比什么都不做还糟糕**。
