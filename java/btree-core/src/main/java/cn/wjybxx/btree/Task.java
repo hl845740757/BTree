@@ -112,7 +112,7 @@ public abstract class Task<T> implements CancelTokenListener {
      * 2.entry的逻辑control是用户，因此也可以存储用户的数据
      * 3.该属性不自动继承，不属于运行上下文。
      */
-    transient Object controlData;
+    private transient Object controlData;
 
     /** 任务的状态 -- {@link TaskStatus}，使用int以支持用户返回更详细的错误码 */
     private transient int status;

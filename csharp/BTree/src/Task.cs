@@ -113,12 +113,12 @@ public abstract class Task<T> : ICancelTokenListener where T : class
     [NonSerialized] protected object sharedProps;
 
     /// <summary>
-    ///Control为管理子节点存储在子节点上的数据
+    /// Control为管理子节点存储在子节点上的数据
     /// 1.避免额外映射，提高性能和易用性
     /// 2.entry的逻辑control是用户，因此也可以存储用户的数据
     /// 3.该属性不自动继承，不属于运行上下文。
     /// </summary>
-    [NonSerialized] object controlData;
+    [NonSerialized] private object controlData;
 
     /** 任务的状态 -- <see cref="TaskStatus"/>，使用int以支持用户返回更详细的错误码 */
     private int status;
@@ -414,7 +414,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
             Template_Exit(0);
         } else {
             // 未调用Enter和Exit，需要补偿 -- 保留当前的ctl会更好
-            PrevStatus = prevStatus;
+            this.PrevStatus = prevStatus;
             this.enterFrame = exitFrame;
             this.reentryId++;
 
@@ -580,7 +580,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
         if (rid != this.reentryId) { // exit
             return true;
         }
-        if (cancelToken.IsCancelling()) {
+        if (cancelToken.IsCancelling) {
             SetCancelled();
             return true;
         }
@@ -846,7 +846,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
         ctl = initMask; // 初始化基础上下文后才可以检测取消，包括控制流标记
 
         UniCancelTokenSource cancelToken = this.cancelToken;
-        if (cancelToken.IsCancelling() && IsAutoCheckCancel) { // 胎死腹中
+        if (cancelToken.IsCancelling && IsAutoCheckCancel) { // 胎死腹中
             ReleaseContext();
             SetCompleted(TaskStatus.CANCELLED, false);
             return;
@@ -875,7 +875,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
                     }
                     return;
                 }
-                if (cancelToken.IsCancelling() && IsAutoCheckCancel) { // token基本为false，autoCheck基本为true
+                if (cancelToken.IsCancelling && IsAutoCheckCancel) { // token基本为false，autoCheck基本为true
                     IsDisableDelayNotify = true;
                     SetCancelled();
                     return;
@@ -906,7 +906,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
     }
 
     private void CheckFireRunningAndCancel(Task<T>? control, UniCancelTokenSource cancelToken) {
-        if (cancelToken.IsCancelling() && IsAutoCheckCancel) {
+        if (cancelToken.IsCancelling && IsAutoCheckCancel) {
             IsDisableDelayNotify = true;
             SetCancelled();
             return;
@@ -925,7 +925,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
     public void Template_Execute() {
         UniCancelTokenSource cancelToken = this.cancelToken;
         int reentryId = this.reentryId;
-        if (cancelToken.IsCancelling() && IsAutoCheckCancel) {
+        if (cancelToken.IsCancelling && IsAutoCheckCancel) {
             IsDisableDelayNotify = true;
             SetCancelled();
             return;
@@ -944,7 +944,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
                 control.OnChildCompleted(this);
             }
         } else {
-            if (cancelToken.IsCancelling() && IsAutoCheckCancel) {
+            if (cancelToken.IsCancelling && IsAutoCheckCancel) {
                 IsDisableDelayNotify = true;
                 SetCancelled();
             }
