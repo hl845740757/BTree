@@ -26,9 +26,9 @@ namespace Wjybxx.BTree.Branch.Join;
 public class JoinSequence<T> : JoinPolicy<T> where T : class
 {
     /** 单例 */
-    private static readonly JoinSequence<T> Inst = new JoinSequence<T>();
+    private static readonly JoinSequence<T> INST = new JoinSequence<T>();
 
-    public static JoinSequence<T> GetInstance() => Inst;
+    public static JoinSequence<T> GetInstance() => INST;
 
     public void ResetForRestart() {
     }

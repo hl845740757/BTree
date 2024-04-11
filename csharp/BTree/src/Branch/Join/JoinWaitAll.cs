@@ -27,9 +27,9 @@ namespace Wjybxx.BTree.Branch.Join;
 public class JoinWaitAll<T> : JoinPolicy<T> where T : class
 {
     /** 单例 */
-    private static readonly JoinWaitAll<T> Inst = new JoinWaitAll<T>();
+    private static readonly JoinWaitAll<T> INST = new JoinWaitAll<T>();
 
-    public static JoinWaitAll<T> GetInstance() => Inst;
+    public static JoinWaitAll<T> GetInstance() => INST;
 
     public void ResetForRestart() {
     }

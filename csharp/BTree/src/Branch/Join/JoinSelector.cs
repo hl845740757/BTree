@@ -26,9 +26,9 @@ namespace Wjybxx.BTree.Branch.Join;
 public class JoinSelector<T> : JoinPolicy<T> where T : class
 {
     /** 单例 */
-    private static readonly JoinSelector<T> Inst = new JoinSelector<T>();
+    private static readonly JoinSelector<T> INST = new JoinSelector<T>();
 
-    public static JoinSelector<T> GetInstance() => Inst;
+    public static JoinSelector<T> GetInstance() => INST;
 
     public void ResetForRestart() {
     }

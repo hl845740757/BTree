@@ -32,7 +32,7 @@ namespace Wjybxx.BTree.FSM;
 /// <typeparam name="T"></typeparam>
 public class StateMachineTask<T> : Decorator<T> where T : class
 {
-    private static readonly IDeque<Task<T>> EmptyQueue = EmptyDequeue<Task<T>>.Instance;
+    private static readonly IDeque<Task<T>> EMPTY_QUEUE = EmptyDequeue<Task<T>>.Instance;
 
     /** 状态机名字 */
     private string? name;
@@ -44,8 +44,8 @@ public class StateMachineTask<T> : Decorator<T> where T : class
     private object? initStateProps;
 
     [NonSerialized] private Task<T>? tempNextState;
-    [NonSerialized] private IDeque<Task<T>> undoQueue = EmptyQueue;
-    [NonSerialized] private IDeque<Task<T>> redoQueue = EmptyQueue;
+    [NonSerialized] private IDeque<Task<T>> undoQueue = EMPTY_QUEUE;
+    [NonSerialized] private IDeque<Task<T>> redoQueue = EMPTY_QUEUE;
 
     [NonSerialized] private StateMachineListener<T>? listener;
     [NonSerialized] private StateMachineHandler<T>? stateMachineHandler;
@@ -119,9 +119,9 @@ public class StateMachineTask<T> : Decorator<T> where T : class
     private static IDeque<Task<T>> SetQueueMaxSize(IDeque<Task<T>> queue, int maxSize, DequeOverflowBehavior overflowBehavior) {
         if (maxSize == 0) {
             queue.Clear();
-            return EmptyQueue;
+            return EMPTY_QUEUE;
         }
-        if (queue == EmptyQueue) {
+        if (queue == EMPTY_QUEUE) {
             return new BoundedArrayDeque<Task<T>>(maxSize, overflowBehavior);
         } else {
             BoundedArrayDeque<T> boundedArrayDeque = (BoundedArrayDeque<T>)queue;

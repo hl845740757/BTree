@@ -65,10 +65,10 @@ public class ChangeStateArgs
     public readonly int frame;
 
     /** 期望传递给Listener的数据 */
-    public readonly object extraInfo;
+    public readonly object? extraInfo;
 
     /** 通过原型对象创建 */
-    private ChangeStateArgs(int cmd, int delayMode, int frame, object extraInfo) {
+    private ChangeStateArgs(int cmd, int delayMode, int frame, object? extraInfo) {
 //        checkCmd(cmd); // 封闭构造方法后可不校验
         CheckDelayMode(delayMode);
         this.delayMode = delayMode;

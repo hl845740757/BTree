@@ -26,22 +26,22 @@ namespace Wjybxx.BTree;
 /// <summary>
 /// 记录Task重写的方法，以减少不必要的虚方法调用
 /// </summary>
-internal class TaskOverrides
+internal static class TaskOverrides
 {
     public const int MASK_BEFORE_ENTER = 1;
     public const int MASK_ENTER = 1 << 1;
     public const int MASK_EXIT = 1 << 2;
     private const int MASK_ALL = 15;
 
-    private static readonly Type TypeTask = typeof(Task<>);
-    private static readonly Type TypeInt32 = typeof(int);
-    private static readonly ConcurrentDictionary<Type, int> MaskCacheMap = new ConcurrentDictionary<Type, int>();
+    private static readonly Type TYPE_TASK = typeof(Task<>);
+    private static readonly Type TYPE_INT32 = typeof(int);
+    private static readonly ConcurrentDictionary<Type, int> maskCacheMap = new ConcurrentDictionary<Type, int>();
 
     public static int MaskOfTask(Type clazz) {
         if (clazz.IsGenericType) {
             clazz = clazz.GetGenericTypeDefinition();
         }
-        if (MaskCacheMap.TryGetValue(clazz, out int cachedMask)) {
+        if (maskCacheMap.TryGetValue(clazz, out int cachedMask)) {
             return cachedMask;
         }
         int mask = MASK_ALL; // 默认为全部重写
@@ -49,7 +49,7 @@ internal class TaskOverrides
             if (IsSkippable(clazz, "BeforeEnter")) {
                 mask &= ~MASK_BEFORE_ENTER;
             }
-            if (IsSkippable(clazz, "Enter", TypeInt32)) {
+            if (IsSkippable(clazz, "Enter", TYPE_INT32)) {
                 mask &= ~MASK_ENTER;
             }
             if (IsSkippable(clazz, "Exit")) {
@@ -59,7 +59,7 @@ internal class TaskOverrides
         catch (Exception) {
             // ignored
         }
-        MaskCacheMap.TryAdd(clazz, mask);
+        maskCacheMap.TryAdd(clazz, mask);
         return mask;
     }
 
@@ -71,6 +71,6 @@ internal class TaskOverrides
         }
         Type declaringType = methodInfo.DeclaringType;
         Debug.Assert(declaringType != null);
-        return declaringType == TypeTask;
+        return declaringType == TYPE_TASK;
     }
 }

@@ -27,9 +27,9 @@ namespace Wjybxx.BTree.Branch.Join;
 public class JoinAnyOf<T> : JoinPolicy<T> where T : class
 {
     /** 单例 */
-    private static readonly JoinAnyOf<T> Inst = new JoinAnyOf<T>();
+    private static readonly JoinAnyOf<T> INST = new JoinAnyOf<T>();
 
-    public static JoinAnyOf<T> GetInstance() => Inst;
+    public static JoinAnyOf<T> GetInstance() => INST;
 
     public void ResetForRestart() {
     }

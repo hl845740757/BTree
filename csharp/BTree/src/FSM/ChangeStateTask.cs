@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using Wjybxx.Commons;
 
 #pragma warning disable CS1591
 
@@ -51,6 +52,9 @@ public class ChangeStateTask<T> : LeafTask<T> where T : class
 
     protected override void Execute() {
         if (nextState == null) {
+            if (string.IsNullOrEmpty(nextStateGuid)) {
+                throw new IllegalStateException("guid is empty");
+            }
             nextState = TaskEntry.TreeLoader.LoadRootTask<T>(nextStateGuid);
         }
         if (stateProps != null) {

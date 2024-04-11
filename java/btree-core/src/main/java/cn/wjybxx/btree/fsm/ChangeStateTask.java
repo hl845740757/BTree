@@ -15,6 +15,7 @@
  */
 package cn.wjybxx.btree.fsm;
 
+import cn.wjybxx.base.ObjectUtils;
 import cn.wjybxx.btree.LeafTask;
 import cn.wjybxx.btree.Task;
 import cn.wjybxx.btree.TaskStatus;
@@ -51,6 +52,9 @@ public class ChangeStateTask<T> extends LeafTask<T> {
     @Override
     protected void execute() {
         if (nextState == null) {
+            if (ObjectUtils.isEmpty(nextStateGuid)) {
+                throw new IllegalStateException("guid is empty");
+            }
             nextState = getTaskEntry().getTreeLoader().loadRootTask(nextStateGuid);
         }
         if (stateProps != null) {

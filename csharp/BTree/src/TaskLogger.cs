@@ -27,21 +27,21 @@ namespace Wjybxx.BTree;
 /// </summary>
 public static class TaskLogger
 {
-    private static readonly ILogger Logger = Log.Logger;
+    private static readonly ILogger logger = Log.Logger;
 
     public static void Info(string format, params object[] args) {
-        Logger.Information(format, args);
+        logger.Information(format, args);
     }
 
     public static void Info(Exception? ex, string format, params object[] args) {
-        Logger.Information(ex, format, args);
+        logger.Information(ex, format, args);
     }
 
     public static void Warning(string format, params object[] args) {
-        Logger.Warning(format, args);
+        logger.Warning(format, args);
     }
 
     public static void Warning(Exception? ex, string format, params object[] args) {
-        Logger.Warning(ex, format, args);
+        logger.Warning(ex, format, args);
     }
 }

@@ -27,13 +27,13 @@ namespace Wjybxx.BTree.Decorator;
 public static class RepeatMode
 {
     /** 总是计数 */
-    public const int ModeAlways = 0;
+    public const int MODE_ALWAYS = 0;
     /** 成功时计数 */
-    public const int ModeOnlySuccess = 1;
+    public const int MODE_ONLY_SUCCESS = 1;
     /** 失败时计数 */
-    public const int ModeOnlyFailed = 2;
+    public const int MODE_ONLY_FAILED = 2;
     /** 不计数 - 可能无限执行 */
-    public const int ModeNever = 3;
+    public const int MODE_NEVER = 3;
 }
 
 /// <summary>
@@ -43,7 +43,7 @@ public static class RepeatMode
 public class Repeat<T> : LoopDecorator<T> where T : class
 {
     /** 考虑到Java枚举与其它语言的兼容性问题，我们在编辑器中使用数字 */
-    private int countMode = RepeatMode.ModeAlways;
+    private int countMode = RepeatMode.MODE_ALWAYS;
     /** 需要重复的次数 */
     private int required = 1;
     /** 当前计数 */
@@ -73,9 +73,9 @@ public class Repeat<T> : LoopDecorator<T> where T : class
         }
         bool match = countMode switch // 还是更喜欢Java的switch...
         {
-            RepeatMode.ModeAlways => true,
-            RepeatMode.ModeOnlySuccess => child.IsSucceeded,
-            RepeatMode.ModeOnlyFailed => child.IsFailed,
+            RepeatMode.MODE_ALWAYS => true,
+            RepeatMode.MODE_ONLY_SUCCESS => child.IsSucceeded,
+            RepeatMode.MODE_ONLY_FAILED => child.IsFailed,
             _ => false
         };
         if (match && ++count >= required) {

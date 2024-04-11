@@ -30,9 +30,9 @@ namespace Wjybxx.BTree.Branch.Join;
 public class JoinMain<T> : JoinPolicy<T> where T : class
 {
     /** 单例 */
-    private static readonly JoinMain<T> Inst = new JoinMain<T>();
+    private static readonly JoinMain<T> INST = new JoinMain<T>();
 
-    public static JoinMain<T> GetInstance() => Inst;
+    public static JoinMain<T> GetInstance() => INST;
 
     public void ResetForRestart() {
     }

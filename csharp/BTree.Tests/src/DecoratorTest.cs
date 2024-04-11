@@ -80,7 +80,7 @@ public class DecoratorTest
 
     [Test]
     public void repeatAlwaysTest() {
-        Repeat<Blackboard> repeat = newRandomRepeat(RepeatMode.ModeAlways);
+        Repeat<Blackboard> repeat = newRandomRepeat(RepeatMode.MODE_ALWAYS);
         TaskEntry<Blackboard> taskEntry = BtreeTestUtil.newTaskEntry(repeat);
         BtreeTestUtil.untilCompleted(taskEntry);
         Assert.AreEqual(REPEAT_COUNT, successCount + failedCount);
@@ -88,7 +88,7 @@ public class DecoratorTest
 
     [Test]
     public void repeatSuccessTest() {
-        Repeat<Blackboard> repeat = newRandomRepeat(RepeatMode.ModeOnlySuccess);
+        Repeat<Blackboard> repeat = newRandomRepeat(RepeatMode.MODE_ONLY_SUCCESS);
         TaskEntry<Blackboard> taskEntry = BtreeTestUtil.newTaskEntry(repeat);
         BtreeTestUtil.untilCompleted(taskEntry);
         Assert.AreEqual(REPEAT_COUNT, successCount);
@@ -96,7 +96,7 @@ public class DecoratorTest
 
     [Test]
     public void repeatFailTest() {
-        Repeat<Blackboard> repeat = newRandomRepeat(RepeatMode.ModeOnlyFailed);
+        Repeat<Blackboard> repeat = newRandomRepeat(RepeatMode.MODE_ONLY_FAILED);
         TaskEntry<Blackboard> taskEntry = BtreeTestUtil.newTaskEntry(repeat);
         BtreeTestUtil.untilCompleted(taskEntry);
         Assert.AreEqual(REPEAT_COUNT, failedCount);
