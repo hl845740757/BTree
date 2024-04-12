@@ -68,15 +68,18 @@ public class BtreeCodecLinker {
         private SimpleParallel<?> simpleParallel;
         @CodecLinker(classImpl = @ClassImpl)
         private Switch<?> switchTask;
+    }
 
+    @CodecLinkerGroup(outputPackage = "cn.wjybxx.btree.branch.join")
+    private static class JoinPolicyLinker {
         @CodecLinker(classImpl = @ClassImpl(singleton = "getInstance"))
         private JoinAnyOf<?> joinAnyOf;
         @CodecLinker(classImpl = @ClassImpl(singleton = "getInstance"))
         private JoinMain<?> joinMain;
         @CodecLinker(classImpl = @ClassImpl(singleton = "getInstance"))
         private JoinSelector<?> joinSelector;
-        @CodecLinker(classImpl = @ClassImpl)
-        private JoinSelectorN<?> joinSelectorN; // selectorN有状态，不能单例
+        @CodecLinker(classImpl = @ClassImpl)  // selectorN有状态，不能单例
+        private JoinSelectorN<?> joinSelectorN;
         @CodecLinker(classImpl = @ClassImpl(singleton = "getInstance"))
         private JoinSequence<?> joinSequence;
         @CodecLinker(classImpl = @ClassImpl(singleton = "getInstance"))

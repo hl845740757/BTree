@@ -400,8 +400,9 @@ public class StateMachineTask<T> : Decorator<T> where T : class
         Debug.Assert(curState != null || nextState != null);
         if (listener != null) listener(this, curState, nextState);
     }
+    #endregion
 
-    // region
+    #region find
 
     /**
      * 查找task最近的状态机节点

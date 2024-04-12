@@ -57,13 +57,10 @@ public class ChangeStateArgs
 
     /** 切换命名 */
     public readonly int cmd;
-
     /** 延迟模式 */
     public readonly int delayMode;
-
     /** 期望开始运行的帧号；-1表示尚未指定 */
     public readonly int frame;
-
     /** 期望传递给Listener的数据 */
     public readonly object? extraInfo;
 
