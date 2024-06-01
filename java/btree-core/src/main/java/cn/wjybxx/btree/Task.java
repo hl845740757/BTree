@@ -54,11 +54,12 @@ public abstract class Task<T> implements CancelTokenListener {
     /** 前一次运行结果的存储偏移量 */
     private static final int OFFSET_PREV_STATUS = 4;
 
-    private static final int MASK_ENTER_EXECUTE = 1 << 12;
-    private static final int MASK_EXECUTING = 1 << 13;
-    private static final int MASK_STOP_EXIT = 1 << 14;
-    private static final int MASK_STILLBORN = 1 << 15;
-    private static final int MASK_DISABLE_NOTIFY = 1 << 16;
+    private static final int MASK_ENTER_EXECUTE = 1 << 11;
+    private static final int MASK_EXECUTING = 1 << 12;
+    private static final int MASK_STOP_EXIT = 1 << 13;
+    private static final int MASK_STILLBORN = 1 << 14;
+    private static final int MASK_DISABLE_NOTIFY = 1 << 15;
+    private static final int MASK_NOTIFIED = 1 << 16;
     private static final int MASK_INHERITED_BLACKBOARD = 1 << 17;
     private static final int MASK_INHERITED_CANCEL_TOKEN = 1 << 18;
     private static final int MASK_INHERITED_PROPS = 1 << 19;
@@ -353,6 +354,7 @@ public abstract class Task<T> implements CancelTokenListener {
         this.status = TaskStatus.SUCCESS;
         template_exit(0);
         if (checkImmediateNotifyMask(ctl) && control != null) {
+            ctl |= MASK_NOTIFIED;
             control.onChildCompleted(this);
         }
     }
@@ -408,6 +410,7 @@ public abstract class Task<T> implements CancelTokenListener {
             ctl |= MASK_STILLBORN;
         }
         if (checkImmediateNotifyMask(ctl) && control != null) {
+            ctl |= MASK_NOTIFIED;
             control.onChildCompleted(this);
         }
     }
@@ -634,17 +637,31 @@ public abstract class Task<T> implements CancelTokenListener {
         return (ctl & MASK_STOP_EXIT) != 0;
     }
 
-    private static boolean checkNotifyMask(int ctl) {
-        return (ctl & (MASK_DISABLE_NOTIFY | MASK_STOP_EXIT)) == 0;
+    /**
+     * 是否已通知父节点完成。
+     * 注意：该接口主要是为Debug和UI展示设计的，业务通常不需要使用它。
+     */
+    public final boolean isNotified() {
+        return (ctl & MASK_NOTIFIED) != 0;
     }
 
+    /** 是否可以通知父节点 */
+    private static boolean checkNotifyMask(int ctl) {
+        return (ctl & (MASK_DISABLE_NOTIFY | MASK_STOP_EXIT)) == 0; // 被stop取消的任务不能通知
+    }
+
+    /** 是否可以延迟通知父节点 -- 未禁用延迟通知即可延迟通知 */
     private static boolean checkDelayNotifyMask(int ctl) {
         return (ctl & (MASK_DISABLE_NOTIFY | MASK_STOP_EXIT | MASK_DISABLE_DELAY_NOTIFY)) == 0;
     }
 
+    /** 是否可以立即通知父节点 -- 禁用了延迟通知或未执行execute模板方法可立即通知 */
     private static boolean checkImmediateNotifyMask(int ctl) {
-        return (ctl & (MASK_DISABLE_NOTIFY | MASK_STOP_EXIT)) == 0 // 被stop取消的任务不能通知
-                && ((ctl & MASK_DISABLE_DELAY_NOTIFY) != 0 || (ctl & MASK_EXECUTING) == 0); // 前者多为true，否则多为false
+        if ((ctl & (MASK_DISABLE_NOTIFY | MASK_STOP_EXIT)) != 0) {
+            return false;
+        }
+        return (ctl & MASK_DISABLE_DELAY_NOTIFY) != 0
+                || (ctl & MASK_EXECUTING) == 0;
     }
     // endregion
 
@@ -761,6 +778,7 @@ public abstract class Task<T> implements CancelTokenListener {
                 enter(reentryId);
                 if (isExited(reentryId)) { // enter 可能导致结束
                     if (reentryId + 1 == this.reentryId && checkDelayNotifyMask(ctl) && control != null) {
+                        ctl |= MASK_NOTIFIED;
                         control.onChildCompleted(this);
                     }
                     return;
@@ -782,6 +800,7 @@ public abstract class Task<T> implements CancelTokenListener {
             execute();
             if (isExited(reentryId)) {
                 if (reentryId + 1 == this.reentryId && checkDelayNotifyMask(ctl) && control != null) {
+                    ctl |= MASK_NOTIFIED;
                     control.onChildCompleted(this);
                 }
             } else {
@@ -809,7 +828,7 @@ public abstract class Task<T> implements CancelTokenListener {
      * execute模板方法
      * 注：
      * 1.如果想减少方法调用，对于运行中的子节点，可直接调用子节点的模板方法。
-     * 2.该方法不可以递归执行，如果在正在执行的情况下想执行{@link #execute()}方法，就直接调用 -- {@link #isExecuting()}
+     * 2.该方法在Task完成前不可以递归执行，如果在正在执行的情况下想执行{@link #execute()}方法，就直接调用。
      */
     public final void template_execute() {
         final UniCancelTokenSource cancelToken = this.cancelToken;
@@ -829,6 +848,7 @@ public abstract class Task<T> implements CancelTokenListener {
         }
         if (isExited(reentryId)) {
             if (reentryId + 1 == this.reentryId && checkDelayNotifyMask(ctl) && control != null) {
+                ctl |= MASK_NOTIFIED;
                 control.onChildCompleted(this);
             }
         } else {
@@ -1164,19 +1184,8 @@ public abstract class Task<T> implements CancelTokenListener {
     }
 
     public static void stop(@Nullable Task<?> task) {
-        // java不支持 obj?.method 语法，我们只能封装额外的方法实现
         if (task != null && task.status == TaskStatus.RUNNING) {
             task.stop();
-        }
-    }
-
-    public static void stopSafely(@Nullable Task<?> task) {
-        if (task != null && task.status == TaskStatus.RUNNING) {
-            try {
-                task.stop();
-            } catch (Exception | AssertionError e) {
-                logger.warn("task stop caught exception", e);
-            }
         }
     }
 

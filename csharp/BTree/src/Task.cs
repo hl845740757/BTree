@@ -54,11 +54,12 @@ public abstract class Task<T> : ICancelTokenListener where T : class
     private const int MASK_PREV_STATUS = (63) << 4;
     private const int OFFSET_PREV_STATUS = 4;
 
-    private const int MASK_ENTER_EXECUTE = 1 << 12;
-    private const int MASK_EXECUTING = 1 << 13;
-    private const int MASK_STOP_EXIT = 1 << 14;
-    private const int MASK_STILLBORN = 1 << 15;
-    private const int MASK_DISABLE_NOTIFY = 1 << 16;
+    private const int MASK_ENTER_EXECUTE = 1 << 11;
+    private const int MASK_EXECUTING = 1 << 12;
+    private const int MASK_STOP_EXIT = 1 << 13;
+    private const int MASK_STILLBORN = 1 << 14;
+    private const int MASK_DISABLE_NOTIFY = 1 << 15;
+    private const int MASK_NOTIFIED = 1 << 16;
     private const int MASK_INHERITED_BLACKBOARD = 1 << 17;
     private const int MASK_INHERITED_CANCEL_TOKEN = 1 << 18;
     private const int MASK_INHERITED_PROPS = 1 << 19;
@@ -367,16 +368,19 @@ public abstract class Task<T> : ICancelTokenListener where T : class
         this.status = TaskStatus.SUCCESS;
         Template_Exit(0);
         if (CheckImmediateNotifyMask(ctl) && control != null) {
+            ctl |= MASK_NOTIFIED;
             control.OnChildCompleted(this);
         }
     }
 
     /** 设置为取消 */
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetCancelled() {
         SetCompleted(TaskStatus.CANCELLED, false);
     }
 
     /** 设置为执行失败 -- 兼容{@link #setGuardFailed(Task)} */
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetFailed(int status) {
         if (status < TaskStatus.ERROR) {
             throw new ArgumentException("status " + status);
@@ -391,6 +395,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
     ///
     /// </summary>
     /// <param name="control">由于task未运行，其control可能尚未赋值，因此要传入；传null可不接收通知</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetGuardFailed(Task<T>? control) {
         Debug.Assert(this.status != TaskStatus.RUNNING);
         if (control != null) { //测试null，适用entry的guard失败
@@ -422,6 +427,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
             this.status = status;
         }
         if (CheckImmediateNotifyMask(ctl) && control != null) {
+            ctl |= MASK_NOTIFIED;
             control.OnChildCompleted(this);
         }
     }
@@ -617,6 +623,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
     /// 2. 任务开始前检测到取消
     /// </summary>
     /// <returns>未成功启动则返回true</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool IsStillborn() {
         return (ctl & MASK_STILLBORN) != 0;
     }
@@ -651,31 +658,40 @@ public abstract class Task<T> : ICancelTokenListener where T : class
     /// 3.部分Task的{@link #execute()}可能在一帧内执行多次，因此不能通过运行帧数为0代替。
     /// </summary>
     /// <value></value>
-    public bool IsExecuteTriggeredByEnter {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => (ctl & MASK_ENTER_EXECUTE) != 0;
-    }
+    public bool IsExecuteTriggeredByEnter => (ctl & MASK_ENTER_EXECUTE) != 0;
 
     /// <summary>
     /// exit方法是否是由{@link #stop()}方法触发的
     /// </summary>
     /// <value></value>
-    public bool IsExitTriggeredByStop {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get => (ctl & MASK_STOP_EXIT) != 0;
-    }
+    public bool IsExitTriggeredByStop => (ctl & MASK_STOP_EXIT) != 0;
 
+    /// <summary>
+    /// 是否已通知父节点完成
+    /// 注意：该接口主要是为Debug和UI展示设计的，业务通常不需要使用它。
+    /// </summary>
+    public bool IsNotified => (ctl & MASK_NOTIFIED) != 0;
+
+    /** 是否可以通知父节点 */
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool CheckNotifyMask(int ctl) {
-        return (ctl & (MASK_DISABLE_NOTIFY | MASK_STOP_EXIT)) == 0;
+        return (ctl & (MASK_DISABLE_NOTIFY | MASK_STOP_EXIT)) == 0; // 被stop取消的任务不能通知
     }
 
+    /** 是否可以延迟通知父节点 -- 未禁用延迟通知即可延迟通知 */
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool CheckDelayNotifyMask(int ctl) {
         return (ctl & (MASK_DISABLE_NOTIFY | MASK_STOP_EXIT | MASK_DISABLE_DELAY_NOTIFY)) == 0;
     }
 
+    /** 是否可以立即通知父节点 -- 禁用了延迟通知或未执行execute模板方法可立即通知 */
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool CheckImmediateNotifyMask(int ctl) {
-        return (ctl & (MASK_DISABLE_NOTIFY | MASK_STOP_EXIT)) == 0 // 被stop取消的任务不能通知
-               && ((ctl & MASK_DISABLE_DELAY_NOTIFY) != 0 || (ctl & MASK_EXECUTING) == 0); // 前者多为true，否则多为false
+        if ((ctl & (MASK_DISABLE_NOTIFY | MASK_STOP_EXIT)) != 0) {
+            return false;
+        }
+        return (ctl & MASK_DISABLE_DELAY_NOTIFY) != 0
+               || (ctl & MASK_EXECUTING) == 0;
     }
 
     #endregion
@@ -871,6 +887,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
                 Enter(reentryId);
                 if (IsExited(reentryId)) { // enter 可能导致结束
                     if (reentryId + 1 == this.reentryId && CheckDelayNotifyMask(ctl) && control != null) {
+                        ctl |= MASK_NOTIFIED;
                         control.OnChildCompleted(this);
                     }
                     return;
@@ -892,6 +909,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
             Execute();
             if (IsExited(reentryId)) {
                 if (reentryId + 1 == this.reentryId && CheckDelayNotifyMask(ctl) && control != null) {
+                    ctl |= MASK_NOTIFIED;
                     control.OnChildCompleted(this);
                 }
             } else {
@@ -905,6 +923,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void CheckFireRunningAndCancel(Task<T>? control, UniCancelTokenSource cancelToken) {
         if (cancelToken.IsCancelling && IsAutoCheckCancel) {
             IsDisableDelayNotify = true;
@@ -920,7 +939,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
     /// execute模板方法
     /// 注：
     /// 1.如果想减少方法调用，对于运行中的子节点，可直接调用子节点的模板方法。
-    /// 2.该方法不可以递归执行，如果在正在执行的情况下想执行{@link #execute()}方法，就直接调用 -- {@link #isExecuting()}
+    /// 2.该方法在Task完成前不可以递归执行，如果在正在执行的情况下想执行{@link #execute()}方法，就直接调用。
     /// </summary>
     public void Template_Execute() {
         UniCancelTokenSource cancelToken = this.cancelToken;
@@ -941,6 +960,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
         }
         if (IsExited(reentryId)) {
             if (reentryId + 1 == this.reentryId && CheckDelayNotifyMask(ctl) && control != null) {
+                ctl |= MASK_NOTIFIED;
                 control.OnChildCompleted(this);
             }
         } else {
@@ -1193,20 +1213,8 @@ public abstract class Task<T> : ICancelTokenListener where T : class
     }
 
     public static void Stop(Task<T>? task) {
-        // java不支持 obj?.method 语法，我们只能封装额外的方法实现
         if (task != null && task.status == TaskStatus.RUNNING) {
             task.Stop();
-        }
-    }
-
-    public static void StopSafely(Task<T>? task) {
-        if (task != null && task.status == TaskStatus.RUNNING) {
-            try {
-                task.Stop();
-            }
-            catch (Exception e) {
-                TaskLogger.Warning(e, "task stop caught exception");
-            }
         }
     }
 
@@ -1227,6 +1235,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
         return taskEntry != null && control != null && blackboard != null && cancelToken != null;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void SetCtlBit(int mask, bool enable) {
         if (enable) {
             ctl |= mask;
@@ -1235,6 +1244,7 @@ public abstract class Task<T> : ICancelTokenListener where T : class
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool GetCtlBit(int mask) {
         return (ctl & mask) != 0;
     }

@@ -275,10 +275,6 @@ public class StateMachineTask<T> : Decorator<T> where T : class
         if (tempNextState != null && tempNextState.ControlData == null) {
             tempNextState.ControlData = ChangeStateArgs.PLAIN;
         }
-        if (child != null) {
-            TaskLogger.Warning("The child of StateMachine is not null");
-            RemoveChild(0);
-        }
     }
 
     protected override void Exit() {
@@ -400,6 +396,7 @@ public class StateMachineTask<T> : Decorator<T> where T : class
         Debug.Assert(curState != null || nextState != null);
         if (listener != null) listener(this, curState, nextState);
     }
+
     #endregion
 
     #region find

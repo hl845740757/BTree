@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package cn.wjybxx.btree.codec;
+package cn.wjybxx.btreecodec;
 
 import cn.wjybxx.btree.TaskEntry;
 import cn.wjybxx.btree.branch.*;
@@ -22,9 +22,9 @@ import cn.wjybxx.btree.decorator.*;
 import cn.wjybxx.btree.fsm.ChangeStateTask;
 import cn.wjybxx.btree.fsm.StateMachineTask;
 import cn.wjybxx.btree.leaf.*;
-import cn.wjybxx.dson.codec.ClassImpl;
-import cn.wjybxx.dson.codec.CodecLinker;
-import cn.wjybxx.dson.codec.CodecLinkerGroup;
+import cn.wjybxx.dsoncodec.annotations.DsonCodecLinker;
+import cn.wjybxx.dsoncodec.annotations.DsonCodecLinkerGroup;
+import cn.wjybxx.dsoncodec.annotations.DsonSerializable;
 
 /**
  * 这是一个配置文件，用于生成行为树关联的codec
@@ -32,97 +32,97 @@ import cn.wjybxx.dson.codec.CodecLinkerGroup;
  * @author wjybxx
  * date - 2023/12/24
  */
-@CodecLinkerGroup(outputPackage = "cn.wjybxx.btree")
+@DsonCodecLinkerGroup(outputPackage = "cn.wjybxx.btreecodec")
 public class BtreeCodecLinker {
 
-    @CodecLinker(classImpl = @ClassImpl)
+    @DsonCodecLinker(props = @DsonSerializable)
     public TaskEntry<?> taskEntry;
 
-    @CodecLinkerGroup(outputPackage = "cn.wjybxx.btree.fsm")
+    @DsonCodecLinkerGroup(outputPackage = "cn.wjybxx.btreecodec.fsm")
     private static class FsmLinker {
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private ChangeStateTask<?> changeStateTask;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private StateMachineTask<?> stateMachineTask;
     }
 
-    @CodecLinkerGroup(outputPackage = "cn.wjybxx.btree.branch")
+    @DsonCodecLinkerGroup(outputPackage = "cn.wjybxx.btreecodec.branch")
     private static class BranchLinker {
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private ActiveSelector<?> activeSelector;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private FixedSwitch<?> fixedSwitch;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private Foreach<?> foreachTask;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private Join<?> join;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private Selector<?> selector;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private SelectorN<?> selectorN;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private Sequence<?> sequence;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private ServiceParallel<?> serviceParallel;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private SimpleParallel<?> simpleParallel;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private Switch<?> switchTask;
     }
 
-    @CodecLinkerGroup(outputPackage = "cn.wjybxx.btree.branch.join")
+    @DsonCodecLinkerGroup(outputPackage = "cn.wjybxx.btreecodec.branch.join")
     private static class JoinPolicyLinker {
-        @CodecLinker(classImpl = @ClassImpl(singleton = "getInstance"))
+        @DsonCodecLinker(props = @DsonSerializable(singleton = "getInstance"))
         private JoinAnyOf<?> joinAnyOf;
-        @CodecLinker(classImpl = @ClassImpl(singleton = "getInstance"))
+        @DsonCodecLinker(props = @DsonSerializable(singleton = "getInstance"))
         private JoinMain<?> joinMain;
-        @CodecLinker(classImpl = @ClassImpl(singleton = "getInstance"))
+        @DsonCodecLinker(props = @DsonSerializable(singleton = "getInstance"))
         private JoinSelector<?> joinSelector;
-        @CodecLinker(classImpl = @ClassImpl)  // selectorN有状态，不能单例
+        @DsonCodecLinker(props = @DsonSerializable)  // selectorN有状态，不能单例
         private JoinSelectorN<?> joinSelectorN;
-        @CodecLinker(classImpl = @ClassImpl(singleton = "getInstance"))
+        @DsonCodecLinker(props = @DsonSerializable(singleton = "getInstance"))
         private JoinSequence<?> joinSequence;
-        @CodecLinker(classImpl = @ClassImpl(singleton = "getInstance"))
+        @DsonCodecLinker(props = @DsonSerializable(singleton = "getInstance"))
         private JoinWaitAll<?> joinWaitAll;
     }
 
-    @CodecLinkerGroup(outputPackage = "cn.wjybxx.btree.decorator")
+    @DsonCodecLinkerGroup(outputPackage = "cn.wjybxx.btreecodec.decorator")
     private static class DecoratorLinker {
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private AlwaysCheckGuard<?> alwaysCheckGuard;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private AlwaysFail<?> alwaysFail;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private AlwaysRunning<?> alwaysRunning;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private AlwaysSuccess<?> alwaysSuccess;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private Inverter<?> inverter;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private OnlyOnce<?> onlyOnce;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private Repeat<?> repeat;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private SubtreeRef<?> subtreeRef;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private UntilCond<?> untilCond;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private UntilFail<?> untilFail;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private UntilSuccess<?> untilSuccess;
     }
 
-    @CodecLinkerGroup(outputPackage = "cn.wjybxx.btree.leaf")
+    @DsonCodecLinkerGroup(outputPackage = "cn.wjybxx.btreecodec.leaf")
     private static class LeafLinker {
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private Failure<?> failure;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private Running<?> running;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private SimpleRandom<?> simpleRandom;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private Success<?> success;
-        @CodecLinker(classImpl = @ClassImpl)
+        @DsonCodecLinker(props = @DsonSerializable)
         private WaitFrame<?> waitFrame;
     }
 }

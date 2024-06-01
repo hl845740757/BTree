@@ -281,10 +281,6 @@ public class StateMachineTask<T> extends Decorator<T> {
         if (tempNextState != null && tempNextState.getControlData() == null) {
             tempNextState.setControlData(ChangeStateArgs.PLAIN);
         }
-        if (child != null) {
-            logger.warn("The child of StateMachine is not null");
-            removeChild(0);
-        }
     }
 
     @Override
