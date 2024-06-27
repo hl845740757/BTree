@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Wjybxx.Commons;
 using Wjybxx.Commons.Collections;
+using Wjybxx.Commons.Sequential;
 
 #pragma warning disable CS1591
 
@@ -46,6 +47,7 @@ public class StateMachineTask<T> : Decorator<T> where T : class
     [NonSerialized] private Task<T>? tempNextState;
     [NonSerialized] private IDeque<Task<T>> undoQueue = EMPTY_QUEUE;
     [NonSerialized] private IDeque<Task<T>> redoQueue = EMPTY_QUEUE;
+    [NonSerialized] private readonly UniCancelTokenSource stateCancelToken = new UniCancelTokenSource();
 
     [NonSerialized] private StateMachineListener<T>? listener;
     [NonSerialized] private StateMachineHandler<T>? stateMachineHandler;
@@ -329,7 +331,8 @@ public class StateMachineTask<T> : Decorator<T> where T : class
                 NotifyChangeState(curState, nextState);
 
                 curState = nextState;
-                curState.CancelToken = cancelToken.NewChild(); // state可独立取消
+                cancelToken.ThenTransferTo(stateCancelToken);
+                curState.CancelToken = stateCancelToken; // state可独立取消 -- 可复用cancelToken
                 curState.ControlData = null;
                 if (child != null) {
                     SetChild(0, curState);
@@ -347,8 +350,8 @@ public class StateMachineTask<T> : Decorator<T> where T : class
 
     protected override void OnChildCompleted(Task<T> child) {
         Debug.Assert(this.child == child);
-        cancelToken.Unregister(child.CancelToken); // 删除分配的子token
-        child.CancelToken.Reset();
+        cancelToken.Unregister(stateCancelToken);
+        stateCancelToken.Reset();
         child.CancelToken = null;
 
         if (tempNextState == null) {

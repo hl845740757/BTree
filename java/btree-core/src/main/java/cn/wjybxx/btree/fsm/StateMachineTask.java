@@ -23,6 +23,7 @@ import cn.wjybxx.btree.Decorator;
 import cn.wjybxx.btree.Task;
 import cn.wjybxx.btree.TaskStatus;
 import cn.wjybxx.btree.branch.Join;
+import cn.wjybxx.sequential.UniCancelTokenSource;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -51,6 +52,7 @@ public class StateMachineTask<T> extends Decorator<T> {
     private transient Task<T> tempNextState;
     private transient Deque<Task<T>> undoQueue = EmptyDequeue.getInstance();
     private transient Deque<Task<T>> redoQueue = EmptyDequeue.getInstance();
+    private transient final UniCancelTokenSource stateCancelToken = new UniCancelTokenSource();
 
     private transient StateMachineListener<T> listener;
     private transient StateMachineHandler<T> stateMachineHandler;
@@ -334,7 +336,8 @@ public class StateMachineTask<T> extends Decorator<T> {
                 notifyChangeState(curState, nextState);
 
                 curState = nextState;
-                curState.setCancelToken(cancelToken.newChild()); // state可独立取消
+                cancelToken.thenTransferTo(stateCancelToken);
+                curState.setCancelToken(cancelToken); // state可独立取消 -- 可复用cancelToken
                 curState.setControlData(null);
                 if (child != null) {
                     setChild(0, curState);
@@ -353,8 +356,8 @@ public class StateMachineTask<T> extends Decorator<T> {
     @Override
     protected void onChildCompleted(Task<T> child) {
         assert this.child == child;
-        cancelToken.unregister(child.getCancelToken()); // 删除分配的子token
-        child.getCancelToken().reset();
+        cancelToken.unregister(stateCancelToken);
+        stateCancelToken.reset();
         child.setCancelToken(null);
 
         if (tempNextState == null) {
