@@ -52,7 +52,7 @@ public class StateMachineTask<T> extends Decorator<T> {
     private transient Task<T> tempNextState;
     private transient Deque<Task<T>> undoQueue = EmptyDequeue.getInstance();
     private transient Deque<Task<T>> redoQueue = EmptyDequeue.getInstance();
-    private transient final UniCancelTokenSource stateCancelToken = new UniCancelTokenSource();
+    private transient UniCancelTokenSource childCancelToken;
 
     private transient StateMachineListener<T> listener;
     private transient StateMachineHandler<T> stateMachineHandler;
@@ -268,6 +268,7 @@ public class StateMachineTask<T> extends Decorator<T> {
     @Override
     protected void beforeEnter() {
         super.beforeEnter();
+        childCancelToken = cancelToken.newChild();
         if (stateMachineHandler != null) {
             stateMachineHandler.beforeEnter(this);
         }
@@ -282,6 +283,9 @@ public class StateMachineTask<T> extends Decorator<T> {
         }
         if (tempNextState != null && tempNextState.getControlData() == null) {
             tempNextState.setControlData(ChangeStateArgs.PLAIN);
+        }
+        if (child != null) {
+            child.setCancelToken(childCancelToken);
         }
     }
 
@@ -336,7 +340,7 @@ public class StateMachineTask<T> extends Decorator<T> {
                 notifyChangeState(curState, nextState);
 
                 curState = nextState;
-                cancelToken.thenTransferTo(stateCancelToken);
+                cancelToken.thenTransferTo(childCancelToken);
                 curState.setCancelToken(cancelToken); // state可独立取消 -- 可复用cancelToken
                 curState.setControlData(null);
                 if (child != null) {
@@ -356,8 +360,8 @@ public class StateMachineTask<T> extends Decorator<T> {
     @Override
     protected void onChildCompleted(Task<T> child) {
         assert this.child == child;
-        cancelToken.unregister(stateCancelToken);
-        stateCancelToken.reset();
+        cancelToken.unregister(childCancelToken);
+        childCancelToken.reset();
         child.setCancelToken(null);
 
         if (tempNextState == null) {

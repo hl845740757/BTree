@@ -47,7 +47,9 @@ public class StateMachineTask<T> : Decorator<T> where T : class
     [NonSerialized] private Task<T>? tempNextState;
     [NonSerialized] private IDeque<Task<T>> undoQueue = EMPTY_QUEUE;
     [NonSerialized] private IDeque<Task<T>> redoQueue = EMPTY_QUEUE;
-    [NonSerialized] private readonly UniCancelTokenSource stateCancelToken = new UniCancelTokenSource();
+#nullable disable
+    [NonSerialized] private UniCancelTokenSource childCancelToken;
+#nullable enable
 
     [NonSerialized] private StateMachineListener<T>? listener;
     [NonSerialized] private StateMachineHandler<T>? stateMachineHandler;
@@ -262,6 +264,7 @@ public class StateMachineTask<T> : Decorator<T> where T : class
 
     protected override void BeforeEnter() {
         base.BeforeEnter();
+        childCancelToken = cancelToken.NewChild();
         if (stateMachineHandler != null) {
             stateMachineHandler.BeforeEnter(this);
         }
@@ -276,6 +279,9 @@ public class StateMachineTask<T> : Decorator<T> where T : class
         }
         if (tempNextState != null && tempNextState.ControlData == null) {
             tempNextState.ControlData = ChangeStateArgs.PLAIN;
+        }
+        if (child != null) {
+            child.CancelToken = childCancelToken;
         }
     }
 
@@ -331,8 +337,8 @@ public class StateMachineTask<T> : Decorator<T> where T : class
                 NotifyChangeState(curState, nextState);
 
                 curState = nextState;
-                cancelToken.ThenTransferTo(stateCancelToken);
-                curState.CancelToken = stateCancelToken; // state可独立取消 -- 可复用cancelToken
+                cancelToken.ThenTransferTo(childCancelToken);
+                curState.CancelToken = childCancelToken; // state可独立取消 -- 可复用cancelToken
                 curState.ControlData = null;
                 if (child != null) {
                     SetChild(0, curState);
@@ -350,8 +356,8 @@ public class StateMachineTask<T> : Decorator<T> where T : class
 
     protected override void OnChildCompleted(Task<T> child) {
         Debug.Assert(this.child == child);
-        cancelToken.Unregister(stateCancelToken);
-        stateCancelToken.Reset();
+        cancelToken.Unregister(childCancelToken);
+        childCancelToken.Reset();
         child.CancelToken = null;
 
         if (tempNextState == null) {
